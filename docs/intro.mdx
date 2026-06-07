@@ -1,0 +1,65 @@
+---
+sidebar_position: 1
+---
+
+# /data/src Atlas
+
+This site documents the current project landscape under `/data/src`.
+
+It is intentionally broader than a single project README. The goal is to make the workspace legible at three levels:
+
+1. **Portfolio scope**: what kinds of work live here and how they relate.
+2. **Per-project scope**: what each repository or working directory appears to do.
+3. **Status clarity**: which things look like products, which are experiments, which are infrastructure, and which should be treated as restricted or archival.
+
+## Top-level structure
+
+- `products/`: the commercial or product-shaped work.
+- `experiments/`: exploratory apps, framework spikes, and prototype interfaces.
+- `infra/`: operational tooling, migration scripts, and publishing pipelines.
+- `private/`: restricted research or security-adjacent material; document carefully and share selectively.
+- `archive/`: superseded prototypes kept for historical context.
+- `vendor/`: third-party code vendored into the tree.
+
+## Strongest active clusters
+
+### MATCHES
+
+The flagship RAGBAZ product — an autonomous cinematic battle simulation engine combining procedural animation, tactical AI, emotional modeling, and cinematic direction in a deterministic simulation loop. Browser-based with headless Node.js and Blender export pipelines.
+
+### Articulate
+
+The most substantial product family in the tree. Includes a headless WordPress commerce platform (`universe`), hardened WordPress runtime (`gatekeeper`, `wp-sidecar`), tenant provisioning (`ragbaz-provision`), mail infrastructure (`mailstack`), and related operational tooling.
+
+### DetCordon
+
+A distinct security track focused on containment-first malware observation — a Rust-based sandbox that taps HTTP traffic in DetectionOnly mode, lets malware execute freely for observation, and securely ships samples to an offline analyst sink.
+
+### Frog — Workspace Coordination
+
+A Python-based CLI and MCP server (`ragbaz-frog`) managing tasks, locks, repos, and events across the entire workspace via a SQLite database (`AGENTS.db`). Used as the coordination backbone for all multi-agent work.
+
+### Typesetr — Print Typesetting
+
+A Python/Typst pipeline converting Word documents into print-ready PDFs with full bleed, crop marks, and professional book front matter.
+
+### Shipwrecks.se
+
+A niche vertical application with enough app surface to become a real user-facing data product if deployed and tightened.
+
+### MailGuard / MailRoute
+
+Email security and management tooling with Proton Bridge integration, security hardening, and monetization readiness.
+
+## How to read the docs
+
+Use the sidebar to move by category:
+
+- **Products** for the things most likely to become sellable offers.
+- **Experiments** for exploratory work and UI or architecture spikes.
+- **Infrastructure** for host, packaging, publishing, and migration tooling.
+- **Private** for restricted material that should not be treated as public product documentation.
+- **Archive** for superseded codebases.
+- **Vendor** for third-party code checked into the repo.
+
+Where a project already had a README, these docs summarize and reframe it. Where a project was poorly documented, the page is generated from the file layout, package manifests, and neighboring project context.

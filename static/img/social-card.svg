@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0908"/>
+      <stop offset="50%" stop-color="#121110"/>
+      <stop offset="100%" stop-color="#181716"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f3c46c" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#f3c46c" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ember" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f3c46c"/>
+      <stop offset="100%" stop-color="#d97742"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <!-- Subtle glow -->
+  <rect width="1200" height="675" fill="url(#glow)"/>
+  <!-- Grid pattern -->
+  <g stroke="#222" stroke-width="0.5" opacity="0.3">
+    <line x1="0" y1="0" x2="0" y2="675"/><line x1="100" y1="0" x2="100" y2="675"/>
+    <line x1="200" y1="0" x2="200" y2="675"/><line x1="300" y1="0" x2="300" y2="675"/>
+    <line x1="400" y1="0" x2="400" y2="675"/><line x1="500" y1="0" x2="500" y2="675"/>
+    <line x1="600" y1="0" x2="600" y2="675"/><line x1="700" y1="0" x2="700" y2="675"/>
+    <line x1="800" y1="0" x2="800" y2="675"/><line x1="900" y1="0" x2="900" y2="675"/>
+    <line x1="1000" y1="0" x2="1000" y2="675"/><line x1="1100" y1="0" x2="1100" y2="675"/>
+    <line x1="0" y1="0" x2="1200" y2="0"/><line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="200" x2="1200" y2="200"/><line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="400" x2="1200" y2="400"/><line x1="0" y1="500" x2="1200" y2="500"/>
+    <line x1="0" y1="600" x2="1200" y2="600"/>
+  </g>
+  <!-- Hexagon brand mark (right side) -->
+  <g transform="translate(920, 337)">
+    <polygon points="0,-120 104,-60 104,60 0,120 -104,60 -104,-60"
+             fill="none" stroke="#f3c46c" stroke-width="3" stroke-linejoin="round" opacity="0.3"/>
+    <polygon points="0,-80 69,-40 69,40 0,80 -69,40 -69,-40"
+             fill="none" stroke="#f3c46c" stroke-width="2" stroke-linejoin="round" opacity="0.5"/>
+    <circle cx="0" cy="0" r="24" fill="url(#ember)" opacity="0.8"/>
+    <circle cx="-4" cy="-4" r="8" fill="#ffd28c" opacity="0.4"/>
+  </g>
+  <!-- Tagline -->
+  <text x="80" y="200" font-family="'Intel One Mono', 'Courier New', monospace" font-size="22" fill="#7ab8ff" letter-spacing="3" text-transform="uppercase">/data/src</text>
+  <!-- RAGBAZ wordmark -->
+  <text x="80" y="290" font-family="'Intel One Mono', 'Courier New', monospace" font-size="72" font-weight="700" fill="#f3c46c" letter-spacing="6">RAGBAZ</text>
+  <text x="80" y="350" font-family="'Intel One Mono', 'Courier New', monospace" font-size="36" font-weight="400" fill="#dbd5cb" letter-spacing="4">ATLAS</text>
+  <!-- Description -->
+  <text x="80" y="430" font-family="'Noto Sans', sans-serif" font-size="18" fill="#9e9487">
+    <tspan x="80" dy="0">Documentation for the products, experiments,</tspan>
+    <tspan x="80" dy="30">infrastructure, and research under /data/src</tspan>
+  </text>
+  <!-- Footer -->
+  <text x="80" y="600" font-family="'Intel One Mono', 'Courier New', monospace" font-size="13" fill="#5a5855">doc.ragbaz.xyz</text>
+  <text x="80" y="620" font-family="'Intel One Mono', 'Courier New', monospace" font-size="11" fill="#4a4744">RAGBAZ · Workspace Atlas</text>
+  <!-- Bottom accent line -->
+  <rect x="80" y="635" width="300" height="2" fill="#f3c46c" opacity="0.5"/>
+</svg>

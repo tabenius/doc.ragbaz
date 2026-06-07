@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#181716"/>
+      <stop offset="100%" stop-color="#0f0f0e"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="8" fill="url(#bg)"/>
+  <!-- Hexagon -->
+  <polygon points="32,8 54,20 54,44 32,56 10,44 10,20"
+           fill="none" stroke="#f3c46c" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inner ember circle -->
+  <circle cx="32" cy="32" r="8" fill="#f3c46c"/>
+  <!-- Core highlight -->
+  <circle cx="30" cy="30" r="3" fill="#ffd28c" opacity="0.6"/>
+</svg>

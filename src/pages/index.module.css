@@ -1,0 +1,74 @@
+.page {
+  padding: clamp(4rem, 8vw, 7rem) 0 clamp(5rem, 10vw, 9rem);
+}
+
+.statement {
+  max-width: 68ch;
+}
+
+/* ── Wordmark ─────────────────────────────────────────────── */
+.wordmark {
+  margin: 0 0 clamp(3rem, 6vw, 5rem);
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.1vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--orange-3);
+}
+
+/* ── Paragraph block ──────────────────────────────────────── */
+.para {
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--orange-1);
+  opacity: 0.7;
+}
+
+.body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.72;
+  color: var(--fg-2);
+}
+
+/* Farsi inline — right-to-left, slightly larger for optical balance */
+.farsi {
+  font-family: var(--font-sans);
+  font-size: 1.1em;
+  direction: rtl;
+  unicode-bidi: embed;
+  color: var(--fg-1);
+}
+
+/* ── Coda ─────────────────────────────────────────────────── */
+.coda {
+  margin-top: clamp(3rem, 6vw, 5rem);
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-3);
+}
+
+.atlasLink {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--blue-1);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.atlasLink:hover {
+  color: var(--orange-1);
+  text-decoration: none;
+}

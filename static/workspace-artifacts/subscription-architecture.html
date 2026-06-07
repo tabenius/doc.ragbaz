@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subscription Service Architecture - RAGBAZ</title>
+  <link rel="stylesheet" href="ragbaz-docs.css">
+</head>
+<body>
+  <div class="rb-shell">
+    <aside class="rb-sidebar">
+      <div class="rb-brand">
+        <p class="rb-wordmark">RAGBAZ</p>
+        <p class="rb-kicker">rendered artifact / subscription-architecture.md</p>
+      </div>
+      <nav class="rb-nav">
+        <a href="#subscription-service-architecture">Subscription Service Architecture</a>
+<a href="#1-product-layer-overview">1. Product Layer Overview</a>
+<a href="#2-subscription-onboarding-flow">2. Subscription Onboarding Flow</a>
+<a href="#3-mail-processing-pipeline">3. Mail Processing Pipeline</a>
+<a href="#4-multi-tenant-deployment-topology">4. Multi-Tenant Deployment Topology</a>
+<a href="#5-tenant-lifecycle-state-machine">5. Tenant Lifecycle State Machine</a>
+<a href="#6-api-surface-integration-map">6. API Surface &amp; Integration Map</a>
+<a href="#7-subscription-tier-feature-matrix">7. Subscription Tier Feature Matrix</a>
+      </nav>
+    </aside>
+    <main class="rb-main">
+      <section class="rb-hero">
+        <p class="rb-eyebrow">workspace artifact</p>
+        <h1>Subscription Service Architecture</h1>
+        <div class="rb-meta">
+          <span class="rb-pill">subscription-architecture.md</span>
+          <span class="rb-pill">2026-06-05</span>
+        </div>
+      </section>
+      <article class="rb-article">
+<h1 id="subscription-service-architecture">Subscription Service Architecture</h1>
+<p>Component diagrams for arranging the portfolio as a managed subscription platform.</p>
+<hr>
+<h2 id="1-product-layer-overview">1. Product Layer Overview</h2>
+<p>Top-level block diagram — the three coherent lines and how they relate.</p>
+<pre class="mermaid">block-beta
+  columns 3
+
+  block:commerce[&quot;Articulate Commerce Cloud&quot;]:2
+    universe[&quot;universe\n(Next.js storefront)&quot;]
+    gatekeeper[&quot;gatekeeper\n(hardened WP ingress)&quot;]
+    wpsidecar[&quot;wp-sidecar\n(WP edge runtime)&quot;]
+    mailstack[&quot;mailstack\n(transactional mail)&quot;]
+  end
+
+  block:mail[&quot;MailGuard\n(mail intelligence)&quot;]:1
+    mailguard_be[&quot;mailguard\n(Python backend)&quot;]
+    mailguard_ui[&quot;mailguard-ui\n(Next.js console)&quot;]
+  end
+
+  block:infra[&quot;Shared Infrastructure&quot;]:3
+    registry[&quot;registry\n(Docker artifacts)&quot;]
+    litestream[&quot;Litestream\n(DB replication)&quot;]
+    cloudflare[&quot;Cloudflare\n(edge / Workers)&quot;]
+  end
+
+  universe --&gt; gatekeeper
+  gatekeeper --&gt; wpsidecar
+  universe --&gt; mailstack
+  mailstack --&gt; mailguard_be
+  mailguard_be --&gt; mailguard_ui
+  registry --&gt; mailguard_be
+  registry --&gt; mailguard_ui
+  litestream --&gt; mailguard_be
+  cloudflare --&gt; universe
+  cloudflare --&gt; mailstack</pre>
+<hr>
+<h2 id="2-subscription-onboarding-flow">2. Subscription Onboarding Flow</h2>
+<p>How a new subscriber goes from landing page to a live MailGuard instance.</p>
+<pre class="mermaid">flowchart TD
+    A([Visitor lands on storefront]) --&gt; B[Browse pricing tiers\nSolo / Team / Operator]
+    B --&gt; C{Already has account?}
+    C -- No --&gt; D[Register via WP\nOAuth or local]
+    C -- Yes --&gt; E[Log in]
+    D --&gt; E
+    E --&gt; F[Select plan + add-ons\ne.g. Proton Bridge plugin]
+    F --&gt; G[Stripe Checkout]
+    G -- Payment failed --&gt; F
+    G -- Payment succeeded --&gt; H[WooCommerce order webhook fires]
+    H --&gt; I[Control plane: create tenant record\nin universe admin DB]
+    I --&gt; J[Provision tenant secrets\nauth token + backup key]
+    J --&gt; K[Launch MailGuard instance\ndocker compose -f docker-compose.hub.yml up]
+    K --&gt; L[Health check passes\nGET /healthz 200]
+    L --&gt; M[Onboarding wizard unlocked\nin mailguard-ui]
+    M --&gt; N[First source setup\nAdd IMAP source]
+    N --&gt; O([Subscriber active — mail flowing])</pre>
+<hr>
+<h2 id="3-mail-processing-pipeline">3. Mail Processing Pipeline</h2>
+<p>How a single inbound message travels through MailGuard.</p>
+<pre class="mermaid">flowchart LR
+    subgraph sources[&quot;Mail Sources&quot;]
+        proton[&quot;Proton Bridge\nIMAP :1143&quot;]
+        dovecot[&quot;Dovecot / IMAP\n:993&quot;]
+        smtp_in[&quot;SMTP Proxy\n:2025&quot;]
+    end
+
+    subgraph core[&quot;mailguard core&quot;]
+        poller[&quot;IMAP Poller\naioimaplib&quot;]
+        ingest[&quot;Message Ingest\nnormalise + fingerprint&quot;]
+        rules[&quot;Rule Engine\nmroute DSL\nRust validator&quot;]
+        reputation[&quot;Sender Reputation\nBayesian scorer&quot;]
+        analytics[&quot;Analytics\ncalibration / lift / Brier&quot;]
+        db[(&quot;SQLite\n/data/mailguard.db&quot;)]
+    end
+
+    subgraph actions[&quot;Rule Actions&quot;]
+        move[&quot;move / label / tag&quot;]
+        junk[&quot;junk / not_junk&quot;]
+        encrypt[&quot;GPG encrypt\n/ quarantine&quot;]
+        archive[&quot;attachment archive\nfile:// tcp:// unix://&quot;]
+        webhook[&quot;webhook\nretry + audit&quot;]
+        handoff[&quot;handoff\nAI agent via MCP&quot;]
+    end
+
+    subgraph access[&quot;Access Surfaces&quot;]
+        graphql[&quot;GraphQL :4000&quot;]
+        rest[&quot;REST /api/*&quot;]
+        mcp[&quot;MCP stdio&quot;]
+        sse[&quot;SSE streams\nmail-log / pipeline-steps&quot;]
+        ws_tui[&quot;WebSocket TUI\n/ws/tui&quot;]
+    end
+
+    proton --&gt; poller
+    dovecot --&gt; poller
+    smtp_in --&gt; poller
+    poller --&gt; ingest
+    ingest --&gt; rules
+    reputation --&gt; rules
+    rules --&gt; move
+    rules --&gt; junk
+    rules --&gt; encrypt
+    rules --&gt; archive
+    rules --&gt; webhook
+    rules --&gt; handoff
+    rules --&gt; analytics
+    move --&gt; db
+    junk --&gt; db
+    encrypt --&gt; db
+    analytics --&gt; db
+    db --&gt; graphql
+    db --&gt; rest
+    db --&gt; mcp
+    db --&gt; sse
+    db --&gt; ws_tui</pre>
+<hr>
+<h2 id="4-multi-tenant-deployment-topology">4. Multi-Tenant Deployment Topology</h2>
+<p>One control plane, N per-tenant MailGuard stacks.</p>
+<pre class="mermaid">block-beta
+  columns 4
+
+  block:cp[&quot;Control Plane (shared)&quot;]:4
+    universe_cp[&quot;universe\nstorefront + admin&quot;]
+    stripe[&quot;Stripe\nbilling&quot;]
+    gk[&quot;gatekeeper\nWP ingress&quot;]
+    reg[&quot;registry\nghcr.io&quot;]
+  end
+
+  space:4
+
+  block:t1[&quot;Tenant A — Solo&quot;]:1
+    mg1[&quot;mailguard :4000&quot;]
+    ui1[&quot;mailguard-ui :3000&quot;]
+    db1[(&quot;SQLite\n+ Litestream&quot;)]
+  end
+
+  block:t2[&quot;Tenant B — Team + Proton&quot;]:2
+    proton2[&quot;proton-bridge\n:1143 / :1025&quot;]
+    mg2[&quot;mailguard :4000&quot;]
+    ui2[&quot;mailguard-ui :3000&quot;]
+    db2[(&quot;SQLite\n+ Litestream&quot;)]
+    sa2[&quot;SpamAssassin&quot;]
+  end
+
+  block:t3[&quot;Tenant C — Operator&quot;]:1
+    mg3[&quot;mailguard :4000&quot;]
+    ui3[&quot;mailguard-ui :3000&quot;]
+    db3[(&quot;SQLite\n+ Litestream&quot;)]
+    discord3[&quot;Discord bot&quot;]
+  end
+
+  universe_cp --&gt; t1
+  universe_cp --&gt; t2
+  universe_cp --&gt; t3
+  reg --&gt; mg1
+  reg --&gt; mg2
+  reg --&gt; mg3
+  stripe --&gt; universe_cp</pre>
+<hr>
+<h2 id="5-tenant-lifecycle-state-machine">5. Tenant Lifecycle State Machine</h2>
+<p>State transitions for a single subscription from creation to termination.</p>
+<pre class="mermaid">stateDiagram-v2
+    [*] --&gt; Checkout : visitor selects plan
+
+    Checkout --&gt; Provisioning : Stripe payment_intent.succeeded
+    Checkout --&gt; [*] : payment failed / abandoned
+
+    Provisioning --&gt; Active : health check passes + onboarding complete
+    Provisioning --&gt; ProvisioningFailed : timeout or image pull error
+
+    ProvisioningFailed --&gt; Provisioning : operator retries
+
+    Active --&gt; Suspended : payment missed — grace period starts
+    Active --&gt; Upgrading : plan change or add-on purchase
+    Active --&gt; Cancelling : subscriber requests cancellation
+
+    Upgrading --&gt; Active : new stack healthy
+    Upgrading --&gt; Active : config hot-reload — no restart
+
+    Suspended --&gt; Active : payment recovered within grace period
+    Suspended --&gt; Terminating : grace period expired
+
+    Cancelling --&gt; Terminating : data export window elapsed
+
+    Terminating --&gt; [*] : containers stopped, volumes archived, tenant record closed</pre>
+<hr>
+<h2 id="6-api-surface-integration-map">6. API Surface &amp; Integration Map</h2>
+<p>How operators, AI agents, and external services connect to a running MailGuard instance.</p>
+<pre class="mermaid">flowchart TB
+    subgraph operators[&quot;Human Operators&quot;]
+        browser[&quot;Browser\nmailguard-ui :3000&quot;]
+        terminal[&quot;Terminal TUI\nmailguard-tui&quot;]
+        makefile[&quot;Makefile\nmake tui / smoke / token&quot;]
+    end
+
+    subgraph agents[&quot;AI Agents &amp; MCP Clients&quot;]
+        frog[&quot;ragbaz-frog\nagent orchestrator&quot;]
+        claude[&quot;Claude / MCP client&quot;]
+        discord_bot[&quot;Discord bot\nnatural-language ops&quot;]
+    end
+
+    subgraph mailguard_api[&quot;mailguard :4000&quot;]
+        gql[&quot;/graphql&quot;]
+        rest_api[&quot;/api/*&quot;]
+        mcp_stdio[&quot;MCP stdio&quot;]
+        sse_log[&quot;/sse/mail-log\n/sse/pipeline-steps&quot;]
+        ws_imap[&quot;/ws/imap&quot;]
+        ws_tui_ep[&quot;/ws/tui&quot;]
+    end
+
+    subgraph external[&quot;External Integrations&quot;]
+        webhooks[&quot;Webhooks\nretry + audit log&quot;]
+        spamd[&quot;SpamAssassin\noptional profile&quot;]
+        litestream_sftp[&quot;Litestream SFTP\ncontinuous DB replica&quot;]
+        attachment_sink[&quot;Attachment sink\nAV / compliance / forensics&quot;]
+    end
+
+    browser --&gt; gql
+    browser --&gt; ws_imap
+    browser --&gt; ws_tui_ep
+    terminal --&gt; mcp_stdio
+    makefile --&gt; rest_api
+    frog --&gt; mcp_stdio
+    claude --&gt; mcp_stdio
+    discord_bot --&gt; gql
+    gql --&gt; webhooks
+    gql --&gt; spamd
+    gql --&gt; litestream_sftp
+    gql --&gt; attachment_sink
+    sse_log -. live events .-&gt; browser
+    sse_log -. live events .-&gt; frog</pre>
+<hr>
+<h2 id="7-subscription-tier-feature-matrix">7. Subscription Tier Feature Matrix</h2>
+<p>Which MailGuard capabilities unlock at each plan.</p>
+<pre class="mermaid">block-beta
+  columns 4
+
+  tier_label[&quot;Feature&quot;]:1
+  solo[&quot;Solo&quot;]:1
+  team[&quot;Team&quot;]:1
+  operator[&quot;Operator&quot;]:1
+
+  f1[&quot;IMAP poller + SMTP proxy&quot;]:1
+  s1[&quot;yes&quot;]:1
+  t1[&quot;yes&quot;]:1
+  o1[&quot;yes&quot;]:1
+
+  f2[&quot;Rule engine — mroute DSL&quot;]:1
+  s2[&quot;yes&quot;]:1
+  t2[&quot;yes&quot;]:1
+  o2[&quot;yes&quot;]:1
+
+  f3[&quot;Sender reputation + analytics&quot;]:1
+  s3[&quot;yes&quot;]:1
+  t3[&quot;yes&quot;]:1
+  o3[&quot;yes&quot;]:1
+
+  f4[&quot;Web UI (mailguard-ui)&quot;]:1
+  s4[&quot;yes&quot;]:1
+  t4[&quot;yes&quot;]:1
+  o4[&quot;yes&quot;]:1
+
+  f5[&quot;Litestream SFTP backup&quot;]:1
+  s5[&quot;no&quot;]:1
+  t5[&quot;yes&quot;]:1
+  o5[&quot;yes&quot;]:1
+
+  f6[&quot;Proton Bridge plugin&quot;]:1
+  s6[&quot;add-on&quot;]:1
+  t6[&quot;add-on&quot;]:1
+  o6[&quot;included&quot;]:1
+
+  f7[&quot;SpamAssassin integration&quot;]:1
+  s7[&quot;no&quot;]:1
+  t7[&quot;yes&quot;]:1
+  o7[&quot;yes&quot;]:1
+
+  f8[&quot;Discord bot&quot;]:1
+  s8[&quot;no&quot;]:1
+  t8[&quot;no&quot;]:1
+  o8[&quot;yes&quot;]:1
+
+  f9[&quot;MCP / AI agent surface&quot;]:1
+  s9[&quot;no&quot;]:1
+  t9[&quot;yes&quot;]:1
+  o9[&quot;yes&quot;]:1
+
+  f10[&quot;IMAP source limit&quot;]:1
+  s10[&quot;1&quot;]:1
+  t10[&quot;5&quot;]:1
+  o10[&quot;unlimited&quot;]:1</pre>
+      </article>
+      <footer class="rb-footer">generated by docs/render-markdown.mjs</footer>
+    </main>
+  </div>
+  <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"; mermaid.initialize({ startOnLoad: true, theme: "dark" });</script>
+</body>
+</html>

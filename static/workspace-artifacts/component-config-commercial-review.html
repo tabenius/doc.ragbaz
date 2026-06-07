@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Component Configuration Commercial Review - RAGBAZ</title>
+  <link rel="stylesheet" href="ragbaz-docs.css">
+</head>
+<body>
+  <div class="rb-shell">
+    <aside class="rb-sidebar">
+      <div class="rb-brand">
+        <p class="rb-wordmark">RAGBAZ</p>
+        <p class="rb-kicker">rendered artifact / component-config-commercial-review.md</p>
+      </div>
+      <nav class="rb-nav">
+        <a href="#component-configuration-commercial-review">Component Configuration Commercial Review</a>
+<a href="#method">Method</a>
+<a href="#executive-inventory">Executive Inventory</a>
+<a href="#configuration-surfaces-observed">Configuration Surfaces Observed</a>
+<a href="#existing-interaction-patterns">Existing Interaction Patterns</a>
+<a href="#immediate-gaps">Immediate Gaps</a>
+<a href="#first-package-candidates">First Package Candidates</a>
+<a href="#inventory-conclusion">Inventory Conclusion</a>
+<a href="#buyer-personas-and-jobs-to-be-done">Buyer Personas And Jobs-To-Be-Done</a>
+<a href="#sellable-configuration-packages">Sellable Configuration Packages</a>
+<a href="#value-and-readiness-matrix">Value And Readiness Matrix</a>
+<a href="#component-discovery-manifest">Component Discovery Manifest</a>
+<a href="#capability-taxonomy">Capability Taxonomy</a>
+<a href="#runtime-registry-review">Runtime Registry Review</a>
+<a href="#inter-component-interaction-contracts">Inter-Component Interaction Contracts</a>
+<a href="#auth-consent-and-tenant-boundaries">Auth, Consent, And Tenant Boundaries</a>
+<a href="#cross-component-demo-flows">Cross-Component Demo Flows</a>
+<a href="#verification-gates">Verification Gates</a>
+<a href="#sku-tier-and-pricing-review">SKU, Tier, And Pricing Review</a>
+<a href="#configuration-ux-review">Configuration UX Review</a>
+<a href="#observability-review">Observability Review</a>
+<a href="#docs-and-sales-readiness">Docs And Sales Readiness</a>
+<a href="#adoption-roadmap">Adoption Roadmap</a>
+      </nav>
+    </aside>
+    <main class="rb-main">
+      <section class="rb-hero">
+        <p class="rb-eyebrow">workspace artifact</p>
+        <h1>Component Configuration Commercial Review</h1>
+        <div class="rb-meta">
+          <span class="rb-pill">component-config-commercial-review.md</span>
+          <span class="rb-pill">2026-06-05</span>
+        </div>
+      </section>
+      <article class="rb-article">
+<h1 id="component-configuration-commercial-review">Component Configuration Commercial Review</h1>
+<p>Review started from <code>frog</code> task <code>component-config-commercial-review</code>.</p>
+<p>The aim is to turn the workspace's components into sellable configurations that customers can buy, enable, compose, and let discover/interact with each other without custom one-off wiring.</p>
+<h2 id="method">Method</h2>
+<ul><li>Used <code>/data/src/AGENTS.md</code> as the workspace policy.</li><li>Used <code>frog</code> for task state and locks.</li><li>Sampled current repo and unit metadata from <code>frog</code>.</li><li>Read top-level product READMEs and key manifests for the main component families.</li><li>Treated vendored and archived projects as out of scope except where they affect package boundaries.</li></ul>
+<p><code>frog --json repo list</code> did not return promptly during this pass, so this inventory combines targeted <code>frog</code> lookups with filesystem manifests and README sampling. That should be refreshed once the repo-list command is made fast enough for routine review use.</p>
+<h2 id="executive-inventory">Executive Inventory</h2>
+<div class="rb-table-wrap"><table><thead><tr><th>Component family</th><th>Core paths</th><th>Current role</th><th>Sellable angle</th><th>Current config surface</th><th>Interaction hints</th><th>Readiness</th></tr></thead><tbody><tr><td>Articulate commerce</td><td><code>products/articulate/universe/main</code>, <code>products/articulate/storefront-xtas</code></td><td>Headless WordPress storefront, admin, payments, Cloudflare deployment</td><td>&quot;Keep WordPress, sell courses/events/downloads on a fast storefront&quot;</td><td><code>.env</code>, setup wizard, WordPress GraphQL, Stripe, Cloudflare, admin UI</td><td>WordPress GraphQL, Stripe checkout, Cloudflare KV/R2/S3, plugin package</td><td>High for demo, medium for repeatable packaging</td></tr><tr><td>Gatekeeper secure WordPress</td><td><code>products/articulate/gatekeeper</code></td><td>Rust gateway in front of WordPress, hardened uploads, GraphQL safety, auth, metrics</td><td>Managed secure WordPress runtime / hardened ingress</td><td><code>.env.compose</code>, Rust CLI flags, Docker Compose, systemd, reverse proxy configs</td><td>Upload API, webhook API, WordPress REST/GraphQL, Prometheus metrics, client cert auth</td><td>High technical depth, needs simplified customer package</td></tr><tr><td>Provisioning control plane</td><td><code>products/articulate/ragbaz-provision</code></td><td>Tenant lifecycle, DNS, mail users, secrets, Docker Compose, GraphQL, Stripe webhooks</td><td>Multi-tenant WordPress hosting control plane</td><td><code>.env</code>, GraphQL mutations, REST/webhook endpoints, Infisical optional backend</td><td>Docker Compose, DNS, Stripe, Infisical, mail user creation, MCP server</td><td>High platform leverage, needs productized onboarding</td></tr><tr><td>Mailstack</td><td><code>products/articulate/mailstack</code></td><td>Mail relay and host automation lane</td><td>Transactional mail rail for hosted tenants</td><td>Python ops helpers, Rust CLI, Cloudflare Worker, systemd/rootless configs</td><td>Worker relay, direct SMTP, MCP ops surface, syslog/log forwarding</td><td>Medium; mostly platform plumbing today</td></tr><tr><td>MailGuard</td><td><code>products/mailroute/caas/proton-bridge</code></td><td>Mail intelligence, routing DSL, reputation, webhooks, console, MCP</td><td>Proton Bridge and IMAP operator intelligence product</td><td><code>.env</code>, Make targets, Docker Compose overlays, GraphQL/REST/MCP/SSE/WS</td><td>IMAP, SMTP proxy, rule DSL, webhooks, GPG, Litestream, Proton plugin</td><td>High standalone product candidate</td></tr><tr><td>DetCordon</td><td><code>products/detcordon</code></td><td>Containment-first malware observation environment</td><td>Security research / malware observation appliance</td><td>Rust workspace, generated deployment artifacts via TUI</td><td>Victim/sink split, event/sample transports, deployment generator</td><td>High differentiation, but needs packaging proof</td></tr><tr><td>MATCHES</td><td><code>matches</code></td><td>Deterministic cinematic battle simulation and Blender export</td><td>Cinematic simulation / procedural action tooling</td><td>npm scripts, runtime configs, docs site, export JSON</td><td>Runtime event routing, deterministic exports, Blender importer</td><td>Strong demo value, unclear buyer package</td></tr><tr><td>Docs/Atlas</td><td><code>doc.ragbaz.xyz</code>, <code>offer.ragbaz.xyz</code></td><td>Public atlas and offer deployment bundles</td><td>Sales/docs surface for all packages</td><td>Docusaurus config, static deploy bundles, HAProxy snippets</td><td>Links to product docs, static deploy health checks</td><td>High for collateral, not a runtime component</td></tr><tr><td>Coordination</td><td><code>ragbaz-frog</code></td><td>Workspace task/lock/repo/unit coordination</td><td>Internal agent operations layer; possible ops product primitive</td><td>CLI, AGENTS.db, MCP server, hooks, provider sync</td><td>MCP tools, event log, locks, task scheduler, repo metadata</td><td>Essential internal substrate</td></tr><tr><td>Secrets/infrastructure</td><td><code>infra/infisical</code>, <code>infra/traefik</code>, <code>products/articulate/registry</code></td><td>Shared secrets, routing, internal registry</td><td>Managed platform backbone, not normally sold standalone</td><td>Docker Compose, <code>.env</code>, Traefik networks, htpasswd registry</td><td>Infisical REST, Docker registry, Traefik routing</td><td>Required for packaged operations</td></tr><tr><td>Portfolio/offer pages</td><td><code>products/portfolio</code>, <code>offer.ragbaz.xyz</code></td><td>Public-facing portfolio and offer sites</td><td>Buyer-facing proof and conversion surfaces</td><td>Vite/Lovable app, static deployment bundle</td><td>Links, static pages, custom domains</td><td>Needs cleanup and product message alignment</td></tr></tbody></table></div>
+<h2 id="configuration-surfaces-observed">Configuration Surfaces Observed</h2>
+<p>The workspace already has many configuration surfaces, but they are not yet a single product configuration system:</p>
+<ul><li>Environment files: <code>.env</code>, <code>.env.example</code>, <code>.env.compose.example</code>, service secrets, Stripe, Cloudflare, DNS, Infisical, Wordfence, SMTP.</li><li>Runtime manifests: <code>docker-compose.yml</code>, systemd units, reverse proxy snippets, Wrangler configs, Docusaurus configs, Cargo and Python package manifests.</li><li>API surfaces: GraphQL, REST, webhooks, MCP, SSE, WebSocket, SMTP, IMAP, Cloudflare Workers, Prometheus metrics.</li><li>Operator surfaces: <code>frog</code>, <code>rp</code>, <code>mailstack_ops.py</code>, Rust CLIs/TUIs, Make targets, setup scripts.</li><li>Documentation surfaces: README files, Docusaurus docs, offer deploy bundles, product atlas pages.</li></ul>
+<p>The missing layer is a normalized component manifest that states what each component is, what it can do, what it needs, what it exposes, and how another component may safely use it.</p>
+<h2 id="existing-interaction-patterns">Existing Interaction Patterns</h2>
+<p>The following patterns already recur enough to standardize:</p>
+<ul><li>WordPress content is exposed to storefronts through GraphQL.</li><li>Gatekeeper protects WordPress ingress and exposes health, metrics, upload, webhook, and management APIs.</li><li>Provisioning creates tenants and wires DNS, secrets, mail, billing, and Docker Compose stacks.</li><li>Mail components expose GraphQL/REST/MCP and relay via SMTP/Cloudflare Worker.</li><li>Payment events arrive through Stripe webhooks and update tenant/package state.</li><li>Artifacts move through Docker registry, OCI/ORAS-like flows, and static site deploy bundles.</li><li>Agents coordinate through <code>frog</code> tasks, locks, event logs, and MCP.</li></ul>
+<p>These are enough to define a practical first version of component discovery: identity, capabilities, endpoints, events, secrets, dependencies, health, and commercial metadata.</p>
+<h2 id="immediate-gaps">Immediate Gaps</h2>
+<ol><li>No shared component manifest.</li><li>No capability taxonomy for matching components.</li><li>No runtime registry that services can query for peers.</li><li>No common consent or authorization model for cross-component calls.</li><li>No package-level view that turns components into clear SKUs.</li><li>No standard config UX for picking packages, supplying secrets, accepting dependencies, and previewing cost/support impact.</li><li>No compatibility test suite proving that discovered components can actually interact.</li><li>Docs and offer pages are not yet generated from a package/component model.</li></ol>
+<h2 id="first-package-candidates">First Package Candidates</h2>
+<div class="rb-table-wrap"><table><thead><tr><th>Package</th><th>Components</th><th>Buyer</th><th>Why it can sell</th></tr></thead><tbody><tr><td>Secure WordPress Runtime</td><td>Gatekeeper, provisioner, Infisical, Traefik/HAProxy, registry, docs</td><td>Site owner, agency, publisher</td><td>Clear pain: keep WordPress but reduce operational/security risk</td></tr><tr><td>Headless Course and Shop</td><td>Articulate storefront, WordPress GraphQL/plugin, Stripe, Cloudflare, Gatekeeper optional</td><td>Creator, school, small business</td><td>Clear revenue path: sell access without rebuilding content workflow</td></tr><tr><td>MailGuard Operator</td><td>MailGuard, Proton plugin, Litestream, operator console, MCP</td><td>Proton/IMAP power users, privacy-focused operators</td><td>Strong niche and differentiated workflow</td></tr><tr><td>Media/Publishing Pipeline</td><td>Provisioner pipeline runner, BAZ ledger, ORAS/artifact handling, docs/offer surface</td><td>Technical publisher, agency</td><td>Needs sharper demo, but aligns with component composition</td></tr><tr><td>DetCordon Appliance</td><td>DetCordon crates, deployment TUI, docs, isolated topology</td><td>Security team, researcher</td><td>Distinctive containment model, requires careful sales boundary</td></tr></tbody></table></div>
+<h2 id="inventory-conclusion">Inventory Conclusion</h2>
+<p>The workspace already contains enough mature pieces to sell configurations, but the configuration model is implicit and repo-local. The next review slices should convert this inventory into:</p>
+<ol><li>buyer personas and jobs-to-be-done,</li><li>package/SKU definitions,</li><li>a component manifest and capability taxonomy,</li><li>a registry and interaction contract,</li><li>a consent/security boundary,</li><li>demos and verification gates.</li></ol>
+<h2 id="buyer-personas-and-jobs-to-be-done">Buyer Personas And Jobs-To-Be-Done</h2>
+<div class="rb-table-wrap"><table><thead><tr><th>Persona</th><th>Likely packages</th><th>Urgent job</th><th>Budget owner</th><th>Buying trigger</th><th>Adoption friction</th><th>Proof needed</th></tr></thead><tbody><tr><td>WordPress site owner with revenue goals</td><td>Headless Course and Shop, Secure WordPress Runtime</td><td>Sell paid content without abandoning WordPress</td><td>Founder, creator, small business owner</td><td>Needs courses/events/downloads live quickly</td><td>Setup complexity, payment trust, WordPress plugin anxiety</td><td>Live demo site, setup checklist, Stripe test checkout, rollback story</td></tr><tr><td>Small agency / consultant</td><td>Secure WordPress Runtime, Headless Course and Shop</td><td>Offer safer/faster client sites with repeatable margins</td><td>Agency owner</td><td>Client asks for security, speed, commerce, or managed hosting</td><td>Support burden, migration uncertainty, multi-client operations</td><td>Multi-tenant dashboard, client handoff docs, pricing margin worksheet</td></tr><tr><td>Technical publisher / community operator</td><td>Media/Publishing Pipeline, Docs/Atlas, Mailstack</td><td>Publish content, media, and mail workflows from reusable components</td><td>Technical lead, editor-owner</td><td>Needs durable publishing with automation and transparent ops</td><td>Pipeline complexity, storage/billing uncertainty</td><td>End-to-end demo from upload to published asset and status page</td></tr><tr><td>Proton/IMAP power user</td><td>MailGuard Operator</td><td>Route, audit, encrypt, and automate mail without losing privacy posture</td><td>Individual operator, privacy-focused business</td><td>Inbox rules are insufficient; needs Bridge-aware automation</td><td>Trusting an extra mail processor, setup with Bridge certificates</td><td>Local-first demo, rule DSL examples, audit log, reversible setup</td></tr><tr><td>Security researcher / blue team</td><td>DetCordon Appliance</td><td>Observe hostile web malware safely and preserve evidence</td><td>Security lead, research lab manager</td><td>Needs containment-first malware collection or training environment</td><td>Legal/safety boundaries, deployment isolation, evidence handling</td><td>Architecture proof, safety checklist, sample report, deployment TUI demo</td></tr><tr><td>Internal RAGBAZ operator / agent team</td><td>Frog Coordination, Registry, Infisical</td><td>Keep many repos, agents, secrets, and deploys coordinated</td><td>Platform owner</td><td>Multi-agent work creates stale locks, drift, or unclear next tasks</td><td>Tooling polish, docs, trust in metadata</td><td><code>frog task next</code>, lock audit, event log, MCP demo</td></tr></tbody></table></div>
+<p>The strongest near-term sales stories are not generic &quot;platform&quot; claims. They are narrow outcomes:</p>
+<ul><li>Keep WordPress editorial workflow while adding commerce and a hardened edge.</li><li>Run a secure managed WordPress runtime with observable ingress and backups.</li><li>Operate Proton/IMAP mail with rules, reputation, encryption, and audit.</li><li>Compose publishing/media workflows from reusable pipeline components.</li></ul>
+<p>The weaker stories are the ones that currently require the buyer to understand too much internal plumbing: registry, Infisical, Mailstack, and frog should be sold as included managed capabilities unless a specific technical buyer asks for them directly.</p>
+<h2 id="sellable-configuration-packages">Sellable Configuration Packages</h2>
+<h3 id="1-secure-wordpress-runtime">1. Secure WordPress Runtime</h3>
+<ul><li><strong>Promise:</strong> keep WordPress, but put a hardened, observable, managed edge in front of it.</li><li><strong>Includes:</strong> Gatekeeper, WordPress SQLite/MariaDB runtime depending on tier, reverse proxy, Litestream/backups, Infisical-backed secrets, provisioning, metrics/logs, docs handoff.</li><li><strong>Excludes:</strong> custom theme rebuilds, unlimited plugin compatibility work, manual incident response beyond the support tier.</li><li><strong>First proof:</strong> deploy <code>ragbaz.cc</code> or a demo tenant with public health, login/client-cert story, upload hardening, GraphQL guardrails, and backup status.</li></ul>
+<h3 id="2-headless-course-and-shop">2. Headless Course And Shop</h3>
+<ul><li><strong>Promise:</strong> turn an existing WordPress editorial workflow into a fast storefront with paid courses, events, and downloads.</li><li><strong>Includes:</strong> Articulate storefront, WordPress GraphQL/plugin package, Stripe, Cloudflare deploy, admin dashboard, basic access control, setup guide.</li><li><strong>Excludes:</strong> complex physical shipping, bespoke LMS migrations, custom OAuth provider work unless scoped.</li><li><strong>First proof:</strong> a live demo with one course, one event, one download, Stripe test checkout, and admin controls.</li></ul>
+<h3 id="3-mailguard-operator">3. MailGuard Operator</h3>
+<ul><li><strong>Promise:</strong> operate Proton/IMAP mail with rules, reputation, encryption, audit logs, and agent handoff.</li><li><strong>Includes:</strong> MailGuard core, operator console, Proton Bridge overlay, Litestream, rule templates, webhook delivery, MCP surface.</li><li><strong>Excludes:</strong> running customer Proton accounts, legal/compliance guarantees, custom ML beyond rule/reputation tuning.</li><li><strong>First proof:</strong> local-first Proton Bridge demo with one inbound rule, one outbound SMTP rule, reputation view, audit trail, and rollback.</li></ul>
+<h3 id="4-publishing-pipeline">4. Publishing Pipeline</h3>
+<ul><li><strong>Promise:</strong> compose media/content pipeline stages that fetch, transform, verify, publish, and account for usage.</li><li><strong>Includes:</strong> ragbaz-provision pipeline tables/runner, BAZ ledger, artifact handling, docs/atlas publication, package manifest, status surface.</li><li><strong>Excludes:</strong> arbitrary third-party API integrations until a connector manifest exists.</li><li><strong>First proof:</strong> upload source media, run a two-stage pipeline, produce a signed artifact, publish a docs/offer entry, and show cost/status.</li></ul>
+<h3 id="5-detcordon-appliance">5. DetCordon Appliance</h3>
+<ul><li><strong>Promise:</strong> observe hostile web malware in a containment-first lab topology.</li><li><strong>Includes:</strong> DetCordon crates, deployment TUI, isolated victim/sink layout, event/sample routing, report template.</li><li><strong>Excludes:</strong> inline production WAF guarantees, unsafe sample handling outside the appliance boundary.</li><li><strong>First proof:</strong> generated deployment artifact, simulated hostile sample, separated event/sample transport, and evidence report.</li></ul>
+<h3 id="package-boundary-rule">Package Boundary Rule</h3>
+<p>Do not sell &quot;all RAGBAZ components&quot; as one offer. Sell one customer job, with shared infrastructure included invisibly. Registry, Infisical, frog, Traefik, and docs should be visible as operational trust signals, not as the primary thing the customer has to buy.</p>
+<h2 id="value-and-readiness-matrix">Value And Readiness Matrix</h2>
+<p>Scores are directional: 5 is strongest / lowest concern for that column.</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Package</th><th>Pain urgency</th><th>Uniqueness</th><th>Demo readiness</th><th>Operational risk</th><th>Setup effort</th><th>Support burden</th><th>Margin potential</th><th>First proof needed</th></tr></thead><tbody><tr><td>Secure WordPress Runtime</td><td>5</td><td>4</td><td>4</td><td>3</td><td>3</td><td>3</td><td>5</td><td>One live tenant with health, auth, backup, and recovery proof</td></tr><tr><td>Headless Course And Shop</td><td>4</td><td>3</td><td>4</td><td>3</td><td>3</td><td>3</td><td>4</td><td>Stripe test checkout + WordPress content + admin controls</td></tr><tr><td>MailGuard Operator</td><td>4</td><td>5</td><td>4</td><td>3</td><td>3</td><td>3</td><td>4</td><td>Proton/IMAP demo with rules, audit, and rollback</td></tr><tr><td>Publishing Pipeline</td><td>3</td><td>4</td><td>2</td><td>2</td><td>2</td><td>2</td><td>4</td><td>Two-stage pipeline from upload to published artifact</td></tr><tr><td>DetCordon Appliance</td><td>4</td><td>5</td><td>3</td><td>2</td><td>2</td><td>2</td><td>4</td><td>Safe simulated sample and generated evidence report</td></tr><tr><td>MATCHES Cinematic Tooling</td><td>3</td><td>5</td><td>4</td><td>3</td><td>3</td><td>2</td><td>3</td><td>Prospect-specific cinematic export/import demo</td></tr><tr><td>Coordination/Ops Layer</td><td>3</td><td>4</td><td>5</td><td>4</td><td>4</td><td>4</td><td>3</td><td>Agent coordination demo tied to a managed-service offer</td></tr></tbody></table></div>
+<p>Priority order:</p>
+<ol><li><strong>Secure WordPress Runtime</strong>: best match of urgency, maturity, and margin.</li><li><strong>MailGuard Operator</strong>: strongest standalone differentiation and clear niche.</li><li><strong>Headless Course And Shop</strong>: easiest customer story, but more crowded.</li><li><strong>DetCordon Appliance</strong>: valuable but must be packaged carefully.</li><li><strong>Publishing Pipeline</strong>: strategically important, but needs a sharper demo.</li></ol>
+<p>The first sellable path should be Secure WordPress Runtime because it can absorb Gatekeeper, provisioning, secrets, registry, docs, and coordination as managed capabilities while still telling a simple buyer story.</p>
+<h2 id="component-discovery-manifest">Component Discovery Manifest</h2>
+<p>Each component should publish a small manifest at a stable path such as <code>ragbaz.component.json</code> or <code>component.ragbaz.yaml</code>. The manifest should be checked into the component repo and optionally exported into a runtime registry.</p>
+<p>Minimum fields:</p>
+<pre><code>id: articulate.gatekeeper
+name: Secure WordPress Gatekeeper
+version: 0.1.0
+kind: service
+owner: ragbaz
+repo: products/articulate/gatekeeper
+commercial:
+  package_tags: [secure-wordpress-runtime]
+  audience_tags: [site-owner, agency, publisher]
+  support_tier: managed
+capabilities:
+  - wordpress.ingress
+  - wordpress.uploads.hardened
+  - wordpress.graphql.guardrails
+requires:
+  secrets:
+    - GATEKEEPER_SHARED_SECRET
+    - RAGBAZ_AUTH_MANAGEMENT_SECRET
+  services:
+    - wordpress.origin
+    - reverse_proxy.http
+provides:
+  endpoints:
+    - name: health
+      url_env: GATEKEEPER_HEALTH_URL
+      protocol: http
+    - name: upload
+      url_env: GATEKEEPER_UPLOAD_URL
+      protocol: http
+  events:
+    - content.changed
+    - upload.accepted
+health:
+  checks:
+    - type: http
+      target: /healthz
+docs:
+  readme: products/articulate/gatekeeper/README.md
+  public: https://doc.ragbaz.xyz/docs/products/articulate/gatekeeper</code></pre>
+<p>Recommended manifest sections:</p>
+<ul><li><code>identity</code>: stable id, name, version, repo path, owner, lifecycle status.</li><li><code>commercial</code>: package tags, personas, support tier, sales status, pricing tags, demo URL.</li><li><code>capabilities</code>: normalized capability ids and human labels.</li><li><code>requires</code>: secrets, services, DNS records, storage, network, billing, and human approvals.</li><li><code>provides</code>: endpoints, events, artifacts, CLIs, MCP tools, queues, metrics, docs, and admin surfaces.</li><li><code>config</code>: required knobs, optional knobs, defaults, validation rules, and whether each knob is tenant/customer/operator controlled.</li><li><code>security</code>: auth method, token scopes, tenant boundary, data classes, secret access, revocation path.</li><li><code>health</code>: liveness, readiness, dependency checks, synthetic smoke tests.</li><li><code>compatibility</code>: contract test names, supported versions, known incompatible components.</li></ul>
+<p>Manifest rule: every sellable package should be expressible as a set of component manifests plus package-level defaults, not as a bespoke README recipe.</p>
+<h2 id="capability-taxonomy">Capability Taxonomy</h2>
+<p>Capability ids should be lowercase dot-separated strings. Use nouns for domains and verbs only when the distinction affects matching.</p>
+<p>Core domains:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Domain</th><th>Example capabilities</th><th>Current components</th></tr></thead><tbody><tr><td><code>wordpress.*</code></td><td><code>wordpress.ingress</code>, <code>wordpress.graphql</code>, <code>wordpress.auth</code>, <code>wordpress.media</code>, <code>wordpress.plugin</code></td><td>Gatekeeper, Articulate storefront/plugin, wp-sidecar</td></tr><tr><td><code>commerce.*</code></td><td><code>commerce.checkout</code>, <code>commerce.entitlement</code>, <code>commerce.subscription</code>, <code>commerce.admin</code></td><td>Articulate storefront, Stripe webhook handlers</td></tr><tr><td><code>tenant.*</code></td><td><code>tenant.provision</code>, <code>tenant.suspend</code>, <code>tenant.upgrade</code>, <code>tenant.health</code>, <code>tenant.secrets</code></td><td>ragbaz-provision</td></tr><tr><td><code>mail.*</code></td><td><code>mail.relay</code>, <code>mail.smtp</code>, <code>mail.imap</code>, <code>mail.rules</code>, <code>mail.reputation</code>, <code>mail.audit</code></td><td>Mailstack, MailGuard</td></tr><tr><td><code>pipeline.*</code></td><td><code>pipeline.stage</code>, <code>pipeline.verify</code>, <code>pipeline.artifact</code>, <code>pipeline.publish</code>, <code>pipeline.charge</code></td><td>ragbaz-provision pipeline work</td></tr><tr><td><code>artifact.*</code></td><td><code>artifact.oci</code>, <code>artifact.sign</code>, <code>artifact.store</code>, <code>artifact.publish</code></td><td>registry, ORAS/cosign paths</td></tr><tr><td><code>security.*</code></td><td><code>security.waf</code>, <code>security.containment</code>, <code>security.audit</code>, <code>security.client_cert</code>, <code>security.scan</code></td><td>Gatekeeper, DetCordon</td></tr><tr><td><code>media.*</code></td><td><code>media.upload</code>, <code>media.derive</code>, <code>media.transcode</code>, <code>media.rss</code>, <code>media.ipfs</code></td><td>Gatekeeper upload, publishing pipeline, audio sink</td></tr><tr><td><code>docs.*</code></td><td><code>docs.atlas</code>, <code>docs.offer</code>, <code>docs.build</code>, <code>docs.deploy</code></td><td>doc.ragbaz.xyz, offer.ragbaz.xyz</td></tr><tr><td><code>ops.*</code></td><td><code>ops.lock</code>, <code>ops.task</code>, <code>ops.event_log</code>, <code>ops.mcp</code>, <code>ops.deploy</code>, <code>ops.metrics</code></td><td>frog, deploy bundles, observability</td></tr><tr><td><code>infra.*</code></td><td><code>infra.secret_store</code>, <code>infra.registry</code>, <code>infra.proxy</code>, <code>infra.dns</code>, <code>infra.storage</code></td><td>Infisical, registry, Traefik/HAProxy</td></tr><tr><td><code>simulation.*</code></td><td><code>simulation.runtime</code>, <code>simulation.export</code>, <code>simulation.render</code>, <code>simulation.replay</code></td><td>MATCHES</td></tr></tbody></table></div>
+<p>Matching rules:</p>
+<ul><li>A package requires capabilities, not specific repo names.</li><li>A component may satisfy multiple capabilities.</li><li>Capability versions should be added only when compatibility actually breaks: <code>wordpress.graphql@1</code> is useful; <code>wordpress.graphql.current</code> is not.</li><li>Commercial packaging should match on both capability and support tier. A prototype component can satisfy a demo package but not a managed package.</li><li>Human approvals are capabilities too when they gate runtime action, for example <code>approval.dns_change</code> or <code>approval.post_to_community</code>.</li></ul>
+<p>Initial package-to-capability mapping:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Package</th><th>Required capabilities</th></tr></thead><tbody><tr><td>Secure WordPress Runtime</td><td><code>wordpress.ingress</code>, <code>wordpress.auth</code>, <code>wordpress.graphql</code>, <code>security.audit</code>, <code>tenant.provision</code>, <code>infra.secret_store</code>, <code>infra.proxy</code>, <code>ops.metrics</code></td></tr><tr><td>Headless Course And Shop</td><td><code>wordpress.graphql</code>, <code>commerce.checkout</code>, <code>commerce.entitlement</code>, <code>commerce.admin</code>, <code>docs.offer</code>, <code>infra.storage</code></td></tr><tr><td>MailGuard Operator</td><td><code>mail.imap</code>, <code>mail.smtp</code>, <code>mail.rules</code>, <code>mail.reputation</code>, <code>mail.audit</code>, <code>ops.mcp</code></td></tr><tr><td>Publishing Pipeline</td><td><code>pipeline.stage</code>, <code>pipeline.verify</code>, <code>pipeline.artifact</code>, <code>pipeline.publish</code>, <code>pipeline.charge</code>, <code>artifact.store</code></td></tr><tr><td>DetCordon Appliance</td><td><code>security.containment</code>, <code>security.waf</code>, <code>security.audit</code>, <code>ops.deploy</code></td></tr></tbody></table></div>
+<h2 id="runtime-registry-review">Runtime Registry Review</h2>
+<p>The registry should have two layers:</p>
+<ol><li><strong>Source registry:</strong> manifests checked into repos and discoverable by <code>frog</code>.</li><li><strong>Runtime registry:</strong> active deployments publish resolved endpoint, health, version, and tenant-specific config state.</li></ol>
+<p>Options reviewed:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Option</th><th>Strength</th><th>Weakness</th><th>Recommendation</th></tr></thead><tbody><tr><td><code>frog</code> repo/file metadata</td><td>Already present, agent-friendly, good for source discovery</td><td>Not a runtime service catalog today</td><td>Use for source registry MVP</td></tr><tr><td>Manifest files in repos</td><td>Portable, versionable, easy to validate</td><td>Needs tooling to collect and normalize</td><td>Required first step</td></tr><tr><td>Provisioner DB registry</td><td>Close to tenants, billing, DNS, secrets</td><td>Articulate-centric unless generalized</td><td>Use for managed tenant runtime state</td></tr><tr><td>DNS/SRV records</td><td>Good for deployed service lookup</td><td>Weak for capabilities, secrets, pricing</td><td>Optional runtime endpoint hint</td></tr><tr><td>Container labels</td><td>Useful for local Compose discovery</td><td>Limited outside Docker host</td><td>Use as deploy-time import signal only</td></tr><tr><td>MCP tools</td><td>Natural for agent interactions</td><td>Not ideal as canonical customer-facing registry</td><td>Expose registry read APIs through MCP</td></tr><tr><td>API gateway catalog</td><td>Customer/operator friendly</td><td>Requires design and auth work</td><td>Later, after manifest MVP</td></tr></tbody></table></div>
+<p>Recommended MVP:</p>
+<ol><li>Add manifest files to the first five package-critical components: Gatekeeper, ragbaz-provision, Articulate storefront, MailGuard, Mailstack.</li><li>Teach <code>frog</code> to scan and validate manifests into <code>AGENTS.db</code> as source metadata.</li><li>Add a provisioner-side runtime table for tenant component instances: component id, version, tenant, health URL, public URL, internal URL, granted capabilities, and status.</li><li>Expose read-only registry queries through GraphQL/REST/MCP before allowing components to mutate registry state.</li><li>Later, generate docs/offer pages from package manifests and registry status.</li></ol>
+<p>Runtime lookup rule: components should ask for a capability plus tenant context, not for a hard-coded service name. Example: &quot;find provider of <code>mail.relay</code> for tenant <code>xtas</code>&quot; should resolve to Mailstack or MailGuard depending on grants and package configuration.</p>
+<h2 id="inter-component-interaction-contracts">Inter-Component Interaction Contracts</h2>
+<p>Components should interact through a small number of contract shapes:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Contract shape</th><th>Use when</th><th>Required fields</th><th>Current examples</th></tr></thead><tbody><tr><td>Sync HTTP/GraphQL</td><td>Caller needs immediate result</td><td>auth scope, tenant, idempotency key for mutations, timeout, error shape</td><td>Gatekeeper health/upload, provisioner GraphQL</td></tr><tr><td>Async event</td><td>Caller announces state change</td><td>event id, type, source component, tenant, timestamp, schema version</td><td>content changed, upload accepted, tenant provisioned</td></tr><tr><td>Webhook delivery</td><td>External or cross-boundary notification</td><td>retry policy, signature, replay window, audit row</td><td>MailGuard webhooks, Stripe webhooks</td></tr><tr><td>Artifact handoff</td><td>Component produces material output</td><td>artifact id, media type, digest, storage URL, provenance, signature</td><td>registry, ORAS/cosign, docs static builds</td></tr><tr><td>MCP/RPC tool</td><td>Agent or operator invokes a capability</td><td>tool name, arguments schema, permissions, dry-run flag</td><td>frog MCP, provisioner MCP, MailGuard MCP</td></tr><tr><td>CLI/TUI operation</td><td>Human operator runs local action</td><td>command contract, environment requirements, exit codes, logs</td><td><code>frog</code>, <code>rp</code>, MailGuard TUI, DetCordon deploy TUI</td></tr></tbody></table></div>
+<p>Cross-component contract rules:</p>
+<ul><li>Every mutation must be idempotent or explicitly marked non-idempotent.</li><li>Every request carries tenant/package context, even if the component is currently single-tenant.</li><li>Every event has a schema version and stable event id.</li><li>Every webhook has a signature and replay protection.</li><li>Every artifact has a digest and producer identity.</li><li>Every component publishes a health contract separate from business APIs.</li><li>Every failure response uses a shared shape: code, message, retryable, component id, correlation id.</li><li>Every component interaction should be auditable by tenant, package, and capability.</li></ul>
+<p>First contract standard to implement:</p>
+<pre><code>{
+  &quot;correlation_id&quot;: &quot;uuid&quot;,
+  &quot;tenant&quot;: &quot;xtas&quot;,
+  &quot;package&quot;: &quot;secure-wordpress-runtime&quot;,
+  &quot;capability&quot;: &quot;wordpress.ingress&quot;,
+  &quot;source_component&quot;: &quot;articulate.provision&quot;,
+  &quot;target_component&quot;: &quot;articulate.gatekeeper&quot;,
+  &quot;idempotency_key&quot;: &quot;optional-for-mutations&quot;
+}</code></pre>
+<p>This envelope can be carried in HTTP headers, GraphQL extensions, event payloads, or MCP tool metadata.</p>
+<h2 id="auth-consent-and-tenant-boundaries">Auth, Consent, And Tenant Boundaries</h2>
+<p>&quot;At will&quot; interaction should mean &quot;after discovery, permission, and audit,&quot; not unrestricted cross-component calls.</p>
+<p>Required model:</p>
+<ul><li><strong>Service identity:</strong> every component instance has an identity separate from human users and tenants.</li><li><strong>Tenant grant:</strong> a tenant or operator grants one component permission to use another component's capability.</li><li><strong>Capability scope:</strong> grants are capability-scoped, for example <code>mail.relay:send</code> or <code>wordpress.media:write</code>.</li><li><strong>Package default:</strong> packages can propose default grants, but activation must record who accepted them and when.</li><li><strong>Secret isolation:</strong> components request secret references, not raw secrets, unless the grant explicitly permits materialization.</li><li><strong>Revocation:</strong> every grant has a revocation path and components must handle revoked peers as normal runtime failure.</li><li><strong>Audit:</strong> every cross-component call records source, target, tenant, capability, grant id, correlation id, and result.</li></ul>
+<p>Grant shape:</p>
+<pre><code>{
+  &quot;grant_id&quot;: &quot;uuid&quot;,
+  &quot;tenant&quot;: &quot;xtas&quot;,
+  &quot;package&quot;: &quot;secure-wordpress-runtime&quot;,
+  &quot;source_component&quot;: &quot;articulate.storefront&quot;,
+  &quot;target_component&quot;: &quot;articulate.gatekeeper&quot;,
+  &quot;capabilities&quot;: [&quot;wordpress.graphql:read&quot;, &quot;wordpress.media:read&quot;],
+  &quot;expires_at&quot;: null,
+  &quot;created_by&quot;: &quot;operator-or-tenant-user&quot;,
+  &quot;created_at&quot;: &quot;timestamp&quot;,
+  &quot;revoked_at&quot;: null
+}</code></pre>
+<p>Boundary rules:</p>
+<ul><li>Cross-tenant calls are denied by default.</li><li>Package-level automation may operate only inside the package tenant boundary.</li><li>Human-controlled external actions, such as community posting or DNS changes, require explicit <code>approval.*</code> capabilities.</li><li>Billing-affecting calls require a visible package/tenant cost context.</li><li>Components that handle hostile samples, mail, payments, secrets, or auth must be marked as sensitive in the manifest.</li></ul>
+<p>First implementation target: add grant metadata to the proposed runtime registry before allowing automatic component-to-component mutation calls.</p>
+<h2 id="cross-component-demo-flows">Cross-Component Demo Flows</h2>
+<p>Demo flows should prove discovery, configuration, interaction, and audit in one short path. Recommended first demos:</p>
+<h3 id="demo-a-secure-wordpress-runtime">Demo A: Secure WordPress Runtime</h3>
+<ol><li>Provisioner creates tenant <code>demo-wp</code>.</li><li>Runtime registry records Gatekeeper, WordPress origin, proxy, secrets, and health endpoints.</li><li>Gatekeeper discovers WordPress origin by capability <code>wordpress.origin</code>.</li><li>Storefront discovers GraphQL endpoint by <code>wordpress.graphql</code>.</li><li>Operator dashboard shows health, backup status, and last security scan.</li><li>Demo edits one WordPress post and shows storefront revalidation.</li></ol>
+<h3 id="demo-b-headless-course-and-shop">Demo B: Headless Course And Shop</h3>
+<ol><li>WordPress exposes one course, one event, and one download through GraphQL.</li><li>Storefront reads content and package configuration.</li><li>Stripe checkout grants entitlement.</li><li>Admin dashboard shows buyer, product, and access state.</li><li>Docs page shows setup steps generated from package manifest.</li></ol>
+<h3 id="demo-c-mailguard-operator">Demo C: MailGuard Operator</h3>
+<ol><li>Proton Bridge or test IMAP source is registered.</li><li>MailGuard manifest advertises <code>mail.imap</code>, <code>mail.rules</code>, <code>mail.audit</code>.</li><li>Rule engine routes one inbound message and records an audit row.</li><li>Webhook action calls a test receiver with signature and correlation id.</li><li>Operator rolls back the rule and verifies the audit trail.</li></ol>
+<h3 id="demo-d-publishing-pipeline">Demo D: Publishing Pipeline</h3>
+<ol><li>Gatekeeper accepts validated media upload.</li><li>Pipeline runner discovers a verifier and artifact store.</li><li>Stage output is pushed as a signed artifact.</li><li>Docs/offer surface publishes the artifact link.</li><li>BAZ/cost ledger records the run.</li></ol>
+<h3 id="demo-e-detcordon-appliance">Demo E: DetCordon Appliance</h3>
+<ol><li>Deployment TUI generates isolated victim/sink topology.</li><li>WAF-side component emits event metadata.</li><li>Extractor sends sample on separate transport path.</li><li>Sink verifies integrity and generates report.</li><li>Registry/audit view shows component chain and containment boundary.</li></ol>
+<p>Demo acceptance rule: each demo must show a before/after state, one discovered peer, one granted capability, one interaction, one health/audit record, and one customer-visible outcome.</p>
+<h2 id="verification-gates">Verification Gates</h2>
+<p>Composability needs a test path before it needs a large UI. The first gates:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Gate</th><th>Runs where</th><th>Fails when</th></tr></thead><tbody><tr><td>Manifest schema validation</td><td>repo CI and <code>frog repo check</code></td><td>Required fields missing, invalid capability id, bad semver</td></tr><tr><td>Capability resolution fixture</td><td>registry/source scan test</td><td>Package requires a capability with no provider</td></tr><tr><td>Grant policy test</td><td>provisioner/runtime registry tests</td><td>Component can call capability without grant</td></tr><tr><td>Contract shape test</td><td>component CI</td><td>API/event/artifact lacks envelope, idempotency, or error shape</td></tr><tr><td>Demo smoke test</td><td>package CI or manual release gate</td><td>Demo cannot complete one discovered interaction</td></tr><tr><td>Health check contract</td><td>deploy verification</td><td>Component is live but missing declared health endpoint</td></tr><tr><td>Docs generation check</td><td>docs build</td><td>Package manifest cannot produce setup/offering docs</td></tr></tbody></table></div>
+<p>Recommended first test fixture:</p>
+<ul><li>One Secure WordPress Runtime package manifest.</li><li>Component manifests for Gatekeeper, provisioner, storefront, Infisical, proxy.</li><li>One tenant <code>demo-wp</code>.</li><li>One grant from storefront to Gatekeeper for <code>wordpress.graphql:read</code>.</li><li>One synthetic content-change event and one health check.</li></ul>
+<p>Minimum pass condition:</p>
+<ol><li>manifests validate,</li><li>package resolves required capabilities,</li><li>grants allow only the intended interaction,</li><li>synthetic event carries the standard envelope,</li><li>docs generator can render a setup checklist.</li></ol>
+<p>These checks should be runnable without deploying a real customer stack. Runtime deploy smoke tests can layer on top once the fixture is stable.</p>
+<h2 id="sku-tier-and-pricing-review">SKU, Tier, And Pricing Review</h2>
+<p>Pricing should be package-first, with component-level usage shown as transparent detail rather than the main buying surface.</p>
+<p>Recommended SKU model:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>SKU</th><th>Pricing axis</th><th>Included capabilities</th><th>Add-ons</th></tr></thead><tbody><tr><td>Secure WP Starter</td><td>per site / month</td><td>hardened ingress, managed deploy, backups, health</td><td>custom domain, extra backup retention, incident pack</td></tr><tr><td>Secure WP Agency</td><td>per client site bundle</td><td>Starter plus multi-tenant dashboard, client handoff</td><td>white-label docs, migration hours</td></tr><tr><td>Course And Shop</td><td>per storefront / month + payment passthrough</td><td>storefront, Stripe, admin, access control</td><td>extra auth providers, migration support</td></tr><tr><td>MailGuard Operator</td><td>per mailbox/source / month</td><td>rules, reputation, audit, webhooks</td><td>Proton Bridge support, extra retention, managed setup</td></tr><tr><td>Publishing Pipeline</td><td>platform fee + usage/BAZ</td><td>pipeline runner, artifact store, publish target</td><td>custom connectors, extra verification stages</td></tr><tr><td>DetCordon Appliance</td><td>appliance/license + support</td><td>deployment TUI, containment topology, report artifacts</td><td>lab setup, training, custom scenarios</td></tr></tbody></table></div>
+<p>Pricing rules:</p>
+<ul><li>Customer-facing price is by package, tenant/site/mailbox, and support tier.</li><li>Component-level metering is internal unless it affects a visible quota.</li><li>BAZ credits are suitable for pipeline/AI/media usage, not for every platform interaction.</li><li>Support tiers should be explicit: self-serve, guided setup, managed, managed plus incident response.</li><li>Add-ons should map to capabilities so they can be enabled by manifests and grants.</li><li>Discounts should be bundle-based, not component-count-based.</li></ul>
+<p>The first priced offer should be Secure WP Starter because it has a clear unit (<code>site</code>), clear operational cost, and a credible upgrade path to Agency.</p>
+<h2 id="configuration-ux-review">Configuration UX Review</h2>
+<p>The first UI does not need to be a large product. It can be an operator-facing configuration wizard generated from package and component manifests.</p>
+<p>Required screens:</p>
+<ol><li><strong>Package selection:</strong> choose Secure WP Starter, Course and Shop, MailGuard, etc.; show outcome, included capabilities, price axis, and support tier.</li><li><strong>Tenant/site identity:</strong> slug, domain, owner email, region, support contact.</li><li><strong>Dependency check:</strong> required services, DNS, secrets backend, registry, storage, Stripe/Cloudflare availability.</li><li><strong>Secrets and grants:</strong> collect or reference secrets; show which component will receive which capability grant.</li><li><strong>Configuration knobs:</strong> defaults first, advanced controls hidden; every knob says whether customer, operator, or system owns it.</li><li><strong>Cost and support preview:</strong> recurring price, usage-sensitive items, included support, known exclusions.</li><li><strong>Plan and apply:</strong> dry-run actions, expected runtime components, rollback plan, approvals required.</li><li><strong>Post-activation status:</strong> health checks, links, audit log, docs handoff, next recommended setup step.</li></ol>
+<p>UX rule: never show raw component names as the primary choice unless the user is in an advanced/operator mode. Customers choose outcomes; operators can inspect component manifests and grants underneath.</p>
+<p>First implementation target: generate a static package checklist from the manifest fixture before building a dynamic admin UI.</p>
+<h2 id="observability-review">Observability Review</h2>
+<p>Observability should answer three questions:</p>
+<ol><li>Is my package healthy?</li><li>Which components interacted and why?</li><li>What did it cost or change?</li></ol>
+<p>Required telemetry:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Signal</th><th>Audience</th><th>Example</th></tr></thead><tbody><tr><td>Package health</td><td>customer + operator</td><td>Secure WP: healthy, backup current, GraphQL guarded</td></tr><tr><td>Component health</td><td>operator</td><td>Gatekeeper <code>/healthz</code>, provisioner background worker, MailGuard API</td></tr><tr><td>Interaction trace</td><td>operator + support</td><td>storefront -&gt; gatekeeper <code>wordpress.graphql:read</code></td></tr><tr><td>Audit event</td><td>customer + operator</td><td>grant created, secret rotated, rule changed, DNS updated</td></tr><tr><td>Cost/usage row</td><td>customer + billing</td><td>pipeline stage charged 12 BAZ, storage grew 80 MB</td></tr><tr><td>Error summary</td><td>customer + support</td><td>retryable webhook failure, revoked grant, missing secret</td></tr><tr><td>Demo proof</td><td>sales + customer</td><td>last demo run passed with links to logs and outputs</td></tr></tbody></table></div>
+<p>Minimum event fields:</p>
+<ul><li>timestamp,</li><li>tenant,</li><li>package,</li><li>component id,</li><li>capability,</li><li>correlation id,</li><li>actor or service identity,</li><li>result,</li><li>retryable flag,</li><li>cost/usage if relevant.</li></ul>
+<p>Customer-facing status should be package-first. Operator views can drill into component details, logs, traces, and raw registry state.</p>
+<p>First implementation target: add a package status summary generated from manifest health checks and interaction audit events.</p>
+<h2 id="docs-and-sales-readiness">Docs And Sales Readiness</h2>
+<p>Each package needs buyer-facing, operator-facing, and support-facing docs.</p>
+<p>Required artifacts:</p>
+<div class="rb-table-wrap"><table><thead><tr><th>Artifact</th><th>Audience</th><th>Purpose</th></tr></thead><tbody><tr><td>One-page offer</td><td>buyer</td><td>What it is, who it is for, outcome, price axis, proof</td></tr><tr><td>Package setup guide</td><td>operator/customer</td><td>Step-by-step activation with prerequisites</td></tr><tr><td>Architecture diagram</td><td>buyer + technical evaluator</td><td>Show included components and trust boundaries</td></tr><tr><td>Demo script</td><td>sales/operator</td><td>Repeatable 10-15 minute proof path</td></tr><tr><td>Support boundary</td><td>buyer + support</td><td>Included support, exclusions, escalation path</td></tr><tr><td>Security/privacy note</td><td>buyer + evaluator</td><td>Data handled, secrets, tenant boundaries, audit</td></tr><tr><td>Package status page</td><td>customer + operator</td><td>Health, dependencies, last interactions, costs</td></tr><tr><td>FAQ</td><td>buyer</td><td>Migration, rollback, billing, ownership, compatibility</td></tr></tbody></table></div>
+<p>Docs generation rule: package pages should be generated or at least checked from package/component manifests so sales copy does not drift from runtime reality.</p>
+<p>First docs target:</p>
+<ul><li>Publish a Secure WordPress Runtime offer page.</li><li>Include a diagram showing provisioner, Gatekeeper, WordPress, proxy, secrets, backups, and storefront.</li><li>Include a live demo checklist and support boundary.</li><li>Link to the component inventory/review as internal rationale, not public copy.</li></ul>
+<h2 id="adoption-roadmap">Adoption Roadmap</h2>
+<h3 id="phase-0-stabilize-the-review-artifact">Phase 0: Stabilize The Review Artifact</h3>
+<ul><li>Keep this document as the internal source of truth for the first pass.</li><li>Mirror selected public-safe content into <code>doc.ragbaz.xyz</code> only after package manifests exist.</li></ul>
+<h3 id="phase-1-manifest-mvp">Phase 1: Manifest MVP</h3>
+<ol><li>Add <code>ragbaz.component.json</code> for Gatekeeper.</li><li>Add <code>ragbaz.component.json</code> for ragbaz-provision.</li><li>Add <code>ragbaz.component.json</code> for Articulate storefront.</li><li>Add <code>ragbaz.component.json</code> for MailGuard.</li><li>Add <code>ragbaz.component.json</code> for Mailstack.</li><li>Add a package manifest for Secure WordPress Runtime.</li></ol>
+<h3 id="phase-2-source-registry">Phase 2: Source Registry</h3>
+<ol><li>Add a <code>frog</code> scan target for component manifests.</li><li>Validate schema and capability taxonomy.</li><li>Store manifest summary in <code>AGENTS.db</code>.</li><li>Expose <code>frog component list/info</code> or equivalent MCP tools.</li></ol>
+<h3 id="phase-3-secure-wp-demo-package">Phase 3: Secure WP Demo Package</h3>
+<ol><li>Build a fixture tenant <code>demo-wp</code>.</li><li>Resolve package capabilities from manifests.</li><li>Generate setup checklist and docs page.</li><li>Run health and contract fixture checks.</li><li>Publish internal demo script.</li></ol>
+<h3 id="phase-4-runtime-registry-and-grants">Phase 4: Runtime Registry And Grants</h3>
+<ol><li>Add runtime component instance table to ragbaz-provision.</li><li>Add capability grants with tenant/package context.</li><li>Expose read-only registry and grant queries.</li><li>Record interaction audit events.</li></ol>
+<h3 id="phase-5-customer-facing-configuration">Phase 5: Customer-Facing Configuration</h3>
+<ol><li>Generate static package checklist from manifests.</li><li>Add operator wizard for Secure WP Starter.</li><li>Add package status summary.</li><li>Add cost/support preview.</li><li>Add docs/offer page.</li></ol>
+<h3 id="first-implementation-task-candidates">First Implementation Task Candidates</h3>
+<p>Create these as follow-up <code>frog</code> tasks when implementation begins:</p>
+<ul><li><code>manifest-schema-mvp</code>: define JSON schema and validator for <code>ragbaz.component.json</code>.</li><li><code>gatekeeper-component-manifest</code>: add first manifest to Gatekeeper.</li><li><code>provision-component-registry-source</code>: teach provisioner/frog to read source manifests.</li><li><code>secure-wp-package-manifest</code>: define Secure WP Starter package manifest.</li><li><code>secure-wp-demo-fixture</code>: create demo tenant fixture and contract smoke.</li><li><code>secure-wp-offer-page</code>: publish buyer-facing Secure WP Runtime offer page.</li></ul>
+<p>Recommended next move: implement the manifest schema MVP, then Gatekeeper's manifest, before touching runtime discovery. That keeps the first engineering slice small and verifiable.</p>
+      </article>
+      <footer class="rb-footer">generated by docs/render-markdown.mjs</footer>
+    </main>
+  </div>
+  
+</body>
+</html>

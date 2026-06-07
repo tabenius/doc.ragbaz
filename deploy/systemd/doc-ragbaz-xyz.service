@@ -1,0 +1,18 @@
+[Unit]
+Description=doc.ragbaz.xyz static Docusaurus site (docker compose, rootless)
+Wants=docker.service
+After=docker.service default.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/data/src/doc.ragbaz.xyz/deploy
+Environment=DOCKER_HOST=unix://%t/docker.sock
+Environment=XDG_RUNTIME_DIR=%t
+Environment=COMPOSE_PROJECT_NAME=doc-ragbaz-xyz
+Environment=DOC_IMAGE=registry.ragbaz.xyz/ragbaz/doc-ragbaz-xyz:latest
+ExecStart=/usr/bin/docker compose -f docker-compose.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.yml down
+
+[Install]
+WantedBy=default.target

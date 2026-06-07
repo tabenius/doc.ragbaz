@@ -1,0 +1,5 @@
+*
+!deploy
+!deploy/nginx.conf
+!build
+!build/**

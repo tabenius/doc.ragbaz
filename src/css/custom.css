@@ -1,0 +1,343 @@
+@import "../../../ragbaz-design-system/colors_and_type.css";
+
+:root {
+  --pad-x: clamp(20px, 5vw, 56px);
+
+  --ifm-color-primary: var(--orange-3);
+  --ifm-color-primary-dark: #f08f00;
+  --ifm-color-primary-darker: #e78900;
+  --ifm-color-primary-darkest: #c87300;
+  --ifm-color-primary-light: #ffa31f;
+  --ifm-color-primary-lighter: #ffae38;
+  --ifm-color-primary-lightest: #ffbf63;
+  --ifm-background-color: var(--bg-1);
+  --ifm-background-surface-color: var(--bg-2);
+  --ifm-navbar-background-color: var(--bg-5);
+  --ifm-navbar-link-color: var(--fg-2);
+  --ifm-navbar-link-hover-color: var(--orange-1);
+  --ifm-font-family-base: var(--font-sans);
+  --ifm-font-family-monospace: var(--font-mono);
+  --ifm-heading-font-family: var(--font-sans);
+  --ifm-font-color-base: var(--fg-2);
+  --ifm-heading-color: var(--blue-1);
+  --ifm-link-color: var(--blue-1);
+  --ifm-link-hover-color: var(--orange-1);
+  --ifm-footer-background-color: var(--bg-2);
+  --ifm-footer-color: var(--fg-2);
+  --ifm-menu-color: var(--fg-2);
+  --ifm-menu-color-active: var(--orange-1);
+  --ifm-menu-color-background-active: rgba(243, 196, 108, 0.1);
+  --ifm-toc-border-color: var(--border-2);
+  --ifm-hr-background-color: var(--border-2);
+  --ifm-code-background: var(--bg-3);
+  --ifm-code-font-size: 92%;
+  --ifm-global-radius: var(--r-2);
+  --ifm-button-border-radius: var(--r-2);
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg-0);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-1);
+  color: var(--fg-2);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(243, 196, 108, 0.28);
+  color: var(--fg-1);
+}
+
+.navbar {
+  min-height: 42px;
+  padding: 0 var(--pad-x);
+  background: var(--bg-5);
+  border-bottom: 1px solid var(--border-3);
+  box-shadow: none;
+}
+
+.navbar__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.navbar__brand {
+  gap: 10px;
+  margin-right: 1.25rem;
+  color: var(--fg-1);
+}
+
+.navbar__logo,
+.navbar__logo img {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+
+.navbar__title {
+  color: var(--orange-3);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-allcaps);
+  text-transform: uppercase;
+}
+
+.navbar__link {
+  color: var(--fg-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  letter-spacing: 0.02em;
+}
+
+.navbar__link:hover,
+.navbar__link--active {
+  color: var(--orange-1);
+}
+
+.theme-doc-sidebar-container,
+.table-of-contents,
+.footer {
+  border-color: var(--border-2);
+}
+
+.menu__link {
+  border-radius: var(--r-2);
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+}
+
+.menu__link:hover {
+  color: var(--orange-1);
+}
+
+.main-wrapper {
+  background: transparent;
+}
+
+.container {
+  max-width: 1120px;
+  padding-left: var(--pad-x);
+  padding-right: var(--pad-x);
+}
+
+.markdown {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: var(--lh-body);
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.footer__title {
+  font-family: var(--font-sans);
+}
+
+.markdown h1 {
+  color: var(--blue-1);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-tight);
+}
+
+.markdown > h2,
+.markdown > h3 {
+  position: relative;
+  padding-left: 18px;
+}
+
+.markdown > h2::before,
+.markdown > h3::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.58em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--orange-1);
+  box-shadow: 0 0 0 1px rgba(243, 196, 108, 0.25);
+}
+
+a {
+  text-decoration-color: rgba(122, 184, 255, 0.35);
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-color: rgba(243, 196, 108, 0.4);
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--font-mono);
+}
+
+code {
+  color: var(--orange-2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-1);
+}
+
+.button {
+  border-width: var(--btn-border-w);
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+  letter-spacing: 0.02em;
+  transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.ragbaz-page {
+  padding-bottom: var(--s-10);
+}
+
+.ragbaz-hero {
+  padding: var(--s-10) 0 var(--s-9);
+  border-bottom: 1px solid var(--border-3);
+}
+
+.ragbaz-eyebrow {
+  margin: 0 0 var(--s-4);
+}
+
+.ragbaz-title {
+  max-width: 14ch;
+  margin: 0 0 var(--s-7);
+  color: var(--blue-1);
+  font-family: var(--font-sans);
+  font-size: clamp(44px, 7vw, 84px);
+  font-weight: 800;
+  letter-spacing: var(--tracking-tight);
+  line-height: 1.02;
+}
+
+.ragbaz-title span {
+  color: var(--orange-3);
+}
+
+.ragbaz-title code {
+  color: var(--orange-2);
+  font-size: 0.42em;
+  font-style: normal;
+  background: var(--bg-2);
+  padding: 2px 8px;
+}
+
+.ragbaz-subtitle {
+  max-width: 64ch;
+  margin: 0;
+  color: var(--fg-2);
+}
+
+.ragbaz-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-top: var(--s-7);
+}
+
+.ragbaz-hero-actions .rb-btn {
+  text-decoration: none;
+}
+
+.ragbaz-section {
+  padding: var(--s-9) 0;
+}
+
+.ragbaz-section-alt {
+  border-top: 1px solid var(--border-3);
+}
+
+.ragbaz-section-header {
+  max-width: 52rem;
+  margin-bottom: var(--s-8);
+}
+
+.ragbaz-section-header h2 {
+  margin: 0 0 var(--s-3);
+}
+
+.ragbaz-section-header p {
+  margin: 0;
+}
+
+.ragbaz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--s-5);
+}
+
+.ragbaz-grid-tight {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.ragbaz-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ragbaz-card-link:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ragbaz-card-link .rb-card {
+  min-height: 180px;
+}
+
+.ragbaz-card-link .rb-card__title {
+  color: var(--orange-1);
+}
+
+.ragbaz-card-link .rb-card__body {
+  max-width: 34ch;
+}
+
+.footer__title {
+  color: var(--orange-1);
+}
+
+.footer__link-item {
+  color: var(--fg-2);
+}
+
+@media (max-width: 996px) {
+  .navbar {
+    padding: 0 var(--s-5);
+  }
+
+  .ragbaz-hero {
+    padding-top: var(--s-9);
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .navbar__title {
+    font-size: 15px;
+  }
+
+  .ragbaz-card-link .rb-card {
+    min-height: 160px;
+  }
+}
