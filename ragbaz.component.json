@@ -1,0 +1,129 @@
+{
+  "$schema": "../docs/schemas/ragbaz.component.schema.json",
+  "schemaVersion": "0.1.0",
+  "identity": {
+    "id": "ragbaz.docs-site",
+    "name": "RAGBAZ Atlas Docs Site",
+    "version": "0.1.0",
+    "repoPath": "doc.ragbaz.xyz",
+    "owner": "ragbaz",
+    "lifecycle": "production"
+  },
+  "commercial": {
+    "packageTags": ["docs-atlas", "sales-collateral"],
+    "personas": ["buyer", "operator", "agent-team"],
+    "supportTier": "managed",
+    "salesStatus": "demo",
+    "pricingTags": ["included-collateral"],
+    "demoUrl": "https://doc.ragbaz.xyz"
+  },
+  "capabilities": {
+    "provides": [
+      {
+        "id": "docs.site",
+        "label": "Published documentation atlas",
+        "version": "0.1.0",
+        "supportTier": "production",
+        "description": "Docusaurus static documentation atlas for products, infrastructure, experiments, and generated workspace artifacts."
+      }
+    ]
+  },
+  "requires": {
+    "services": [
+      {
+        "capability": "artifact.registry",
+        "componentId": "ragbaz.registry",
+        "optional": true,
+        "reason": "Deployment bundle image is published through the private registry."
+      }
+    ],
+    "dns": [
+      {
+        "name": "doc.ragbaz.xyz",
+        "recordType": "A"
+      }
+    ]
+  },
+  "provides": {
+    "endpoints": [
+      {
+        "name": "public-docs",
+        "protocol": "https",
+        "urlEnv": "RAGBAZ_DOCS_URL",
+        "capabilities": ["docs.site"],
+        "auth": "none",
+        "tenantScoped": false
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "static-site",
+        "mediaType": "text/html",
+        "digestRequired": true,
+        "signatureRequired": false
+      },
+      {
+        "name": "nginx-image",
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digestRequired": true,
+        "signatureRequired": false
+      }
+    ],
+    "adminSurfaces": [
+      {
+        "name": "docusaurus-build",
+        "description": "Docusaurus build and static deployment bundle.",
+        "capabilities": ["docs.site"]
+      }
+    ]
+  },
+  "config": {
+    "knobs": [
+      {
+        "name": "site-url",
+        "env": "RAGBAZ_DOCS_URL",
+        "type": "url",
+        "required": true,
+        "control": "operator",
+        "description": "Public documentation atlas URL."
+      }
+    ]
+  },
+  "security": {
+    "authMethods": ["none"],
+    "tenantBoundary": "none",
+    "dataClasses": ["public", "logs"],
+    "secretAccess": "none",
+    "revocation": "Remove HAProxy route or stop the docs container.",
+    "auditEvents": ["docs.site.deployed"]
+  },
+  "health": {
+    "checks": [
+      {
+        "name": "public-home",
+        "type": "http",
+        "target": "https://doc.ragbaz.xyz/",
+        "intervalSeconds": 300,
+        "timeoutSeconds": 10,
+        "required": true
+      }
+    ]
+  },
+  "compatibility": {
+    "contracts": [
+      {
+        "name": "docusaurus-static-site",
+        "version": "0.1.0",
+        "test": "npm run build"
+      }
+    ]
+  },
+  "docs": {
+    "readme": "README.md",
+    "public": "https://doc.ragbaz.xyz",
+    "runbook": "deploy/README.md"
+  },
+  "metadata": {
+    "candidateWave": "component-manifest-candidate-wave"
+  }
+}
