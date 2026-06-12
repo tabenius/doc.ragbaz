@@ -1,6 +1,6 @@
 services:
   doc-site:
-    image: doc-ragbaz-xyz:latest
+    image: ${DOC_IMAGE:-doc-ragbaz-xyz:latest}
     container_name: doc-ragbaz-xyz-content
     restart: unless-stopped
     ports:
