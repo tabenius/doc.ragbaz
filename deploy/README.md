@@ -19,9 +19,9 @@ HAProxy frontend at `doc.ragbaz.cc`.
 
 ```bash
 cd /data/src/doc.ragbaz.cc/deploy
-docker login registry.ragbaz.xyz
+docker login registry.ragbaz.cc
 make build     # rebuild static export + registry-tagged image
-make push      # publish registry.ragbaz.xyz/ragbaz/doc-ragbaz-xyz:latest
+make push      # publish registry.ragbaz.cc/ragbaz/doc-ragbaz-xyz:latest
 make pull      # fetch the published image on another machine
 make deploy    # (re)create the container from DOC_IMAGE
 ```
@@ -29,7 +29,7 @@ make deploy    # (re)create the container from DOC_IMAGE
 The container listens on `127.0.0.1:8890`; HAProxy forwards `doc.ragbaz.cc`
 there. The host wildcard cert `ragbaz.xyz.pem` already covers this subdomain.
 The default image reference is
-`registry.ragbaz.xyz/ragbaz/doc-ragbaz-xyz:latest`. Override it with
+`registry.ragbaz.cc/ragbaz/doc-ragbaz-xyz:latest`. Override it with
 `DOC_IMAGE=... make deploy` for one-off testing.
 
 ## HAProxy

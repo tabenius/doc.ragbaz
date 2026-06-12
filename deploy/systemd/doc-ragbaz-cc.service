@@ -10,7 +10,7 @@ WorkingDirectory=/data/src/doc.ragbaz.cc/deploy
 Environment=DOCKER_HOST=unix://%t/docker.sock
 Environment=XDG_RUNTIME_DIR=%t
 Environment=COMPOSE_PROJECT_NAME=doc-ragbaz-xyz
-Environment=DOC_IMAGE=registry.ragbaz.xyz/ragbaz/doc-ragbaz-xyz:latest
+Environment=DOC_IMAGE=registry.ragbaz.cc/ragbaz/doc-ragbaz-xyz:latest
 ExecStart=/usr/bin/docker compose -f docker-compose.yml up -d
 ExecStop=/usr/bin/docker compose -f docker-compose.yml down
 

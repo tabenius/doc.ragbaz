@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 ROOT := $(realpath $(CURDIR)/..)
-REGISTRY := registry.ragbaz.xyz
+REGISTRY := registry.ragbaz.cc
 IMAGE_NAME := ragbaz/doc-ragbaz-xyz
 IMAGE_TAG := latest
 IMAGE := $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
