@@ -11,13 +11,13 @@ sidebar_position: 2
   marque="GLITHER"
   tagline="// policy, compiled to a sandbox"
   title="GLITHER"
-  subtitle="policy language · Mailguard control plane"
+  subtitle="policy language · the RAGBAZ stack"
   lede={<>A declarative policy DSL that compiles <Badge color="aqua">Glither → Gleam → Rust → WASM</Badge> and runs inside a WASI/OCI/WIT container, so enforcing a rule is as safe as running any sandboxed wasm component.</>}
   axes={['GLITHER', 'MAILGUARD', 'GLEAM', 'RUST', 'WASM', 'WASI', 'OCI', 'WIT']}
 />
 
 <Lead>
-GLITHER is the policy core of the Konsonans stack. It began as **Mailguard's** rule
+GLITHER is the policy core of the RAGBAZ stack. It began as **Mailguard's** rule
 engine and generalises to segment encryption, decision councils, API admission and
 data-flow redaction — one language, many dialects, all enforced through the same
 sandboxed virtual machine.
@@ -77,36 +77,14 @@ not break out of the VM.
 
 </Plate>
 
-<Plate section="B" title="Mailguard" sub="policy-driven mail control plane" num="2">
-
-<Lead size={2}>A mail control plane: inbound **sources** feed a **pipeline** of **steps** that classify each message into **buckets** (inbox · newsletters · quarantine · drop), governed by **rules**, with webhooks, a blacklist, and tamper-evident mail + audit logs.</Lead>
-
-**Glither is Mailguard's rule engine — and more.** Mailguard's rules are the
-`glither.mail` dialect, the *easy, degenerate* case of Glither: a flat
-`delivered`/`dropped` verdict plus one suspended state
-`quarantine : Pending<{delivered, dropped}>` resolved by `admin.release` or a
-deadline (see `docs/examples/mailguard.glith`). The same engine drives the other
-dialects for other systems — Mailguard is simply the proving ground.
-
-<KeyVal rows={[
-  ['technical choices', 'Rules compile to sandboxed wasm verdicts (not in-process eval) · edit-as-proposal workflow (propose → apply → revert, fully audited) · the pipeline path is itself recorded data.'],
-  ['value', 'Spam/spoof/malware control with a legible, reviewable, reversible policy and a tamper-evident trail — and safe acceptance of less-trusted rules because verdicts run in a VM.'],
-  ['functionality', 'DKIM/DMARC/allowlist selection · quarantine with release/TTL arms · external-sender tagging · mailbox routing · blacklist · webhook delivery + log · runtime health.'],
-  ['interoperability', 'mailstack provides mailboxes/domains/DKIM under it · webhooks push downstream · MCP tools let agents inspect & propose · Glither/WIT verdict interface is portable.'],
-  ['usability', 'Rules read like the §7 example · proposals diff against live · source_status / runtime status give operational visibility.'],
-  ['security', 'Verdicts execute in WASI/OCI (no exfiltration, no escape) · audit + revert bound the blast radius · capability inputs only (a rule sees handed message fields, nothing else).'],
-  ['work in progress', 'Golden-rule conformance suite (message → expected verdict); per-source trust tiers → capability budgets; quarantine liveness-lint integration; tighter mailstack↔mailguard DKIM provenance.'],
-]} />
-
-</Plate>
-
-## Konsonans platform map
+## RAGBAZ platform map
 
 Adjacent products, exposed via the MCP gateway. Each should carry its **own**
 `docs/DESCRIPTION.mdx` in its repository.
 
 | Product | Role | Interop |
 |---|---|---|
+| **Mailguard** | policy-driven mail control plane (proton-bridge) | runs `glither.mail` rules; mailstack data-plane — has its own `docs/DESCRIPTION.mdx` |
 | **mailstack** | mailboxes, domains, aliases, DKIM | data-plane under Mailguard |
 | **provision** | tenant lifecycle, custom domains | multi-tenant substrate for policy sets |
 | **articulate** | headless CMS + Next.js export | publishing surface for BAZ.Weave docs |

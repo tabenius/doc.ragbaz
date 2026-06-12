@@ -1,0 +1,56 @@
+---
+title: Description
+sidebar_position: 2
+---
+
+{/* DESCRIPTION.mdx — Mailguard. Rendered via bazweave-kit mdxComponents. */}
+
+<Hero
+  marque="MAILGUARD"
+  tagline="// policy-driven mail control plane"
+  title="Mailguard"
+  subtitle="products/mailroute · proton-bridge · glither.mail"
+  lede={<>A mail control plane whose rules are the <Badge color="aqua">glither.mail</Badge> dialect — messages settle to delivered/dropped or rest in quarantine, every verdict produced by a capability-sandboxed wasm policy.</>}
+  axes={['MAILGUARD', 'GLITHER.MAIL', 'PROTON-BRIDGE', 'MCP', 'LITESTREAM', 'WASI']}
+/>
+
+<Lead>
+Mailguard is a standalone product in the **RAGBAZ stack**. It classifies inbound
+mail through a rule pipeline; its policy language is **Glither** (the `glither.mail`
+dialect), so verdicts run as capability-sandboxed WebAssembly rather than in-process
+rule evaluation.
+</Lead>
+
+<Plate section="A" title="Mailguard" sub="policy-driven mail control plane" num="1">
+
+<Lead size={2}>A mail control plane: inbound **sources** feed a **pipeline** of **steps** that classify each message into **buckets** (inbox · newsletters · quarantine · drop), governed by **rules**, with webhooks, a blacklist, and tamper-evident mail + audit logs.</Lead>
+
+**Glither is Mailguard's rule engine.** Mailguard's rules are the `glither.mail`
+dialect, the *easy, degenerate* case of Glither: a flat `delivered`/`dropped`
+verdict plus one suspended state `quarantine : Pending<{delivered, dropped}>`
+resolved by `admin.release` or a deadline. The same engine drives the other
+dialects elsewhere in the stack — Mailguard is the proving ground.
+
+<KeyVal rows={[
+  ['technical choices', 'Rules compile to sandboxed wasm verdicts (not in-process eval) · edit-as-proposal workflow (propose → apply → revert, fully audited) · the pipeline path is itself recorded data.'],
+  ['value', 'Spam/spoof/malware control with a legible, reviewable, reversible policy and a tamper-evident trail — safe acceptance of less-trusted rules because verdicts run in a VM.'],
+  ['functionality', 'DKIM/DMARC/allowlist selection · quarantine with release/TTL arms · external-sender tagging · mailbox routing · blacklist · webhook delivery + log · runtime health.'],
+  ['interoperability', 'mailstack provides mailboxes/domains/DKIM under it · webhooks push downstream · MCP tools let agents inspect & propose · Glither/WIT verdict interface is portable.'],
+  ['usability', 'Rules read like docs/examples/mailguard.glith · proposals diff against live · source/runtime status give operational visibility.'],
+  ['security', 'Verdicts execute in WASI/OCI (no exfiltration, no escape) · audit + revert bound the blast radius · capability inputs only (a rule sees handed message fields, nothing else).'],
+  ['work in progress', 'Golden-rule conformance suite (message → expected verdict); per-source trust tiers → capability budgets; quarantine liveness-lint integration; tighter mailstack↔mailguard DKIM provenance.'],
+]} />
+
+</Plate>
+
+<Plate section="B" title="Runtime & operations" sub="proton-bridge · MCP · replication" num="2">
+
+<KeyVal rows={[
+  ['deployment', 'Docker (proton-bridge based) at products/mailroute/caas/proton-bridge; SQLite DB bind-mounted at mailguard-data/mailguard.db (→ /data in the container).'],
+  ['endpoint', 'MCP/GraphQL on 127.0.0.1:8765 (the mcpgw mailguard subgraph expects http://127.0.0.1:8765/mcp/v2); 8765 avoids the :4000 supergraph clash.'],
+  ['durability', 'Litestream replicates the SQLite DB to an off-box SFTP replica (fillmeup) so a disk loss is recoverable — added after the 2026-05-17 data loss when no off-box replica existed.'],
+  ['recovery', 'recover-mailguard.sh rebuilds the DB + service idempotently (recreate · replica-keygen · replica-enable · status); destructive wipes require MAILGUARD_FORCE=1.'],
+]} />
+
+</Plate>
+
