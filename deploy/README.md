@@ -1,8 +1,8 @@
-# doc.ragbaz.xyz — deployment bundle
+# doc.ragbaz.cc — deployment bundle
 
 Publishes the RAGBAZ Atlas Docusaurus site (built from this repo) as a static
 site served by nginx in a rootless Docker container behind the konsonans
-HAProxy frontend at `doc.ragbaz.xyz`.
+HAProxy frontend at `doc.ragbaz.cc`.
 
 ## Layout
 
@@ -18,7 +18,7 @@ HAProxy frontend at `doc.ragbaz.xyz`.
 ## Usage (on konsonans)
 
 ```bash
-cd /data/src/doc.ragbaz.xyz/deploy
+cd /data/src/doc.ragbaz.cc/deploy
 docker login registry.ragbaz.xyz
 make build     # rebuild static export + registry-tagged image
 make push      # publish registry.ragbaz.xyz/ragbaz/doc-ragbaz-xyz:latest
@@ -26,7 +26,7 @@ make pull      # fetch the published image on another machine
 make deploy    # (re)create the container from DOC_IMAGE
 ```
 
-The container listens on `127.0.0.1:8890`; HAProxy forwards `doc.ragbaz.xyz`
+The container listens on `127.0.0.1:8890`; HAProxy forwards `doc.ragbaz.cc`
 there. The host wildcard cert `ragbaz.xyz.pem` already covers this subdomain.
 The default image reference is
 `registry.ragbaz.xyz/ragbaz/doc-ragbaz-xyz:latest`. Override it with

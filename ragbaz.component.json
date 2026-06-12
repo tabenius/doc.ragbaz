@@ -5,7 +5,7 @@
     "id": "ragbaz.docs-site",
     "name": "RAGBAZ Atlas Docs Site",
     "version": "0.1.0",
-    "repoPath": "doc.ragbaz.xyz",
+    "repoPath": "doc.ragbaz.cc",
     "owner": "ragbaz",
     "lifecycle": "production"
   },
@@ -15,7 +15,7 @@
     "supportTier": "managed",
     "salesStatus": "demo",
     "pricingTags": ["included-collateral"],
-    "demoUrl": "https://doc.ragbaz.xyz"
+    "demoUrl": "https://doc.ragbaz.cc"
   },
   "capabilities": {
     "provides": [
@@ -39,7 +39,7 @@
     ],
     "dns": [
       {
-        "name": "doc.ragbaz.xyz",
+        "name": "doc.ragbaz.cc",
         "recordType": "A"
       }
     ]
@@ -102,7 +102,7 @@
       {
         "name": "public-home",
         "type": "http",
-        "target": "https://doc.ragbaz.xyz/",
+        "target": "https://doc.ragbaz.cc/",
         "intervalSeconds": 300,
         "timeoutSeconds": 10,
         "required": true
@@ -120,7 +120,7 @@
   },
   "docs": {
     "readme": "README.md",
-    "public": "https://doc.ragbaz.xyz",
+    "public": "https://doc.ragbaz.cc",
     "runbook": "deploy/README.md"
   },
   "metadata": {

@@ -1,0 +1,36 @@
+---
+title: Description
+sidebar_position: 2
+---
+
+{/* DESCRIPTION.mdx — components provided by this package's own mdxComponents. */}
+
+<Hero
+  marque="BAZWEAVE-KIT"
+  tagline="// literate design system"
+  title={<>bazweave<span style={{ color: '#fe8019' }}>·</span>kit</>}
+  subtitle="@ragbaz/bazweave-kit"
+  lede="A React/TypeScript design-system embryo for assembling BAZ.Weave literate documents: tokens, four-domain highlighting, iconography, grammars, MDX, widgets and site slots."
+  axes={['TOKENS', 'HIGHLIGHT', 'MDX', 'WIDGETS', 'SLOTS', 'DOCUSAURUS', 'NEXT.JS']}
+/>
+
+<Lead>
+The publishing layer for GLITHER. The same kit turns Glither / Gleam / WIT / Rust
+source into a publishable literate document, host-agnostic across Docusaurus,
+Next.js and static SSR.
+</Lead>
+
+<Plate section="A" title="bazweave-kit" sub="literate design system" num="1">
+
+<KeyVal rows={[
+  ['technical choices', 'Zero-dependency regex highlighter (runs in browser, SSR and the WeasyPrint/PDF pipeline) · tokens as a single source of truth (generated from tokens.json) · MDX map exposing content widgets AND design elements by JSX name.'],
+  ['value', 'One toolkit makes Glither documents publishable, themed consistently with the diagrams, on any MDX host.'],
+  ['functionality', 'Four-domain syntax highlighting · admonitions, tabs, steps, badges · PlantUML widget · ComposeStack (a docker-compose collection as a folding shipping container) · Hero/Plate/Callout/SpecTable design elements · Docusaurus & Next adapters.'],
+  ['interoperability', 'MDX component map + adapters (docusaurus, nextjs) · static HTML / SSR render · shares the token palette with diabaz.'],
+  ['usability', 'Drop-in mdxComponents; <WeaveMdxRoot> provides theme + fonts + stylesheet; widgets mirror Docusaurus APIs so the same MDX renders in both.'],
+  ['security', 'Pure presentation; the static renderer escapes content; no secrets, no eval.'],
+  ['work in progress', 'Visual-regression coverage for widgets; a deduced-overlay rendering mode; richer ComposeStack (env, health, per-service state) driven by composeToStack from a real docker-compose.yml.'],
+]} />
+
+</Plate>
+

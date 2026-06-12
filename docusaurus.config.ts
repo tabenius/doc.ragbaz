@@ -11,7 +11,7 @@ const config: Config = {
   future: {
     v4: true,
   },
-  url: 'https://doc.ragbaz.xyz',
+  url: 'https://doc.ragbaz.cc',
   baseUrl: '/',
   organizationName: 'ragbaz',
   projectName: 'atlas',

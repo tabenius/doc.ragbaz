@@ -1,0 +1,121 @@
+---
+title: Description
+sidebar_position: 2
+---
+
+{/* DESCRIPTION.mdx — BAZ.Weave / MDX. The Hero, Plate, Lead, Callout, Admonition,
+    Badge and KeyVal components are provided by bazweave-kit's mdxComponents
+    (wrap with <WeaveMdxRoot> or a Docusaurus/Next MDXProvider). */}
+
+<Hero
+  marque="GLITHER"
+  tagline="// policy, compiled to a sandbox"
+  title="GLITHER"
+  subtitle="policy language · Mailguard control plane"
+  lede={<>A declarative policy DSL that compiles <Badge color="aqua">Glither → Gleam → Rust → WASM</Badge> and runs inside a WASI/OCI/WIT container, so enforcing a rule is as safe as running any sandboxed wasm component.</>}
+  axes={['GLITHER', 'MAILGUARD', 'GLEAM', 'RUST', 'WASM', 'WASI', 'OCI', 'WIT']}
+/>
+
+<Lead>
+GLITHER is the policy core of the Konsonans stack. It began as **Mailguard's** rule
+engine and generalises to segment encryption, decision councils, API admission and
+data-flow redaction — one language, many dialects, all enforced through the same
+sandboxed virtual machine.
+</Lead>
+
+## Architecture at a glance
+
+```
+   author (.glith, literate)
+        │  weave → human doc (bazweave-kit)
+        │  tangle ↓
+   typed core IR  (Roux core; WIT types: segment, receipt, outcome, …)
+        │  transpile
+        ▼   Gleam   ── reference lowering: typed, exhaustive pattern-match
+        ▼   Rust    ── production lowering: no GC, predictable memory, mature wasm
+        ▼   WebAssembly Component  (WIT imports = the ONLY capabilities)
+        ▼   WASI + OCI container   ── capability sandbox inside an OS boundary
+```
+
+<Plate section="A" title="Glither" sub="the policy language" num="1">
+
+<Lead size={2}>A rule is a comprehension over an artifact — `artifact | predicate | … => disposition`, read "*artifact such that …, therefore …*". The author lists conditions; the compiler infers cheap **selectors** from audited **crossing-guards**, and every rule ends in exactly one named state.</Lead>
+
+**Technical choices.** Comprehension surface with phase inferred (predicate
+pushdown, like a SQL optimiser); **boxes vs ladders** (`into <box>` terminal-only,
+`raise detail to full` for graded lattice climbs, occlusion never written); **one
+information-flow lattice** doing both downgrade-checking and promotion; **triggers
+as pure guards over ligands** (`when`/`on`/`after`, with a liveness lint for any
+awaiting arm lacking a deadline); a shared **Roux** core grammar (EBNF + Pest) with
+per-dialect vocabulary (`mail`, `segment`, `decision`, `api`, `flow`).
+
+**The transpilation pipeline (the load-bearing choice).** Glither is *not*
+interpreted in-process. `tangle` produces a typed IR whose types are expressed in
+**WIT**; the IR lowers to **Gleam** (auditable reference, exhaustive `case` maps
+dispositions 1:1), then to **Rust** (no GC, deterministic memory, mature `wasm32`),
+then to a **WebAssembly Component** whose WIT imports are its *only* capabilities.
+
+<Admonition type="tip" title="WHY THE VM MAKES IT ROBUST">
+A wasm Component can touch nothing it was not handed through a WIT import — no
+filesystem, clock, network or syscalls (WASI is capability-based). Linear memory is
+bounds-checked and control-flow is structured, so the memory-corruption → RCE →
+break-out chain has no first rung. The WASI boundary sits **inside** an OCI
+container boundary, so an escape must defeat the wasm VM *and* the OS isolation,
+independently. The upshot: **rule authors need not be trusted with host access** —
+the worst a hostile rule can do is return a wrong verdict (caught by review/tests),
+not break out of the VM.
+</Admonition>
+
+<KeyVal rows={[
+  ['value', 'Prose policy → a statically-checked, sandboxed, auditable artifact; one source woven into a doc and tangled into a deployable wasm component.'],
+  ['functionality', 'Selection · audited crossing-guards · terminal boxes · graded promotions · coupled (symport) moves · fan-out (for) · time-as-ligand deadlines · interim + settlement receipts.'],
+  ['interoperability', 'WIT component model (embeds in any wasmtime/jco host) · Gleam & Rust lowerings (BEAM / native) · rendered by bazweave-kit · diagrammed by diabaz.'],
+  ['usability', 'Literate by default (/// woven) · four-domain highlighting with a deduced-phase overlay · faithful aliases (baz, dsl).'],
+  ['security', 'WASI capability sandbox + OCI isolation + WIT-typed I/O · pure/total policies → deterministic, replayable, trustworthy audit.'],
+  ['work in progress', '§11.8 ratifications (authority rungs, api probation, flow suspension); maturing Gleam→Rust→wasm codegen + IR↔WIT conformance suite; a lower-lawfulness checker; closed-world dialect declarations.'],
+]} />
+
+</Plate>
+
+<Plate section="B" title="Mailguard" sub="policy-driven mail control plane" num="2">
+
+<Lead size={2}>A mail control plane: inbound **sources** feed a **pipeline** of **steps** that classify each message into **buckets** (inbox · newsletters · quarantine · drop), governed by **rules**, with webhooks, a blacklist, and tamper-evident mail + audit logs.</Lead>
+
+**Glither is Mailguard's rule engine — and more.** Mailguard's rules are the
+`glither.mail` dialect, the *easy, degenerate* case of Glither: a flat
+`delivered`/`dropped` verdict plus one suspended state
+`quarantine : Pending<{delivered, dropped}>` resolved by `admin.release` or a
+deadline (see `docs/examples/mailguard.glith`). The same engine drives the other
+dialects for other systems — Mailguard is simply the proving ground.
+
+<KeyVal rows={[
+  ['technical choices', 'Rules compile to sandboxed wasm verdicts (not in-process eval) · edit-as-proposal workflow (propose → apply → revert, fully audited) · the pipeline path is itself recorded data.'],
+  ['value', 'Spam/spoof/malware control with a legible, reviewable, reversible policy and a tamper-evident trail — and safe acceptance of less-trusted rules because verdicts run in a VM.'],
+  ['functionality', 'DKIM/DMARC/allowlist selection · quarantine with release/TTL arms · external-sender tagging · mailbox routing · blacklist · webhook delivery + log · runtime health.'],
+  ['interoperability', 'mailstack provides mailboxes/domains/DKIM under it · webhooks push downstream · MCP tools let agents inspect & propose · Glither/WIT verdict interface is portable.'],
+  ['usability', 'Rules read like the §7 example · proposals diff against live · source_status / runtime status give operational visibility.'],
+  ['security', 'Verdicts execute in WASI/OCI (no exfiltration, no escape) · audit + revert bound the blast radius · capability inputs only (a rule sees handed message fields, nothing else).'],
+  ['work in progress', 'Golden-rule conformance suite (message → expected verdict); per-source trust tiers → capability budgets; quarantine liveness-lint integration; tighter mailstack↔mailguard DKIM provenance.'],
+]} />
+
+</Plate>
+
+## Konsonans platform map
+
+Adjacent products, exposed via the MCP gateway. Each should carry its **own**
+`docs/DESCRIPTION.mdx` in its repository.
+
+| Product | Role | Interop |
+|---|---|---|
+| **mailstack** | mailboxes, domains, aliases, DKIM | data-plane under Mailguard |
+| **provision** | tenant lifecycle, custom domains | multi-tenant substrate for policy sets |
+| **articulate** | headless CMS + Next.js export | publishing surface for BAZ.Weave docs |
+| **frog** | repo/workspace task & lock orchestration | monorepo CI/agent coordination |
+
+<Admonition type="note" title="CROSS-CUTTING DIRECTION">
+A unified policy substrate: Glither (`glither.api`, `glither.flow`) governing
+admission/redaction in front of provision and articulate, compiled to the same
+WASI/OCI/WIT artifact — every product enforcing policy through one sandboxed VM,
+with per-tenant capability budgets wired from provision into the WASI imports.
+</Admonition>
+

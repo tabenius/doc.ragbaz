@@ -1,12 +1,12 @@
 [Unit]
-Description=doc.ragbaz.xyz static Docusaurus site (docker compose, rootless)
+Description=doc.ragbaz.cc static Docusaurus site (docker compose, rootless)
 Wants=docker.service
 After=docker.service default.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/data/src/doc.ragbaz.xyz/deploy
+WorkingDirectory=/data/src/doc.ragbaz.cc/deploy
 Environment=DOCKER_HOST=unix://%t/docker.sock
 Environment=XDG_RUNTIME_DIR=%t
 Environment=COMPOSE_PROJECT_NAME=doc-ragbaz-xyz
