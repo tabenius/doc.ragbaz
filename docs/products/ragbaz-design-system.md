@@ -205,7 +205,7 @@ The design system is imported into projects via:
 @import "../path/to/ragbaz-design-system/colors_and_type.css";
 ```
 
-The Docusaurus documentation atlas (`doc.ragbaz.xyz`) imports the design system directly:
+The Docusaurus documentation atlas (`doc.ragbaz.cc`) imports the design system directly:
 ```css
 @import "../../../ragbaz-design-system/colors_and_type.css";
 ```
@@ -223,6 +223,6 @@ The README also serves as the **brand voice guide**, covering:
 ## Relationship to Products
 
 - **MATCHES** — the design system is derived from the MATCHES studio UI and governs all MATCHES surfaces
-- **doc.ragbaz.xyz** — the Atlas imports and follows the design system
+- **doc.ragbaz.cc** — the Atlas imports and follows the design system
 - **offer.ragbaz.xyz** — the landing page follows the design system
 - **Future products** — all new RAGBAZ-branded work should follow this system per `AGENTS.md` policy

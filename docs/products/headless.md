@@ -38,9 +38,9 @@ Command-line utilities for scaffolding, building, and deploying headless WordPre
 
 This toolkit is vendored for use by the **Articulate** product family. Key integrations:
 
-- **`universe/main/`** — the active storefront uses headless WordPress patterns and may leverage HWP toolkit packages
+- **`universe/storefront/`** — the active storefront uses headless WordPress patterns and may leverage HWP toolkit packages
 - **`gatekeeper/`** — the hardened WordPress runtime provides the backend that headless frontends connect to
-- **`storefront-xtas/`** — the parallel storefront also uses headless WordPress architecture
+- **`archive/storefront-xtas-2026-06-13/`** — archived predecessor material may still contain useful headless WordPress patterns
 
 The toolkit provides patterns for:
 - WordPress as a headless CMS with GraphQL (WPGraphQL) or REST API

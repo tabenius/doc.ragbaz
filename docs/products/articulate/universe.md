@@ -14,7 +14,7 @@ Path: `products/articulate/universe`
 
 The workspace ties together:
 
-- an active **Next.js storefront and admin** in `main/`,
+- an active **Next.js storefront and admin** in `storefront/`,
 - Cloudflare Worker services,
 - WordPress GraphQL content,
 - Stripe payments,
@@ -23,7 +23,7 @@ The workspace ties together:
 
 ## Main contained codebases
 
-- `main/`: current storefront and admin control plane.
+- `storefront/`: current storefront and admin control plane.
 - `wp-cf-front-oss/`: open-source mirror of the storefront stack.
 - `ragbaz.xyz/`: Cloudflare Worker service for plugin handshake, previews, and telemetry.
 - `multitenant-wp-mcp-docker-legacy/`: older Dockerized platform kept for compatibility work.
@@ -35,13 +35,13 @@ This is the strongest direct product asset in the repository because it already 
 
 ## Signals from the codebase
 
-- `main/package.json` shows Next.js 16, Cloudflare builds, Stripe, workspace packages, and tests.
+- `storefront/package.json` shows Next.js 16, Cloudflare builds, Stripe, workspace packages, and tests.
 - The workspace README documents typed image derivations, admin panels, and shared documentation protocol.
 - `AGENTS.md` files in the workspace emphasize admin UX, translations, Cloudflare KV, GraphQL auth, and operational diagnostics.
 
 ## Documentation sources
 
 - `products/articulate/universe/README.md`
-- `products/articulate/universe/main/README.md`
+- `products/articulate/universe/storefront/README.md`
 - `products/articulate/universe/AGENTS.md`
-- `products/articulate/universe/main/AGENTS.md`
+- `products/articulate/universe/storefront/AGENTS.md`

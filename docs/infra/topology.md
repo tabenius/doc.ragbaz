@@ -60,7 +60,7 @@ flowchart TB
     HAP -->|"vrak /api/"| VAPI
     HAP -->|"vrak.ragbaz.xyz"| VVITE
     HAP -->|"offer.ragbaz.xyz"| OFFER
-    HAP -->|"doc.ragbaz.xyz"| DOC
+    HAP -->|"doc.ragbaz.cc"| DOC
     HAP -->|"UA: fwknop SPA"| FWK
     HAP -->|"SMTP 25/465/587"| PFX
 
@@ -92,7 +92,7 @@ flowchart TB
 | `vrak.ragbaz.xyz` + `/api/` | `vrakAPI` | `127.0.0.1:5555` |
 | `vrak.ragbaz.xyz` | `vrak_app` | `127.0.0.1:4444` |
 | `offer.ragbaz.xyz` | `offer_backend` | `127.0.0.1:8889` |
-| `doc.ragbaz.xyz` | `doc_backend` | `127.0.0.1:8890` |
+| `doc.ragbaz.cc` | `doc_backend` | `127.0.0.1:8890` |
 | User-Agent `fwknop` | `fwknop` | `127.0.0.1:8181` |
 | SMTP `:25` / `:465` / `:587` | mail frontends | `:2225` / `:4465` / `:5587` |
 

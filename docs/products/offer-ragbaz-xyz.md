@@ -8,12 +8,12 @@ description: Deployment bundle for the RAGBAZ offer landing page and documentati
 
 Path: `offer.ragbaz.xyz/`
 
-A deployment bundle that builds the Docusaurus atlas from `doc.ragbaz.xyz` and serves it as a static site behind HAProxy at `offer.ragbaz.xyz`. Currently redirects all traffic to `https://doc.ragbaz.xyz`.
+A deployment bundle that builds the Docusaurus atlas from `doc.ragbaz.cc` and serves it as a static site behind HAProxy at `offer.ragbaz.xyz`. Currently redirects all traffic to `https://doc.ragbaz.cc`.
 
 ## Architecture
 
 ```
-doc.ragbaz.xyz (Docusaurus source)
+doc.ragbaz.cc (Docusaurus source)
     │
     ▼
 make build    — builds Docusaurus → static HTML
@@ -40,11 +40,11 @@ make deploy   # replaces running container, restarts systemd unit
 - Base: `nginx:1.29-alpine`
 - Static site served from `/usr/share/nginx/html`
 - Health check at `/healthz`
-- All other traffic 301-redirects to `https://doc.ragbaz.xyz`
+- All other traffic 301-redirects to `https://doc.ragbaz.cc`
 
 ### Nginx (`nginx.conf`)
 - `/healthz` — returns 200 OK
-- catch-all — 301 redirect to `https://doc.ragbaz.xyz`
+- catch-all — 301 redirect to `https://doc.ragbaz.cc`
 
 ### HAProxy (`haproxy/offer-ragbaz-xyz.cfg`)
 - Routes `offer.ragbaz.xyz` to the nginx container on `127.0.0.1:8889`
@@ -68,11 +68,11 @@ curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8889/healthz
 
 ## Current Status
 
-Operational. Currently serves as a redirect facade to `doc.ragbaz.xyz`. The infrastructure is ready for the actual offer/pitch content when needed.
+Operational. Currently serves as a redirect facade to `doc.ragbaz.cc`. The infrastructure is ready for the actual offer/pitch content when needed.
 
 ## Relationship to Workspace
 
 The deployment pipeline for the public RAGBAZ documentation surface:
-- **`doc.ragbaz.xyz/`** — content source (Docusaurus)
+- **`doc.ragbaz.cc/`** — content source (Docusaurus)
 - **`infra/haproxy/`** — upstream routing
 - **`ragbaz-design-system/`** — visual styling for all surfaces

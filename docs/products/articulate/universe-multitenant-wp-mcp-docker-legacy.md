@@ -22,4 +22,4 @@ It contains the older combined stack of:
 
 ## Current role
 
-The codebase is useful for compatibility, migration, and design archaeology. It should not be confused with the active storefront path in `main/`.
+The codebase is useful for compatibility, migration, and design archaeology. It should not be confused with the active storefront path in `storefront/`.

@@ -45,7 +45,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 
 ## Notes on scope
 
-- Several products overlap or duplicate one another. The most obvious cases are `storefront-xtas` versus `articulate/universe/main`, and `mailstack` versus `mailstack-staging`.
+- The Articulate storefront has been canonicalized at `products/articulate/universe/storefront`; the old `storefront-xtas` tree is archived for reference.
 - A few directories inside `products/` still look more like concept or R&D spaces than sellable offers. `wp-ai` and `scipub` are the clearest examples.
 
 Use the sidebar to drill into each product or family.

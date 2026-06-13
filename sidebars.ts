@@ -22,7 +22,7 @@ const sidebars: SidebarsConfig = {
         'products/articulate/scenario-secure-wp',
         'products/articulate/scenario-headless-commerce',
         'products/articulate/universe',
-        'products/articulate/universe-main',
+        'products/articulate/storefront',
         'products/articulate/universe-wp-cf-front-oss',
         'products/articulate/universe-ragbaz-xyz',
         'products/articulate/universe-multitenant-wp-mcp-docker-legacy',
@@ -30,9 +30,7 @@ const sidebars: SidebarsConfig = {
         'products/articulate/universe-wp-from-backup',
         'products/articulate/gatekeeper',
         'products/articulate/mailstack',
-        'products/articulate/mailstack-staging',
         'products/articulate/registry',
-        'products/articulate/storefront-xtas',
         'products/articulate/wp-ai',
         'products/articulate/wp-sidecar',
         'products/articulate/wp-wasi',
@@ -92,6 +90,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'archive/overview',
         'archive/detcordon-enforcement-prototype',
+        'archive/storefront-xtas',
       ],
     },
     {

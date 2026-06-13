@@ -33,7 +33,7 @@ Traefik routes traffic for:
 | Service | Domain | Backend |
 |---|---|---|
 | Primary site | `ragbaz.xyz` | Next.js storefront |
-| Documentation | `doc.ragbaz.xyz` | Docusaurus (via offer.ragbaz.xyz) |
+| Documentation | `doc.ragbaz.cc` | Docusaurus (via offer.ragbaz.xyz) |
 | Offer | `offer.ragbaz.xyz` | Nginx redirect |
 | Secrets | `secrets.ragbaz.cc` | Infisical |
 | Tenant sites | `*.ragbaz.cc` | Gatekeeper / wp-sidecar |

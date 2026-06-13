@@ -51,7 +51,7 @@
     <tspan x="80" dy="30">infrastructure, and research under /data/src</tspan>
   </text>
   <!-- Footer -->
-  <text x="80" y="600" font-family="'Intel One Mono', 'Courier New', monospace" font-size="13" fill="#5a5855">doc.ragbaz.xyz</text>
+  <text x="80" y="600" font-family="'Intel One Mono', 'Courier New', monospace" font-size="13" fill="#5a5855">doc.ragbaz.cc</text>
   <text x="80" y="620" font-family="'Intel One Mono', 'Courier New', monospace" font-size="11" fill="#4a4744">RAGBAZ · Workspace Atlas</text>
   <!-- Bottom accent line -->
   <rect x="80" y="635" width="300" height="2" fill="#f3c46c" opacity="0.5"/>

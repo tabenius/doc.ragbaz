@@ -47,7 +47,7 @@ dialects elsewhere in the stack — Mailguard is the proving ground.
 <Plate section="B" title="Runtime & operations" sub="proton-bridge · MCP · replication" num="2">
 
 <KeyVal rows={[
-  ['deployment', 'Docker (proton-bridge based) at products/mailroute/caas/proton-bridge; SQLite DB bind-mounted at mailguard-data/mailguard.db (→ /data in the container).'],
+  ['deployment', 'Docker (proton-bridge based) at products/mailroute/proton-bridge; SQLite DB bind-mounted at mailguard-data/mailguard.db (→ /data in the container).'],
   ['endpoint', 'MCP/GraphQL on 127.0.0.1:8765 (the mcpgw mailguard subgraph expects http://127.0.0.1:8765/mcp/v2); 8765 avoids the :4000 supergraph clash.'],
   ['durability', 'Litestream replicates the SQLite DB to an off-box SFTP replica (fillmeup) so a disk loss is recoverable — added after the 2026-05-17 data loss when no off-box replica existed.'],
   ['recovery', 'recover-mailguard.sh rebuilds the DB + service idempotently (recreate · replica-keygen · replica-enable · status); destructive wipes require MAILGUARD_FORCE=1.'],

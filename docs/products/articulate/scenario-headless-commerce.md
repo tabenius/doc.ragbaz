@@ -47,6 +47,6 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/     # storefront
 ## Canonical vs parallel
 
 `storefront` here (inside gatekeeper) is the runtime-attached shopfront. Note the
-suite also carries `storefront-xtas` and `universe/main` as parallel/older
-storefront lines — treat the gatekeeper `storefront` as the one wired to the
-secure runtime, and the others as candidates to consolidate.
+suite also carries `universe/storefront` as the canonical commerce storefront.
+Treat the gatekeeper `storefront` as the one wired to the secure runtime, and
+the archived XTAS tree as reference material only.
