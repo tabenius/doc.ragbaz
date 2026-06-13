@@ -19,11 +19,17 @@ async function* walk(dir, depth = 0) {
     else if (e.isFile() && e.name === 'DESCRIPTION.mdx' && basename(dir) === 'docs') yield join(dir, e.name);
   }
 }
+const FM = /^---\n([\s\S]*?)\n---\n?/;
+const frontmatterSlug = (body) => { const m = FM.exec(body); if (!m) return null; const s = /^slug:\s*(\S+)/m.exec(m[1]); return s ? s[1] : null; };
+const stripFrontmatter = (body) => body.replace(FM, '');
 const slugFor = (f) => f.split('/').at(-3);
 const found = []; for await (const f of walk(SRC_ROOT)) found.push(f);
 console.log(`SRC_ROOT=${SRC_ROOT}\nSITE=${SITE}\nwrite=${WRITE}\nfound ${found.length} DESCRIPTION.mdx:`);
 for (const f of found) {
-  const slug = slugFor(f), body = await readFile(f, 'utf8'), outDir = join(SITE, 'docs', 'components', slug);
+  const raw = await readFile(f, 'utf8');
+  const slug = frontmatterSlug(raw) || slugFor(f);
+  const body = stripFrontmatter(raw);
+  const outDir = join(SITE, 'docs', 'components', slug);
   console.log(`  ${slug.padEnd(26)} ← ${relative(SRC_ROOT, f)}`);
   if (!WRITE) continue;
   await mkdir(outDir, { recursive: true });
