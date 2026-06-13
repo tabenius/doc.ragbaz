@@ -47,6 +47,10 @@ const sidebars: SidebarsConfig = {
       label: 'Experiments',
       items: [
         'experiments/overview',
+        'experiments/glither-wasm-wit-compiler-spec',
+        'experiments/glither-mailguard-example',
+        'experiments/glither-world-sketch',
+        'experiments/dana-no-retrograde-sketch',
         'experiments/comet-trail',
         'experiments/omniland/overview',
         'experiments/omniland/my-editor',
