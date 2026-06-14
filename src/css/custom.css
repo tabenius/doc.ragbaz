@@ -1,4 +1,4 @@
-@import "../../../../ragbaz-design-system/colors_and_type.css";
+@import "@ragbaz-design-system/colors_and_type.css";
 
 :root {
   --pad-x: clamp(20px, 5vw, 56px);

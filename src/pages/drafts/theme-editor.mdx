@@ -1,0 +1,63 @@
+import {
+  ThemeEditorTemplateDeck,
+  ThemeFontDependencyExample,
+  ThemeMdxExample,
+  ThemeRoleMatrix,
+  ThemeSpecimen,
+} from '@ragbaz/bazweave-theme/mdx';
+
+# Theme Editor MDX Components
+
+The standalone `@ragbaz/bazweave-theme` experiment exports MDX-ready theme
+editor components for documentation systems such as Docusaurus. It depends on
+`@ragbaz/bazweave-font` for shared font specimens, so theme examples can show
+the same type vocabulary as the font chooser without copying component code.
+
+The source templates come from the Articulate universe storefront style editor:
+role-based typography presets for Display, Heading, Subheading, Body, and
+Button text. The MDX layer keeps those presets portable and interactive.
+
+## Import Surface
+
+```jsx
+import {
+  ThemeEditorTemplateDeck,
+  ThemeFontDependencyExample,
+  ThemeMdxExample,
+  ThemeRoleMatrix,
+  ThemeSpecimen,
+} from '@ragbaz/bazweave-theme/mdx';
+```
+
+## Live Template Deck
+
+The template deck lets an MDX page compare extracted theme presets inline. Click
+a preset to update the role matrix and specimen block.
+
+<ThemeEditorTemplateDeck active="technical" />
+
+## Role Matrix
+
+Use the role matrix when documenting how a theme maps font families to editor
+roles.
+
+<ThemeRoleMatrix theme="editorial" />
+
+## Theme Specimen
+
+Specimen blocks are compact enough to place next to theme configuration notes.
+
+<ThemeSpecimen theme="warm" />
+
+## Font Package Dependency
+
+This example is rendered by `@ragbaz/bazweave-theme/mdx`, but the large specimen
+comes from `@ragbaz/bazweave-font/mdx`.
+
+<ThemeFontDependencyExample theme="technical" />
+
+## Copyable MDX Example
+
+This component shows a complete interactive deck and the import pattern together.
+
+<ThemeMdxExample />

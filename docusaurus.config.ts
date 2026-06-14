@@ -4,14 +4,26 @@ import type * as Preset from '@docusaurus/preset-classic';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 
-const fontChooserMdxEntry = [
-  '../experiments/react-google-font-chooser-ui/mdx/index.jsx',
-  '../../experiments/react-google-font-chooser-ui/mdx/index.jsx',
-  '../experiments/omniland/react-google-font-chooser-ui/mdx/index.jsx',
-  '../../experiments/omniland/react-google-font-chooser-ui/mdx/index.jsx',
-]
-  .map((candidate) => path.resolve(process.cwd(), candidate))
-  .find((candidate) => existsSync(candidate));
+function firstExistingPath(candidates: string[]) {
+  return candidates
+    .map((candidate) => path.resolve(process.cwd(), candidate))
+    .find((candidate) => existsSync(candidate));
+}
+
+const bazweaveFontMdxEntry = firstExistingPath([
+  '../experiments/bazweave-font/mdx/index.jsx',
+  '../../experiments/bazweave-font/mdx/index.jsx',
+]);
+
+const bazweaveThemeMdxEntry = firstExistingPath([
+  '../experiments/bazweave-theme/mdx/index.jsx',
+  '../../experiments/bazweave-theme/mdx/index.jsx',
+]);
+
+const ragbazDesignSystemDir = firstExistingPath([
+  '../ragbaz-design-system',
+  '../../ragbaz-design-system',
+]);
 
 const config: Config = {
   title: 'RAGBAZ Atlas',
@@ -36,16 +48,25 @@ const config: Config = {
   },
   themes: ['@docusaurus/theme-mermaid'],
   plugins: [
-    function fontChooserMdxAlias() {
+    function bazweaveMdxAlias() {
       return {
-        name: 'font-chooser-mdx-alias',
+        name: 'bazweave-mdx-alias',
         configureWebpack() {
           return {
             resolve: {
               alias: {
                 '@font-chooser/mdx':
-                  fontChooserMdxEntry ||
-                  path.resolve(process.cwd(), '../experiments/react-google-font-chooser-ui/mdx/index.jsx'),
+                  bazweaveFontMdxEntry ||
+                  path.resolve(process.cwd(), '../experiments/bazweave-font/mdx/index.jsx'),
+                '@ragbaz/bazweave-font/mdx':
+                  bazweaveFontMdxEntry ||
+                  path.resolve(process.cwd(), '../experiments/bazweave-font/mdx/index.jsx'),
+                '@ragbaz/bazweave-theme/mdx':
+                  bazweaveThemeMdxEntry ||
+                  path.resolve(process.cwd(), '../experiments/bazweave-theme/mdx/index.jsx'),
+                '@ragbaz-design-system':
+                  ragbazDesignSystemDir ||
+                  path.resolve(process.cwd(), '../ragbaz-design-system'),
               },
             },
           };
