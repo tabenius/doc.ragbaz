@@ -6,7 +6,7 @@ description: Frontend tool for experimenting with typography selection and deplo
 
 # React Google Font Chooser UI
 
-Path: `experiments/omniland/react-google-font-chooser-ui`
+Path: `experiments/react-google-font-chooser-ui`
 
 This project is a Next.js application focused on font choice or typography tooling.
 

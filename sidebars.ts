@@ -51,7 +51,7 @@ const sidebars: SidebarsConfig = {
         'experiments/omniland/overview',
         'experiments/omniland/my-editor',
         'experiments/omniland/omniland2',
-        'experiments/omniland/react-google-font-chooser-ui',
+        'experiments/react-google-font-chooser-ui',
         'experiments/phpvm',
         'experiments/tanstack-start-basic-cloudflare',
         'experiments/tanstack-supabase-start-basic',

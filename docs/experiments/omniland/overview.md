@@ -14,7 +14,6 @@ Path: `experiments/omniland`
 
 - `my-editor`: editor-oriented Next.js prototype with Craft.js and React Email dependencies.
 - `omniland2`: larger Next.js/Cloudflare experiment with tests, content sources, and migrations.
-- `react-google-font-chooser-ui`: frontend tool for font selection and Cloudflare-capable deployment.
 
 ## Current role
 

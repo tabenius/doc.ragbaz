@@ -1,0 +1,79 @@
+import {
+  FontChooserAxisExample,
+  FontChooserFamilyMatrix,
+  FontChooserMdxExample,
+  FontChooserSpecimen,
+  FontChooserThemeDeck,
+} from '@font-chooser/mdx';
+
+# Font Chooser MDX Components
+
+The standalone `react-google-font-chooser-ui` repo now exports MDX-ready React
+components for documentation systems such as Docusaurus.
+
+These examples use the RAGBAZ sub-theme direction: warm gruvbox dark as the
+base, **Intel One Mono** for command/data surfaces, and a clean neo-grotesque
+layer for readable prose. The variants are `slate`, `elegant`, `tufte`, and
+`formal`.
+
+## Import Surface
+
+```jsx
+import {
+  FontChooserAxisExample,
+  FontChooserFamilyMatrix,
+  FontChooserMdxExample,
+  FontChooserSpecimen,
+  FontChooserThemeDeck,
+} from 'react-google-font-chooser-ui/mdx';
+```
+
+In this Atlas draft, Docusaurus resolves the same module through a local alias
+while the package is still workspace-local.
+
+## Live Theme Deck
+
+The theme deck is interactive and suitable for MDX pages that need to explain the
+visual vocabulary without mounting the full Next.js font chooser.
+
+<FontChooserThemeDeck active="slate" />
+
+## Family Matrix
+
+Use the family matrix when documenting the base pairing rules.
+
+<FontChooserFamilyMatrix />
+
+## Specimen Blocks
+
+Specimen blocks are compact enough to inline in prose-heavy docs.
+
+<FontChooserSpecimen
+  theme="tufte"
+  family="Noto Sans"
+  label="Editorial proof"
+  text="Readable docs still need instrument-grade type."
+  size={58}
+/>
+
+<FontChooserSpecimen
+  theme="formal"
+  family="Intel One Mono"
+  label="Command surface"
+  text="wght 620 / opsz 14 / wdth 100"
+  size={44}
+/>
+
+## Axis Explanation
+
+For pages that teach variable font controls, use a small axis strip rather than a
+full editor.
+
+<FontChooserAxisExample axis="wght" min={300} max={900} value={620} />
+
+## Copyable MDX Example
+
+This component demonstrates how an MDX page can expose an interactive sample and
+a copyable import pattern together.
+
+<FontChooserMdxExample />
