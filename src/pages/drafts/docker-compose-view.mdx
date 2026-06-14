@@ -1,0 +1,90 @@
+import DockerComposeView from '../../components/DockerComposeView';
+
+# Docker Compose MDX View
+
+`DockerComposeView` renders a Compose-like JavaScript object as MDX-friendly
+service cards. It is meant for Atlas pages that need to explain deployment
+shape without pasting a full YAML wall into the page.
+
+The view has a compact/full verbosity toggle, foldable sections, redacted
+environment values for sensitive-looking keys, and explicit lists for ports,
+volumes, environments, dependencies, and networks.
+
+```jsx
+import DockerComposeView from '../../components/DockerComposeView';
+```
+
+export const tenantCompose = {
+  name: 'tenantstack-ragbaz-demo',
+  services: {
+    gateway: {
+      image: 'registry.ragbaz.cc/ragbaz/gatekeeper:latest',
+      ports: ['127.0.0.1:8810:8080'],
+      volumes: ['./gateway.toml:/etc/gatekeeper/gateway.toml:ro'],
+      environment: {
+        RUST_LOG: 'info',
+        GATEKEEPER_SECRET: 'from-env',
+        UPSTREAM_WORDPRESS_URL: 'http://wordpress:80',
+      },
+      depends_on: ['wordpress'],
+      networks: ['tenant'],
+    },
+    wordpress: {
+      image: 'wordpress:php8.3-apache',
+      ports: ['127.0.0.1:8811:80'],
+      volumes: ['wordpress_data:/var/www/html', './uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro'],
+      environment: {
+        WORDPRESS_DB_HOST: 'db',
+        WORDPRESS_DB_NAME: 'tenant',
+        WORDPRESS_DB_USER: 'tenant',
+        WORDPRESS_DB_PASSWORD: 'from-env',
+      },
+      depends_on: ['db'],
+      networks: ['tenant'],
+    },
+    db: {
+      image: 'mariadb:11',
+      volumes: ['db_data:/var/lib/mysql'],
+      environment: {
+        MARIADB_DATABASE: 'tenant',
+        MARIADB_USER: 'tenant',
+        MARIADB_PASSWORD: 'from-env',
+        MARIADB_ROOT_PASSWORD: 'from-env',
+      },
+      networks: ['tenant'],
+    },
+    mail: {
+      image: 'registry.ragbaz.cc/ragbaz/mailguard:latest',
+      ports: ['127.0.0.1:2525:2525'],
+      volumes: ['mail_state:/var/lib/mailguard'],
+      environment: ['MAILGUARD_MODE=relay', 'MAILGUARD_API_TOKEN=from-env'],
+      networks: ['tenant'],
+    },
+  },
+  volumes: {
+    wordpress_data: {},
+    db_data: {},
+    mail_state: {},
+  },
+  networks: {
+    tenant: {},
+  },
+};
+
+## Tenant Stack
+
+<DockerComposeView
+  title="Tenant WordPress Stack"
+  compose={tenantCompose}
+  defaultVerbosity="compact"
+/>
+
+## Full Verbosity
+
+Use `defaultVerbosity="full"` when a page is primarily a deployment review.
+
+<DockerComposeView
+  title="Tenant WordPress Stack / Full"
+  compose={tenantCompose}
+  defaultVerbosity="full"
+/>
