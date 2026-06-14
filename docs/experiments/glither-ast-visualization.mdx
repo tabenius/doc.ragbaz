@@ -1,0 +1,630 @@
+---
+title: AST Visualization
+sidebar_position: 9
+description: Interactive AST/parse-tree visualizations for glither policy DSL rules, mailguard, and Gleam oracle code.
+---
+
+import { useState } from 'react';
+
+{/* AstNode: collapsible tree node */}
+export function AstNode({ node, depth = 0 }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const hasChildren = node.children && node.children.length > 0;
+
+  const colors = {
+    root:      '#f3c46c',
+    keyword:   '#7ab8ff',
+    structure: '#8ec07c',
+    value:     '#b8bb26',
+    action:    '#f2a77a',
+    predicate: '#d3869b',
+    meta:      '#9f9f9f',
+  };
+  const color   = colors[node.role] || colors.structure;
+  const toggle  = () => setCollapsed(c => !c);
+
+  return (
+    <div style={{ marginLeft: depth > 0 ? 18 : 0 }}>
+      <div
+        onClick={hasChildren ? toggle : undefined}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '2px 0', cursor: hasChildren ? 'pointer' : 'default',
+          borderLeft: depth > 0 ? '1px solid #2a2a2a' : 'none',
+          paddingLeft: depth > 0 ? 10 : 0,
+          userSelect: 'none',
+        }}
+      >
+        {hasChildren && (
+          <span style={{ color: '#737373', fontSize: 10, width: 12, display: 'inline-block' }}>
+            {collapsed ? '▶' : '▼'}
+          </span>
+        )}
+        {!hasChildren && <span style={{ width: 12 }} />}
+        <span style={{
+          display: 'inline-block',
+          background: color + '20',
+          color: color,
+          fontSize: 11,
+          fontWeight: 600,
+          fontFamily: 'monospace',
+          padding: '0 6px',
+          borderRadius: 3,
+          border: '1px solid ' + color + '40',
+          letterSpacing: '0.03em',
+          textTransform: 'uppercase',
+        }}>
+          {node.type}
+        </span>
+        {node.value && (
+          <span style={{
+            color: '#d8c29d',
+            fontSize: 12,
+            fontFamily: 'monospace',
+            marginLeft: 4,
+          }}>
+            {node.value}
+          </span>
+        )}
+        {node.meta && (
+          <span style={{
+            color: '#737373',
+            fontSize: 10,
+            fontFamily: 'monospace',
+            marginLeft: 6,
+            fontStyle: 'italic',
+          }}>
+            {node.meta}
+          </span>
+        )}
+      </div>
+      {hasChildren && !collapsed && (
+        <div style={{ borderLeft: '1px solid #2a2a2a', marginLeft: 5, paddingLeft: 5 }}>
+          {node.children.map((child, i) => (
+            <AstNode key={i} node={child} depth={depth + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+{/* ParseExample: source code + AST side-by-side */}
+export function ParseExample({ source, tree, lang = 'glither', caption }) {
+  const codeStyle = {
+    background: '#0a0908',
+    border: '1px solid #2a2a2a',
+    borderRadius: 6,
+    fontFamily: '"Intel One Mono", "JetBrains Mono", monospace',
+    fontSize: 12,
+    lineHeight: 1.6,
+    overflow: 'auto',
+  };
+
+  return (
+    <div style={{
+      marginBottom: 32,
+      border: '1px solid #2a2a2a',
+      borderRadius: 8,
+      background: '#0f0f10',
+      overflow: 'hidden',
+    }}>
+      {caption && (
+        <div style={{
+          padding: '8px 14px',
+          fontSize: 12,
+          fontFamily: 'monospace',
+          color: '#9f9f9f',
+          borderBottom: '1px solid #2a2a2a',
+          background: '#121212',
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+        }}>
+          {caption}
+        </div>
+      )}
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div style={{
+          flex: '0 0 auto',
+          width: '50%',
+          maxWidth: '50%',
+          ...codeStyle,
+          borderRight: '1px solid #2a2a2a',
+          borderRadius: 0,
+          margin: 0,
+        }}>
+          <pre style={{
+            margin: 0, padding: 14,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            color: '#d8c29d',
+          }}>
+            {source.trim()}
+          </pre>
+        </div>
+        <div style={{
+          flex: 1,
+          background: '#0a0908',
+          padding: 14,
+          fontSize: 12,
+          fontFamily: 'monospace',
+          overflow: 'auto',
+        }}>
+          <AstNode node={tree} depth={0} />
+        </div>
+      </div>
+      <div style={{
+        padding: '6px 14px',
+        fontSize: 11,
+        color: '#737373',
+        borderTop: '1px solid #2a2a2a',
+        background: '#121212',
+        fontFamily: 'monospace',
+      }}>
+        click <span style={{ color: '#9f9f9f' }}>▼/▶</span> to collapse/expand AST nodes
+      </div>
+    </div>
+  );
+}
+
+{/* AstLegend: color key */}
+export function AstLegend() {
+  const items = [
+    { role: 'root',      label: 'root / module' },
+    { role: 'keyword',   label: 'keyword / pragma' },
+    { role: 'structure', label: 'structure / rule' },
+    { role: 'value',     label: 'value / ident' },
+    { role: 'action',    label: 'action / disposition' },
+    { role: 'predicate', label: 'predicate / guard' },
+    { role: 'meta',      label: 'metadata / comment' },
+  ];
+  return (
+    <div style={{
+      display: 'flex', flexWrap: 'wrap', gap: 8,
+      padding: '10px 14px',
+      border: '1px solid #2a2a2a',
+      borderRadius: 6,
+      background: '#121212',
+      marginBottom: 24,
+      fontFamily: 'monospace',
+    }}>
+      <span style={{ color: '#737373', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>AST node legend:</span>
+      {items.map(i => (
+        <span key={i.role} style={{
+          fontSize: 10,
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+        }}>
+          <span style={{
+            display: 'inline-block',
+            width: 8, height: 8, borderRadius: 2,
+            background: (() => {
+              const colors = { root:'#f3c46c', keyword:'#7ab8ff', structure:'#8ec07c', value:'#b8bb26', action:'#f2a77a', predicate:'#d3869b', meta:'#9f9f9f' };
+              return colors[i.role];
+            })(),
+          }} />
+          <span style={{ color: '#d8c29d' }}>{i.label}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+## AST visualization
+
+The <span style={{ color: '#f3c46c' }}>Glither</span> compiler pipeline parses policy DSL source into a typed core IR. Below are interactive parse-tree visualizations for three languages in the stack.
+
+<AstLegend />
+
+---
+
+## Mailguard rule (glither.mail dialect)
+
+The canonical `mailguard.glith` ruleset — a flat mail-policy DSL that drops DMARC-reject mail and quarantines suspicious senders.
+
+```glither
+#pragma dialect glither.mail ; fold first-match
+
+rule drop_dmarc_reject =
+  msg | from.domain != dkim.domain
+      | not sender.allowlisted
+      | dmarc.policy == reject
+  => into dropped (reason = dmarc_reject)
+
+rule quarantine_spoof =
+  msg | from.domain != dkim.domain
+      | not sender.allowlisted
+  => hold into quarantine
+       on    admin.release   into delivered
+       after 72h             into dropped (reason = quarantine_timeout)
+```
+
+<ParseExample
+  caption="Parse tree: mailguard ruleset"
+  source={`#pragma dialect glither.mail ; fold first-match
+
+rule drop_dmarc_reject =
+  msg | from.domain != dkim.domain
+      | not sender.allowlisted
+      | dmarc.policy == reject
+  => into dropped (reason = dmarc_reject)`}
+  tree={{
+    type: 'ruleset',
+    role: 'root',
+    children: [
+      {
+        type: 'pragma',
+        role: 'keyword',
+        value: 'dialect glither.mail ; fold first-match',
+        meta: 'compiler directive: dialect + fold strategy',
+      },
+      {
+        type: 'rule_def',
+        role: 'structure',
+        value: 'drop_dmarc_reject',
+        meta: 'rule name',
+        children: [
+          {
+            type: 'comprehension',
+            role: 'structure',
+            value: 'collection: msg',
+            children: [
+              {
+                type: 'predicate',
+                role: 'predicate',
+                value: 'from.domain != dkim.domain',
+                meta: 'filter: domain mismatch',
+              },
+              {
+                type: 'predicate',
+                role: 'predicate',
+                value: 'not sender.allowlisted',
+                meta: 'negation: sender not trusted',
+              },
+              {
+                type: 'predicate',
+                role: 'predicate',
+                value: 'dmarc.policy == reject',
+                meta: 'DMARC disposition check',
+              },
+            ],
+          },
+          {
+            type: 'disposition',
+            role: 'action',
+            children: [
+              {
+                type: 'terminal',
+                role: 'action',
+                value: 'into dropped',
+                children: [
+                  {
+                    type: 'args',
+                    role: 'value',
+                    value: 'reason = dmarc_reject',
+                    meta: 'tagged argument',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+  lang="glither"
+/>
+
+The AST shows two top-level children under `ruleset`: the `pragma` directive (dialect selection + fold strategy) and the `rule_def` with its `comprehension` (collection + predicates) and `disposition` (terminal action). Each predicate filters the message; when all match, the disposition fires.
+
+---
+
+## Glither rule (Roux core grammar)
+
+A richer rule with a group definition, regex predicates, and a conditional arm. This exercises more of the Roux PEG grammar.
+
+```glither
+#pragma dialect glither.core
+
+group high_risk = msg | dmarc.policy == reject
+                     | spf.result == fail
+
+rule route_high_risk =
+  msg | from.domain ~ /(bank|pay|sso)\.(com|org|io)$/
+      | not recipient.org == from.domain
+  => raise clearance to restricted
+     for recipient.org
+  , route to admin_hold
+  when dmarc.policy == reject
+  after 24h into dropped (reason = unclaimed)
+```
+
+<ParseExample
+  caption="Parse tree: Roux-core rule with conditions + arm"
+  source={`group high_risk = msg | dmarc.policy == reject
+                     | spf.result == fail
+
+rule route_high_risk =
+  msg | from.domain ~ /(bank|pay|sso)\\.(com|org|io)$/
+      | not recipient.org == from.domain
+  => raise clearance to restricted
+     for recipient.org
+  , route to admin_hold
+  when dmarc.policy == reject
+  after 24h into dropped (reason = unclaimed)`}
+  tree={{
+    type: 'ruleset',
+    role: 'root',
+    children: [
+      {
+        type: 'pragma',
+        role: 'keyword',
+        value: 'dialect glither.core',
+        meta: 'base dialect',
+      },
+      {
+        type: 'group_def',
+        role: 'structure',
+        value: 'high_risk',
+        meta: 'named predicate group',
+        children: [
+          {
+            type: 'comprehension',
+            role: 'structure',
+            value: 'collection: msg',
+            children: [
+              {
+                type: 'predicate',
+                role: 'predicate',
+                value: 'dmarc.policy == reject',
+              },
+              {
+                type: 'predicate',
+                role: 'predicate',
+                value: 'spf.result == fail',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'rule_def',
+        role: 'structure',
+        value: 'route_high_risk',
+        children: [
+          {
+            type: 'comprehension',
+            role: 'structure',
+            value: 'collection: msg',
+            children: [
+              {
+                type: 'predicate',
+                role: 'predicate',
+                value: 'from.domain ~ regex',
+                children: [
+                  {
+                    type: 'regex',
+                    role: 'value',
+                    value: '/(bank|pay|sso)\\.(com|org|io)$/',
+                    meta: 'regex match operator ~',
+                  },
+                ],
+              },
+              {
+                type: 'predicate',
+                role: 'predicate',
+                value: 'not recipient.org == from.domain',
+                meta: 'negated equality',
+              },
+            ],
+          },
+          {
+            type: 'disposition',
+            role: 'action',
+            children: [
+              {
+                type: 'graded',
+                role: 'action',
+                value: 'raise clearance to restricted for recipient.org',
+                meta: 'ladder climb: clearance level',
+              },
+              {
+                type: 'verb_app',
+                role: 'action',
+                value: 'route to admin_hold',
+                meta: 'secondary disposition',
+              },
+            ],
+          },
+          {
+            type: 'arm',
+            role: 'structure',
+            value: 'conditional trigger',
+            children: [
+              {
+                type: 'trigger',
+                role: 'predicate',
+                value: 'when dmarc.policy == reject',
+                meta: 'guard condition',
+              },
+              {
+                type: 'trigger',
+                role: 'predicate',
+                value: 'after 24h',
+                meta: 'duration timeout',
+              },
+              {
+                type: 'terminal',
+                role: 'action',
+                value: 'into dropped (reason = unclaimed)',
+                meta: 'expiration fallback',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+  lang="glither"
+/>
+
+Key differences from the mailguard example:
+- A **`group_def`** node captures the reusable `high_risk` predicate group
+- **`regex`** nodes appear under predicates using the `~` match operator
+- Two dispositions are chained: a **`graded`** (ladder climb) and a **`verb_app`** (route)
+- A conditional **`arm`** attaches `when` and `after` triggers with a fallback terminal
+
+---
+
+## Gleam — the auditable oracle
+
+Gleam functions serve as the "auditable oracle" — a human-readable rendering of the compiled IR that is checked for conformance against the WASM output.
+
+```gleam
+pub type Clearance {
+  Unrestricted
+  Restricted
+  Confidential
+  Secret
+  TopSecret
+}
+
+pub type Receipt {
+  Receipt(outcome: Outcome, by: String, ts: Int)
+}
+
+pub fn dispose(seg: Segment, lig: Ligands) -> Receipt {
+  case seg.scope, seg.detail, lig.clearance, lig.lineage.verified {
+    "security/" <> _, Full, c, True if c >= Restricted ->
+      seg
+      |> wrap_to(SecurityCleared)
+      |> seed
+      |> receipt(Shadowed, by: "restricted_security_full")
+
+    _, _, _, _ ->
+      receipt(Denied, by: "default_deny")
+  }
+}
+```
+
+<ParseExample
+  caption="Parse tree: Gleam oracle function"
+  source={`pub fn dispose(seg: Segment, lig: Ligands) -> Receipt {
+  case seg.scope, seg.detail, lig.clearance, lig.lineage.verified {
+    "security/" <> _, Full, c, True if c >= Restricted ->
+      seg |> wrap_to(SecurityCleared) |> seed
+      |> receipt(Shadowed, by: "restricted_security_full")
+
+    _, _, _, _ ->
+      receipt(Denied, by: "default_deny")
+  }
+}`}
+  tree={{
+    type: 'module',
+    role: 'root',
+    children: [
+      {
+        type: 'type_decl',
+        role: 'structure',
+        value: 'Clearance',
+        meta: 'custom type (enum)',
+        children: [
+          { type: 'variant', role: 'value', value: 'Unrestricted' },
+          { type: 'variant', role: 'value', value: 'Restricted' },
+          { type: 'variant', role: 'value', value: 'Confidential' },
+          { type: 'variant', role: 'value', value: 'Secret' },
+          { type: 'variant', role: 'value', value: 'TopSecret' },
+        ],
+      },
+      {
+        type: 'fn_decl',
+        role: 'structure',
+        value: 'dispose',
+        meta: 'public function',
+        children: [
+          {
+            type: 'params',
+            role: 'value',
+            value: 'seg: Segment, lig: Ligands',
+            meta: 'typed parameters',
+          },
+          {
+            type: 'return_type',
+            role: 'keyword',
+            value: 'Receipt',
+            meta: '-> return type',
+          },
+          {
+            type: 'case_expr',
+            role: 'predicate',
+            meta: 'pattern match on 4-tuple',
+            children: [
+              {
+                type: 'pattern',
+                role: 'predicate',
+                value: '"security/" <> _, Full, c, True if c >= Restricted',
+                meta: 'guard: clearance >= Restricted + verified lineage',
+              },
+              {
+                type: 'body',
+                role: 'action',
+                value: 'pipeline: wrap_to -> seed -> receipt',
+                meta: 'wraps segment, seeds ascent, emits Shadowed receipt',
+              },
+              {
+                type: 'pattern',
+                role: 'predicate',
+                value: '_, _, _, _',
+                meta: 'fallback wildcard',
+              },
+              {
+                type: 'body',
+                role: 'action',
+                value: 'receipt(Denied, by: "default_deny")',
+                meta: 'default deny outcome',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }}
+  lang="gleam"
+/>
+
+The Gleam AST shows the `fn_decl` for `dispose` with typed parameters, return type annotation, and a `case_expr` body with guard patterns and pipeline bodies. Two clauses are always produced: the authorized path and the default-deny fallback — guaranteeing total coverage.
+
+---
+
+## How the AST maps to the compiler pipeline
+
+The parse trees above correspond to the first stage of the Glither compiler pipeline:
+
+<pre style={{
+  background: '#0a0908',
+  border: '1px solid #2a2a2a',
+  borderRadius: 6,
+  padding: 14,
+  fontSize: 12,
+  fontFamily: 'monospace',
+  color: '#d8c29d',
+  lineHeight: 1.7,
+}}>
+<span style={{color:'#7ab8ff', fontWeight:600}}>source</span> (.glith / .gleam)
+  │
+  ▼
+<span style={{color:'#f3c46c', fontWeight:600}}>PEG parse</span> (roux.pest / gleam parser)
+  │  ◀── <i style={{color:'#737373'}}>the AST trees above</i>
+  ▼
+<span style={{color:'#f3c46c', fontWeight:600}}>lower</span> → typed core IR (Roux IR nodes)
+  │
+  ▼
+<span style={{color:'#f3c46c', fontWeight:600}}>infer</span> → phase-annotated IR
+  │
+  ▼
+<span style={{color:'#f3c46c', fontWeight:600}}>codegen</span> → WASM component (via Rust) / Gleam package (oracle)
+  │                 │
+  ▼                 ▼
+<span style={{color:'#8ec07c'}}>component.wasm</span>     <span style={{color:'#8ec07c'}}>target/glither-gen/*.gleam</span>
+</pre>
+
+The AST is produced by the **PEG parse** stage (roux.pest for Glither, or the Gleam parser for oracle code). The `lower` pass transforms the concrete parse tree into the typed core IR — discarding whitespace and comment nodes, resolving references, and annotating each node with WIT types.

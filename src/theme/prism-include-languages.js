@@ -48,6 +48,42 @@ export default function prismIncludeLanguages(PrismObject) {
   };
   // Alias used by some pages / source files.
   PrismObject.languages.glith = PrismObject.languages.glither;
+  // glither.world meta-dialect
+  PrismObject.languages['glither-world'] = PrismObject.languages.glither;
+  PrismObject.languages['glither.world'] = PrismObject.languages.glither;
+
+  // ── WIT — WebAssembly Interface Types ──────────────────────
+  PrismObject.languages.wit = {
+    comment: [
+      {pattern: /\/\/.*/, greedy: true},
+      {pattern: /\/\*[\s\S]*?\*\//, greedy: true},
+    ],
+    string: {pattern: /"(?:[^"\\\n]|\\.)*"/, greedy: true},
+    keyword: /\b(?:package|interface|world|use|import|export|record|variant|enum|flags|resource|static|method|constructor|type|func|define|default|as|from)\b/,
+    builtin: /\b(?:string|u8|u16|u32|u64|s8|s16|s32|s64|float32|float64|bool|list|option|result|tuple|future|stream)\b/,
+    'class-name': /\b(?:[A-Z]\w*)\b/,
+    namespace: /(?:[a-z][a-z0-9]*)(?::[a-z][a-z0-9]*)*(?:\/[a-z][a-z0-9]*)*/,
+    number: /\b\d+(?:\.\d+)?\b/,
+    operator: /[=:]/,
+    punctuation: /[{}()<>\[\];,.]/,
+  };
+
+  // ── Roux — Glither shared grammar engine (PEG / pest format) ──
+  PrismObject.languages.roux = {
+    comment: [
+      {pattern: /\/\/\/.*/, greedy: true, alias: 'doc-comment'},
+      {pattern: /\/\/.*/, greedy: true},
+    ],
+    string: [
+      {pattern: /\^?"(?:\\.|[^"\\])*"/, greedy: true},
+      {pattern: /`(?:[^`\\]|\\.)*`/, greedy: true},
+    ],
+    keyword: /\b(?:ruleset|pragma|dialect|fold|first-match|accumulate|enrich|group|rule|comprehension|collection|predicate|neg|operand|match_op|value|regex|rung|disposition|wrap|mv|terminal|graded|dest|verb_app|args|arm|trigger|event_ref|duration|ident|string|number|literate|SOI|EOI|NEWLINE|ANY|ASCII_DIGIT|ASCII_ALPHANUMERIC)\b/,
+    'class-name': /\b(?:[A-Z]\w*)\b/,
+    number: /\b\d+\b/,
+    operator: /=>|->|>=|<=|==|!=|~|\||=|!|\^|&|@|\?|\+|\*/,
+    punctuation: /[{}()\[\];,._]/,
+  };
 
   delete globalThis.Prism;
 }

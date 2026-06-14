@@ -196,6 +196,54 @@ code {
   border-radius: var(--r-1);
 }
 
+pre {
+  background: var(--bg-0);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-3);
+}
+
+.theme-code-block {
+  background: var(--bg-0);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-1);
+  margin-bottom: var(--s-5);
+}
+
+.theme-code-block pre {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+
+.docusaurus-highlighted-code-line {
+  background: rgba(243, 196, 108, 0.08);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+  border-left: 3px solid var(--orange-1);
+}
+
+.theme-code-block:hover .clean-btn {
+  opacity: 0.7;
+}
+
+.theme-code-block .clean-btn {
+  border-radius: var(--r-1);
+  color: var(--fg-4);
+  transition: opacity var(--dur-fast) var(--ease-out);
+  opacity: 0.4;
+}
+
+.theme-code-block .clean-btn:hover {
+  opacity: 1;
+  color: var(--orange-1);
+}
+
+.token.builtin { color: var(--orange-2); }
+.token.doc-comment { color: var(--fg-5); font-style: italic; }
+.token.pragma { color: var(--blue-1); font-weight: 600; }
+
 .button {
   border-width: var(--btn-border-w);
   font-family: var(--font-mono);

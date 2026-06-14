@@ -1,6 +1,6 @@
-import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import ragbazPrismTheme from './src/theme/ragbazPrismTheme';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 
@@ -146,8 +146,9 @@ const config: Config = {
       copyright: `Snapshot ${new Date().getFullYear()} · /data/src · Built with Docusaurus`,
     },
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.nightOwl,
+      theme: ragbazPrismTheme,
+      darkTheme: ragbazPrismTheme,
+      additionalLanguages: ['yaml'],
     },
   } satisfies Preset.ThemeConfig,
 };
