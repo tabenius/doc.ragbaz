@@ -25,6 +25,11 @@ const ragbazDesignSystemDir = firstExistingPath([
   '../../ragbaz-design-system',
 ]);
 
+const bazweaveKitWidgetsEntry = firstExistingPath([
+  '../experiments/glither/packages/bazweave-kit/src/widgets/index.tsx',
+  '../../experiments/glither/packages/bazweave-kit/src/widgets/index.tsx',
+]);
+
 const config: Config = {
   title: 'RAGBAZ Atlas',
   tagline:
@@ -64,6 +69,9 @@ const config: Config = {
                 '@ragbaz/bazweave-theme/mdx':
                   bazweaveThemeMdxEntry ||
                   path.resolve(process.cwd(), '../experiments/bazweave-theme/mdx/index.jsx'),
+                '@ragbaz/bazweave-kit/widgets':
+                  bazweaveKitWidgetsEntry ||
+                  path.resolve(process.cwd(), '../experiments/glither/packages/bazweave-kit/src/widgets/index.tsx'),
                 '@ragbaz-design-system':
                   ragbazDesignSystemDir ||
                   path.resolve(process.cwd(), '../ragbaz-design-system'),
@@ -114,6 +122,18 @@ const config: Config = {
         {to: '/docs/products/overview', label: 'Products', position: 'right'},
         {to: '/docs/infra/overview', label: 'Infra', position: 'right'},
         {href: 'https://offer.ragbaz.xyz', label: 'Offer', position: 'right'},
+        {
+          type: 'dropdown',
+          label: 'UI',
+          position: 'right',
+          items: [
+            {to: '/drafts/font-chooser', label: 'Font Chooser'},
+            {to: '/drafts/theme-editor', label: 'Theme Editor'},
+            {to: '/drafts/docker-compose-view', label: 'Compose View'},
+            {to: '/docs/components/bazweave-kit/description', label: 'Bazweave Kit'},
+            {to: '/docs/components/bazweave-kit/widgets', label: 'Widgets Demo'},
+          ],
+        },
       ],
     },
     footer: {

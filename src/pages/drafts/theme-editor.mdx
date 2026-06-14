@@ -7,21 +7,169 @@ import {
   ThemeSpecimen,
   ThemeSpecimenSuite,
 } from '@ragbaz/bazweave-theme/mdx';
+import { FontChooserThemeDeck, FontChooserSpecimen, FontChooserFamilyMatrix, FontChooserAxisExample } from '@font-chooser/mdx';
 
 # Theme Editor MDX Components
 
-The standalone `@ragbaz/bazweave-theme` experiment exports MDX-ready JSON theme
-editor components for documentation systems such as Docusaurus. It depends on
-`@ragbaz/bazweave-font` for shared font specimens, so theme examples can show
-the same type vocabulary as the font chooser without copying component code.
+<Hero
+  marque="BAZWEAVE·THEME"
+  tagline="// portable theme components for MDX hosts"
+  title="Theme Editor"
+  subtitle="@ragbaz/bazweave-theme/mdx"
+  lede="Six typography presets, an interactive workbench, role-based font mapping, and full-surface specimen suites — all usable from Docusaurus and other MDX hosts."
+  axes={['PRESETS', 'WORKBENCH', 'ROLES', 'SPECIMENS', 'CSS VARS']}
+/>
 
-The source templates come from the Articulate universe storefront style editor:
-role-based typography presets for Display, Heading, Subheading, Body, and
-Button text. The MDX layer keeps those presets portable and interactive.
+<Lead>
+The theme editor depends on `@ragbaz/bazweave-font` for shared font specimens,
+so theme examples show the same type vocabulary as the font chooser without
+copying components. Source templates come from the Articulate universe storefront
+style editor — role-based typography presets for Display, Heading, Subheading,
+Body, and Button text.
+</Lead>
 
-## Import Surface
+---
+
+## All 6 Theme Presets
+
+Compact specimen cards for quick visual comparison. Each uses its own
+typography palette, font roles, and accent colors.
+
+<div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', margin: '20px 0' }}>
+  {['clean', 'editorial', 'technical', 'warm', 'haute', 'vintage'].map((id) => (
+    <div key={id} style={{ background: '#121212', borderRadius: 8, border: '1px solid #2a2a2a', overflow: 'hidden' }}>
+      <ThemeSpecimen theme={id} />
+    </div>
+  ))}
+</div>
+
+| Preset | ID | Display | Heading | Body |
+|---|---|---|---|---|
+| Clean | `clean` | Inter | Inter | Inter |
+| Editorial | `editorial` | Playfair Display | DM Sans | Lora |
+| Technical | `technical` | Space Grotesk | Space Grotesk | IBM Plex Sans |
+| Warm | `warm` | Fraunces | Nunito | Nunito |
+| Haute | `haute` | Cormorant Garamond | Raleway | Crimson Pro |
+| Vintage | `vintage` | Playfair Display | Cormorant Garamond | Lora |
+
+---
+
+## Interactive Template Deck
+
+Click a preset card to update the role matrix and inline specimen below.
+
+<ThemeEditorTemplateDeck active="technical" />
+
+---
+
+## Role Matrix
+
+Five font roles map to CSS custom properties at theme-apply time.
+Each role controls a distinct surface: display headlines, section headings,
+subheadings, body copy, and button text.
+
+Below is the role map for the **technical** preset:
+
+<ThemeRoleMatrix theme="technical" />
+
+The same matrix works for any preset by passing its id as the `theme` prop:
+
+<ThemeRoleMatrix theme="editorial" />
+
+---
+
+## Surface Specimens
+
+The full specimen suite previews a theme across five surfaces in one view:
+prose/article, product card, command/data panel, button set, and form controls.
+
+<ThemeSpecimenSuite theme="haute" />
+
+Try the same suite with a different theme:
+
+<Tabs defaultValue="technical">
+<TabItem value="technical" label="Technical"><ThemeSpecimenSuite theme="technical" /></TabItem>
+<TabItem value="clean" label="Clean"><ThemeSpecimenSuite theme="clean" /></TabItem>
+<TabItem value="warm" label="Warm"><ThemeSpecimenSuite theme="warm" /></TabItem>
+<TabItem value="editorial" label="Editorial"><ThemeSpecimenSuite theme="editorial" /></TabItem>
+<TabItem value="vintage" label="Vintage"><ThemeSpecimenSuite theme="vintage" /></TabItem>
+</Tabs>
+
+---
+
+## CSS Custom Properties
+
+When a theme is applied, the `buildThemeCssVars(theme)` helper produces
+these CSS custom properties. They drive every specimen and surface above.
+
+<SpecTable rows={[
+  ['--bt-palette-1', 'palette[0]', 'Primary palette — display headlines, structural color'],
+  ['--bt-palette-2', 'palette[1]', 'Secondary palette — headings, subheadings'],
+  ['--bt-font-display', 'fontDisplay.family', 'System stack for display-level headlines'],
+  ['--bt-font-heading', 'fontHeading.family', 'Section and page headings'],
+  ['--bt-font-subheading', 'fontSubheading.family', 'Sub-sections, sidebar labels'],
+  ['--bt-font-body', 'fontBody.family', 'Paragraphs, descriptions, long-form content'],
+  ['--bt-font-button', 'fontButton.family', 'Call-to-action and navigation controls'],
+]} />
+
+---
+
+## Full Workbench
+
+The workbench combines preset selector, palette color pickers, font role
+selectors (from a curated list of 12 Google Fonts), and a JSON editor with
+save/load/copy/export actions.
+
+<ThemeEditorWorkbench active="technical" />
+
+Changes made in the workbench update the role matrix and specimen suite
+beneath it in real time.
+
+---
+
+## Font Integration
+
+The theme package delegates large font specimens to `@ragbaz/bazweave-font/mdx`.
+This avoids duplicating the font display engine while keeping theme and font
+documentation in sync.
+
+<ThemeFontDependencyExample theme="editorial" />
+
+### Font Chooser Theme Deck
+
+The font chooser has its own theme deck with four surface variants:
+**Slate** (default), **Elegant**, **Tufte** (light/paper variant), and
+**Formal** (executive dark).
+
+<FontChooserThemeDeck active="slate" />
+
+Click a theme card to see the font specimen update. The font chooser themes
+are independent from the typography presets — they control the *background
+surface* for font previews rather than font role mappings.
+
+### Font Families
+
+<FontChooserFamilyMatrix />
+
+### Variable Axis Example
+
+<FontChooserAxisExample axis="wght" min={300} max={900} value={620} />
+
+---
+
+## Copyable MDX Example
+
+This section shows a complete interactive workbench and its import pattern
+together — the same pattern you would paste into your own MDX page.
+
+<ThemeMdxExample />
+
+---
+
+## Import Reference
 
 ```jsx
+// Theme presets + interactive workbench
 import {
   ThemeEditorWorkbench,
   ThemeEditorTemplateDeck,
@@ -31,53 +179,19 @@ import {
   ThemeSpecimen,
   ThemeSpecimenSuite,
 } from '@ragbaz/bazweave-theme/mdx';
+
+// Font chooser (for integrated specimens)
+import {
+  FontChooserThemeDeck,
+  FontChooserSpecimen,
+  FontChooserFamilyMatrix,
+  FontChooserAxisExample,
+} from '@ragbaz/bazweave-font/mdx';
 ```
 
-## Live Theme Editor
+<br />
 
-The workbench is the MDX-safe theme editor surface: choose a preset, edit the two
-typography palette slots, switch role families, edit the underlying JSON, copy
-it, save/load it through page `localStorage`, and export it as a `.json` file.
-The specimen suite updates from that JSON-backed theme state.
-
-<ThemeEditorWorkbench active="technical" />
-
-## Template Deck
-
-The template deck lets an MDX page compare extracted theme presets inline. Click
-a preset to update the role matrix and specimen block.
-
-<ThemeEditorTemplateDeck active="technical" />
-
-## Role Matrix
-
-Use the role matrix when documenting how a theme maps font families to editor
-roles.
-
-<ThemeRoleMatrix theme="editorial" />
-
-## Theme Specimen
-
-Specimen blocks are compact enough to place next to theme configuration notes.
-
-<ThemeSpecimen theme="warm" />
-
-## Specimen Suite
-
-The suite expands the preview into the surfaces we usually check together:
-prose, command/data panels, cards, buttons, and form controls.
-
-<ThemeSpecimenSuite theme="haute" />
-
-## Font Package Dependency
-
-This example is rendered by `@ragbaz/bazweave-theme/mdx`, but the large specimen
-comes from `@ragbaz/bazweave-font/mdx`.
-
-<ThemeFontDependencyExample theme="technical" />
-
-## Copyable MDX Example
-
-This component shows a complete interactive deck and the import pattern together.
-
-<ThemeMdxExample />
+<Callout accent="orange">
+  **See also:** <a href="/drafts/font-chooser">Font Chooser MDX Components</a>
+  — standalone font specimen and variable-axis demo page.
+</Callout>

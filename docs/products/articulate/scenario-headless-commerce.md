@@ -8,7 +8,7 @@ description: Next.js storefront rendering against headless WordPress GraphQL.
 
 The commerce face of the platform: a **Next.js storefront** that renders against
 WordPress **GraphQL**, while WordPress stays purely editorial. It runs as part of
-the [gatekeeper stack](./scenario-secure-wp.md) (Scenario B is its runtime
+the [gatekeeper stack](./scenario-secure-wp) (Scenario B is its runtime
 substrate).
 
 ## How it wires up

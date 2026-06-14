@@ -8,45 +8,48 @@ import {
 
 # Font Chooser MDX Components
 
-The standalone `@ragbaz/bazweave-font` experiment now exports MDX-ready React
-components for documentation systems such as Docusaurus.
+<Hero
+  marque="BAZWEAVE·FONT"
+  tagline="// portable font-specimen components for MDX hosts"
+  title="Font Chooser"
+  subtitle="@ragbaz/bazweave-font/mdx"
+  lede="Variable-font specimen deck, family matrix, axis examples, and interactive theme previews — usable in Docusaurus and other MDX hosts without mounting the full Next.js chooser."
+  axes={['SPECIMENS', 'THEME DECK', 'FAMILIES', 'AXES', 'MDX']}
+/>
 
-These examples use the RAGBAZ sub-theme direction: warm gruvbox dark as the
-base, **Intel One Mono** for command/data surfaces, and a clean neo-grotesque
-layer for readable prose. The variants are `slate`, `elegant`, `tufte`, and
-`formal`.
+<Lead>
+These examples use the RAGBAZ sub-theme direction with Intel One Mono for
+command/data surfaces and a clean neo-grotesque layer for readable prose.
+The font chooser provides MDX-safe components that let documentation pages
+show live font specimens, compare families, and explain variable axes.
+</Lead>
 
-## Import Surface
-
-```jsx
-import {
-  FontChooserAxisExample,
-  FontChooserFamilyMatrix,
-  FontChooserMdxExample,
-  FontChooserSpecimen,
-  FontChooserThemeDeck,
-} from '@ragbaz/bazweave-font/mdx';
-```
-
-In this Atlas draft, Docusaurus resolves the same module through a local alias
-while the package is still workspace-local.
+---
 
 ## Live Theme Deck
 
-The theme deck is interactive and suitable for MDX pages that need to explain the
-visual vocabulary without mounting the full Next.js font chooser.
+The theme deck lets readers switch between four background surfaces and see
+how font specimens read in each context.
 
 <FontChooserThemeDeck active="slate" />
 
-## Family Matrix
+Click a theme card to update the specimen. Each theme controls the background
+surface for font previews:
 
-Use the family matrix when documenting the base pairing rules.
+| Theme | ID | Style | Accent |
+|---|---|---|---|
+| Slate | `slate` | Warm gruvbox-dark | `#f3c46c` |
+| Elegant | `elegant` | Low-gloss amber dark | `#e2a55f` |
+| Tufte | `tufte` | Paper-proof light | `#9d5b1d` |
+| Formal | `formal` | Executive dark | `#f3c46c` |
 
-<FontChooserFamilyMatrix />
+---
 
-## Specimen Blocks
+## Custom Specimens
 
-Specimen blocks are compact enough to inline in prose-heavy docs.
+The `FontChooserSpecimen` component accepts `theme`, `family`, `label`,
+`text`, and `size` props, making it suitable for inline use in prose-heavy
+documentation.
 
 <FontChooserSpecimen
   theme="tufte"
@@ -64,16 +67,75 @@ Specimen blocks are compact enough to inline in prose-heavy docs.
   size={44}
 />
 
-## Axis Explanation
+### Text Scale Comparison
 
-For pages that teach variable font controls, use a small axis strip rather than a
-full editor.
+<div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', margin: '20px 0' }}>
+  <FontChooserSpecimen theme="slate" family="Noto Sans" label="Reading size" text="The quick brown fox jumps over the lazy dog." size={24} />
+  <FontChooserSpecimen theme="elegant" family="Intel One Mono" label="Code size" text="fn main() -> Result<()>" size={18} />
+  <FontChooserSpecimen theme="formal" family="Bricolage Grotesque" label="Display size" text="Bazweave" size={64} />
+</div>
+
+---
+
+## Family Matrix
+
+Use the family matrix when documenting the base pairing rules across the
+three RAGBAZ font families.
+
+<FontChooserFamilyMatrix />
+
+---
+
+## Variable Axis Examples
+
+For pages that teach variable font controls, use a compact axis strip
+rather than mounting the full chooser.
 
 <FontChooserAxisExample axis="wght" min={300} max={900} value={620} />
 
+<FontChooserAxisExample axis="opsz" min={14} max={144} value={48} />
+
+<FontChooserAxisExample axis="wdth" min={75} max={100} value={85} />
+
+---
+
 ## Copyable MDX Example
 
-This component demonstrates how an MDX page can expose an interactive sample and
-a copyable import pattern together.
+This component demonstrates how an MDX page can expose an interactive sample
+and a copyable import pattern together.
 
 <FontChooserMdxExample />
+
+---
+
+## Font Catalog
+
+The built-in catalog includes 16 Google Fonts across 4 categories:
+
+| Category | Fonts |
+|---|---|
+| Sans-serif | Inter, Roboto Flex, Bricolage Grotesque, Commissioner, Manrope, Space Grotesk, Sora, Outfit |
+| Serif | Fraunces, Playfair Display, Cormorant Garamond, DM Serif Display |
+| Monospace | Space Mono, IBM Plex Mono |
+| Handwriting | Dancing Script, Caveat |
+
+---
+
+## Import Reference
+
+```jsx
+import {
+  FontChooserThemeDeck,
+  FontChooserSpecimen,
+  FontChooserFamilyMatrix,
+  FontChooserAxisExample,
+  FontChooserMdxExample,
+} from '@ragbaz/bazweave-font/mdx';
+```
+
+<br />
+
+<Callout accent="orange">
+  **See also:** <a href="/drafts/theme-editor">Theme Editor MDX Components</a>
+  — typography presets, interactive workbench, and full-surface specimen suites.
+</Callout>

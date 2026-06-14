@@ -1,0 +1,254 @@
+---
+title: Widgets Demo
+sidebar_position: 3
+---
+
+<Hero
+  marque="BAZWEAVE·KIT"
+  tagline="// interactive widget gallery"
+  title="Widgets Demo"
+  subtitle="Live interactive examples of every MDX component"
+  lede="All kit widgets rendered inline with real interactivity — click tabs, toggle reveals, step through guides, inspect spec tables, and verify responsive layout."
+  axes={['TABS', 'ADMONITION', 'STEPS', 'BADGE', 'REVEAL', 'KEYVAL', 'SPEC TABLE']}
+/>
+
+---
+
+## Tabs
+
+Tabs switch content panels without page navigation. They're useful for showing
+multi-language examples, alternative approaches, or layered detail.
+
+<Tabs defaultValue="mdx">
+<TabItem value="mdx" label="MDX">
+  ```mdx
+  <TabItem value="react" label="React">
+    <Button />
+  </TabItem>
+  ```
+</TabItem>
+<TabItem value="react" label="React">
+  ```tsx
+  import { Tabs, TabItem } from '@ragbaz/bazweave-kit';
+  ```
+</TabItem>
+<TabItem value="cli" label="CLI">
+  ```bash
+  npm install @ragbaz/bazweave-kit
+  ```
+</TabItem>
+</Tabs>
+
+<Tabs defaultValue="output">
+<TabItem value="output" label="Output">
+  <div style={{ background: '#282828', padding: 16, borderRadius: 6 }}>
+    <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+      {['one', 'two', 'three'].map(t => (
+        <span key={t} style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: '#8ec07c' }}>{t}{' '}</span>
+      ))}
+    </div>
+    <p style={{ color: '#d5c4a1', margin: 0 }}>Tab content panel. Active tab highlighted with accent bottom-border.</p>
+  </div>
+</TabItem>
+<TabItem value="source" label="Source">
+  ```tsx
+  <Tabs defaultValue="one">
+    <TabItem value="one" label="One">First panel</TabItem>
+    <TabItem value="two" label="Two">Second panel</TabItem>
+  </Tabs>
+  ```
+</TabItem>
+</Tabs>
+
+---
+
+## Admonition
+
+Admonitions call attention to information of a particular tone. The five
+supported types align with Docusaurus conventions.
+
+<Admonition type="note">
+  **Note** — Neutral context, supplementary detail.
+  This admonition uses the _note_ type (gray accent).
+</Admonition>
+
+<Admonition type="tip" title="Pro Tip">
+  **Tip** — Best-practice recommendation.
+  Setting a pinned compatibility_date on Workers avoids accidental breaking changes.
+  A tip admonition draws the reader's eye with a green accent border.
+</Admonition>
+
+<Admonition type="info" title="Context">
+  **Info** — Background or reference material.
+  Blue accent. Useful for pre-requisites, terminology, or links to related docs.
+</Admonition>
+
+<Admonition type="warning">
+  **Warning** — Important caution. Yellow accent.
+  "Rate-limit all auth and submission endpoints" — not just some of them.
+</Admonition>
+
+<Admonition type="danger">
+  **Danger** — Critical. Red accent. "Never trust a client-supplied amount."
+  Server-side price validation is mandatory for any payment flow.
+</Admonition>
+
+---
+
+## Steps
+
+A numbered step-sequence for walkthroughs, tutorials, and checklists.
+
+<Steps>
+
+A numbered step-sequence for walkthroughs, tutorials, and checklists.
+
+Steps render an ordered list with prominent green numbered badges. Each item
+gets an automatic sequential counter that adapts to insertions.
+
+Use the `Steps` component as a wrapper; its direct
+children become the steps. Insert or reorder at will and the numbers follow.
+
+Each step can contain arbitrary MDX — paragraphs, code blocks, admonitions,
+even nested tabs. The kit's `Steps` uses a flex layout so text and badge
+stay aligned even with multi-line content.
+
+</Steps>
+
+---
+
+## Badge
+
+Inline labels for status, version, taxonomy, or metadata.
+
+<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', padding: '12px 0' }}>
+  <Badge color="aqua">stable</Badge>
+  <Badge color="green">production</Badge>
+  <Badge color="blue">WIP</Badge>
+  <Badge color="purple">deprecated</Badge>
+  <Badge color="yellow">beta</Badge>
+  <Badge color="red">breaking</Badge>
+  <Badge color="orange">experimental</Badge>
+  <Badge color="gray">archived</Badge>
+</div>
+
+Custom color badge: <Badge color="#e0785e">v2.3.1</Badge>
+
+Badges are font-mono, small caps, compact. They adapt to the accent palette
+and are useful inline in paragraph text, table cells, or headings.
+
+---
+
+## Reveal
+
+Collapsible content block that starts closed. Good for spoilers, extended
+examples, or optional deep-dives.
+
+<Reveal label="Show solution" hiddenLabel="Hide solution">
+
+The `Reveal` component wraps content that the reader can expand on demand.
+It uses a click-to-toggle button with a purple indicator dot. The expanded
+content can contain any MDX — code blocks, images, nested components.
+
+```tsx
+<Reveal label="Show answer" hiddenLabel="Hide">
+  {children}
+</Reveal>
+```
+
+</Reveal>
+
+<Reveal>
+
+Reveal without explicit labels uses defaults ("reveal" / "hide").
+
+```bash
+# Example: check DNS delegation
+dig NS ragbaz.xyz +short
+# → dns101.registrar-servers.com  ← still Namecheap; CF never made authoritative
+```
+
+</Reveal>
+
+---
+
+## KeyVal
+
+Key-value data table for structured metadata, configuration properties, or
+attribute lists.
+
+<KeyVal rows={[
+  ['package', '@ragbaz/bazweave-kit'],
+  ['version', '0.0.1-dev'],
+  ['highlight engine', 'regex (zero-dependency, SSR-compatible)'],
+  ['token source', 'tokens.json (single source of truth)'],
+  ['host adapters', 'Docusaurus · Next.js · static SSR'],
+  ['widgets', 'Plantuml · Admonition · Tabs · Steps · Badge · Reveal · KeyVal · CodeBlock · ComposeStack'],
+  ['design elements', 'Hero · Plate · SideBySide · Callout · Lead · Note · SpecTable · DomainChips'],
+  ['iconography', 'ConstructIcon · GlyphToken · IconLegend'],
+  ['grammars', 'Glither · Gleam · WIT · Roux'],
+  ['license', 'MIT'],
+]} />
+
+KeyVal renders each row as a key-value pair with the key styled in
+yellow mono and the value in body color, separated by a subtle border.
+
+---
+
+## SpecTable
+
+Three-column reference table for token / value / note triples. Used throughout
+bazweave-kit DESCRIPTION docs for design-system inventories.
+
+<SpecTable rows={[
+  ['C.orange1', '#fe8019', 'Primary accent — headings, marque, domain tag'],
+  ['C.green1', '#8ec07c', 'Success — step badges, running state'],
+  ['C.aqua1', '#83a598', 'Info / link color'],
+  ['C.purple1', '#d3869b', 'Reveal toggle, secondary accent'],
+  ['C.yellow1', '#fabd2f', 'Warning, key-value labels'],
+  ['C.fg1', '#ebdbb2', 'Primary body text'],
+  ['C.fg2', '#d5c4a1', 'Secondary body text / lead paragraphs'],
+  ['C.fg3', '#928374', 'Muted text — captions, meta, annotations'],
+  ['C.bg1', '#1d2021', 'Page background (dark)'],
+  ['C.bg2', '#282828', 'Surface / callout background'],
+  ['C.border', '#3c3836', 'Rule lines, table borders, dividers'],
+]} />
+
+---
+
+## Plantuml
+
+<Tabs defaultValue="note">
+<TabItem value="note" label="Usage Note">
+  <Admonition type="info">
+    `Plantuml` renders inline UML diagrams from PlantUML source. It uses the
+    kit's built-in PlantUML renderer. Requires a PlantUML server endpoint or
+    local Java renderer configured at the kit level.
+  </Admonition>
+</TabItem>
+<TabItem value="pending" label="Pending">
+  PlantUML rendering is available but requires backend configuration.
+  See the kit manual for server setup instructions.
+</TabItem>
+</Tabs>
+
+---
+
+## ComposeStack
+
+The shipping-container visual for a docker-compose collection. Shown fully
+on the [Compose Docker View](/drafts/docker-compose-view) page under the
+UI menus.
+
+---
+
+## Responsive grid
+
+All widgets respect their parent container width. Tabs wrap their labels on
+narrow viewports; Steps reflow multi-line content; tables scroll horizontally
+when needed. The demo page itself is designed to be tested at any breakpoint
+from 360 px upward.
+
+---
+
+_End of widget gallery. All components rendered by the doc site's MDX component map._

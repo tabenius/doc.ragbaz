@@ -1,0 +1,127 @@
+---
+title: "Scenario: Secure WordPress"
+sidebar_position: 3
+description: Premium hardened WordPress runtime (gatekeeper) for *.ragbaz.cc clients.
+---
+
+# Scenario B — Secure WordPress runtime
+
+The premium tier: a client site on `*.ragbaz.cc` served through **gatekeeper**, a
+hardened Rust ingress in front of a headless WordPress runtime. WordPress stays
+the editorial CMS; the Rust gateway owns ingress, auth, GraphQL limits, and
+client-cert admin gating.
+
+## Stack
+
+<ComposeSystemView
+  stackName="gatekeeper"
+  fileName="products/articulate/gatekeeper/docker-compose.yml"
+  compose={{
+    services: {
+      wordpress: {
+        build: { context: '.', dockerfile: 'docker/php.Dockerfile' },
+        image: 'ragbaz/gatekeeper-wp:latest',
+        command: 'php -d variables_order=EGPCS -S 0.0.0.0:9000 -t /var/www/html /var/www/html/router.php',
+        expose: ['9000'],
+        environment: {
+          GATEKEEPER_SHARED_SECRET: '${GATEKEEPER_SHARED_SECRET:?err}',
+          RAGBAZ_GRAPHQL_MAX_DEPTH: '${RAGBAZ_GRAPHQL_MAX_DEPTH:-7}',
+          RAGBAZ_GRAPHQL_MAX_COMPLEXITY: '${RAGBAZ_GRAPHQL_MAX_COMPLEXITY:-200}',
+          RAGBAZ_ADMIN_ALLOWLIST: '${RAGBAZ_ADMIN_ALLOWLIST:-}',
+          RAGBAZ_CLIENT_CERT_PROXY_SECRET: '${RAGBAZ_CLIENT_CERT_PROXY_SECRET:-}',
+          RAGBAZ_AUTH_AUDIT_RETENTION_DAYS: '${RAGBAZ_AUTH_AUDIT_RETENTION_DAYS:-90}',
+          HEADLESS_WP_FROM_EMAIL: '${HEADLESS_WP_FROM_EMAIL:-}',
+          RAGBAZ_WEBHOOK_SECRET: '${RAGBAZ_WEBHOOK_SECRET:-}',
+        },
+        volumes: ['./www:/var/www/html', './database:/database'],
+        restart: 'unless-stopped',
+      },
+      gateway: {
+        build: { context: '.', dockerfile: 'docker/gateway.Dockerfile' },
+        image: 'ragbaz/gatekeeper-rust:latest',
+        ports: ['127.0.0.1:8080:8080'],
+        environment: {
+          RUST_LOG: '${RUST_LOG:-info,tower_http=info}',
+          GATEKEEPER_SHARED_SECRET: '${GATEKEEPER_SHARED_SECRET:?err}',
+          RAGBAZ_AUTH_MAINTENANCE_URL: 'http://wordpress:9000/wp-json/ragbaz-auth/v1/manage',
+          RAGBAZ_WPPROBE_ENABLED: '${RAGBAZ_WPPROBE_ENABLED:-0}',
+          RAGBAZ_STOREFRONT_URL: 'http://storefront:3000',
+        },
+        volumes: ['./database:/database'],
+        depends_on: ['wordpress'],
+        restart: 'unless-stopped',
+      },
+      storefront: {
+        build: { context: '.', dockerfile: 'docker/storefront.Dockerfile' },
+        image: 'ragbaz/gatekeeper-storefront:latest',
+        ports: ['127.0.0.1:3000:3000'],
+        environment: {
+          WORDPRESS_API_URL: 'http://wordpress:9000/graphql',
+          GATEKEEPER_HEALTH_URL: 'http://gateway:8080/healthz',
+        },
+        depends_on: ['wordpress'],
+        restart: 'unless-stopped',
+      },
+      haproxy: {
+        image: 'haproxy:3.1',
+        ports: ['127.0.0.1:8443:8080'],
+        volumes: ['./deploy/reverse-proxy/haproxy.test.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro'],
+        depends_on: ['gateway'],
+        restart: 'unless-stopped',
+      },
+      litestream: {
+        image: 'litestream/litestream:0.5',
+        profiles: ['backup'],
+        environment: {
+          REPLICA_IP: '${REPLICA_IP:-10.70.0.12}',
+          REPLICA_USER: '${REPLICA_USER:-litestream}',
+        },
+        volumes: [
+          './database:/database',
+          './litestream.yml:/etc/litestream.yml:ro',
+          './secrets/litestream:/etc/litestream:ro',
+        ],
+        depends_on: ['wordpress'],
+        restart: 'unless-stopped',
+      },
+    },
+    volumes: {
+      database: {},
+      www: {},
+    },
+  }}
+/>
+
+## Routing
+
+On konsonans, HAProxy already routes `ragbaz.cc` + `*.ragbaz.cc` →
+`secure_wp_backend` → `127.0.0.1:8080`. Bringing the stack up on that port makes
+the secure tier live.
+
+## Deploy
+
+```bash
+cd products/articulate/gatekeeper
+cp .env.compose.example .env          # then set GATEKEEPER_SHARED_SECRET
+# the only required secret is GATEKEEPER_SHARED_SECRET; the rest have defaults
+docker compose up -d --build          # wordpress + gateway + storefront
+
+# verify
+curl -s http://127.0.0.1:8080/healthz                 # gateway health
+curl -s http://127.0.0.1:9000/graphql -X POST \
+  -H 'content-type: application/json' \
+  -d '{"query":"{ generalSettings { title } }"}'      # WP GraphQL via runtime
+```
+
+## Hardening levers (env)
+
+- `RAGBAZ_GRAPHQL_MAX_DEPTH` (7), `RAGBAZ_GRAPHQL_MAX_COMPLEXITY` (200),
+  `RAGBAZ_GRAPHQL_MAX_PAGE_SIZE` (50), `RAGBAZ_GRAPHQL_PUBLIC_INTROSPECTION` (0).
+- `RAGBAZ_CLIENT_CERT_*` — mTLS-gated `/wp-admin` access.
+- `RAGBAZ_ADMIN_ALLOWLIST`, `RAGBAZ_AUTH_AUDIT_RETENTION_DAYS` (90).
+- `RAGBAZ_WPPROBE_ENABLED` — periodic vulnerability probing of the WP target.
+
+## Outbound mail
+
+`HEADLESS_WP_FROM_*` / `RETURN_PATH` route WordPress mail through the shared
+[mail stack](../../infra/topology.md); outbound is DKIM-signed.
