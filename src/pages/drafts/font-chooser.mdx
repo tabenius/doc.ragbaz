@@ -1,5 +1,6 @@
 import {
   FontChooserAxisExample,
+  FontChooserAxisPanel,
   FontChooserFamilyMatrix,
   FontChooserMdxExample,
   FontChooserSpecimen,
@@ -59,19 +60,13 @@ documentation.
   size={58}
 />
 
-<FontChooserSpecimen
-  theme="formal"
-  family="Intel One Mono"
-  label="Command surface"
-  text="wght 620 / opsz 14 / wdth 100"
-  size={44}
-/>
+<FontChooserAxisPanel theme="formal" />
 
 ### Text Scale Comparison
 
 <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', margin: '20px 0' }}>
   <FontChooserSpecimen theme="slate" family="Noto Sans" label="Reading size" text="The quick brown fox jumps over the lazy dog." size={24} />
-  <FontChooserSpecimen theme="elegant" family="Intel One Mono" label="Code size" text="fn main() -> Result<()>" size={18} />
+  <FontChooserSpecimen theme="elegant" family="Noto Sans" label="Subheading" text="Variable fonts adapt to every scale." size={36} />
   <FontChooserSpecimen theme="formal" family="Bricolage Grotesque" label="Display size" text="Bazweave" size={64} />
 </div>
 

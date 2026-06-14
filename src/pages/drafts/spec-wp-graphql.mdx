@@ -1,0 +1,163 @@
+<Hero
+  marque="SPEC"
+  tagline="// wp-graphql bleep"
+  title="WP GraphQL Bleep Interface"
+  subtitle="ragbaz:wp-graphql — version 0.1.0"
+  lede="A WebAssembly component interface that exposes a stripped WordPress instance as a GraphQL API. PHP compiled to WASM via php-wasm/Emscripten, WordPress core + WPGraphQL bundled into the component, read-only DB access provided by the platform host."
+  axes={['WIT', 'WASM', 'GRAPHQL', 'WORDPRESS', 'BLEEP']}
+/>
+
+<Lead>
+  No HTTP server, no wp-admin, no wp-cron — query in, response out. The component
+  is published as an OCI artifact, signed, and registered as a Bleep of kind
+  `source` or `transform`.
+</Lead>
+
+<Badge color="orange">Draft v0.1</Badge>
+<Badge color="purple">WIT</Badge>
+<Badge color="blue">ragbaz:wp-graphql</Badge>
+
+---
+
+## Interface Overview
+
+The WIT package defines three interfaces: **types** (shared records), **platform**
+(host ABI imported by the bleep), and **graphql-backend** (exported by the bleep).
+
+---
+
+### Shared Types
+
+```wit
+interface types {
+    record graphql-request {
+        query: string,
+        variables: option<string>,
+        operation-name: option<string>,
+    }
+
+    record graphql-response {
+        data: option<string>,
+        errors: option<string>,
+        extensions: option<string>,
+    }
+
+    variant wp-error {
+        parse-error(string),
+        execution-error(string),
+        not-found(string),
+        forbidden(string),
+        internal(string),
+    }
+}
+```
+
+<KeyVal rows={[
+  ['graphql-request.query', 'The GraphQL query or mutation string'],
+  ['graphql-request.variables', 'JSON-encoded variables object (optional)'],
+  ['graphql-response.data', 'JSON-encoded `data` field (null on top-level error)'],
+  ['graphql-response.errors', 'JSON-encoded error array'],
+  ['wp-error.internal', 'PHP fatal, OOM, or unrecoverable error'],
+]} />
+
+---
+
+### Platform Host ABI (imported)
+
+```wit
+interface platform {
+    enum log-level { debug, info, warn, error }
+
+    log: func(level: log-level, message: string);
+    get-secret: func(name: string) -> result<string, wp-error>;
+    db-query: func(sql: string, params: list<string>) -> result<string, wp-error>;
+    read-wp-content: func(path: string) -> result<list<u8>, wp-error>;
+}
+```
+
+<Admonition type="warning">
+  **Security constraints**: `db-query` only accepts SELECT statements — the host
+  enforces this at the SQL parser level. Only secret names declared in the bleep
+  manifest's `required-secrets` are accepted by `get-secret`.
+</Admonition>
+
+| Function | Purpose |
+|---|---|
+| `log` | Emit log line to platform log stream |
+| `get-secret` | Retrieve a declared secret (e.g. DB password) |
+| `db-query` | Read-only SQL against the WordPress database |
+| `read-wp-content` | Read a file from `wp-content/` |
+
+---
+
+### GraphQL Backend (exported)
+
+```wit
+interface graphql-backend {
+    record backend-descriptor {
+        name: string,
+        version: string,
+        wp-version: string,
+        plugins: list<string>,
+        schema-hash: string,
+        readonly: bool,
+        max-depth: u32,
+        max-complexity: u32,
+    }
+
+    execute: func(request: graphql-request) -> result<graphql-response, wp-error>;
+    introspect: func() -> result<graphql-response, wp-error>;
+    describe: func() -> backend-descriptor;
+}
+```
+
+<Callout accent="green">
+  `describe()` returns static metadata about the bleep without touching the DB.
+  `introspect()` returns the full `__schema` introspection result in one call,
+  bypassing query parsing.
+</Callout>
+
+<Admonition type="info">
+  The component is responsible for parsing and validating the query, resolving
+  fields via WordPress data layers (post, user, taxonomy, etc.), and applying
+  depth / complexity limits declared in `describe()`. Field-level errors are
+  surfaced in `graphql-response.errors` — `execute` only returns `Err` for
+  unrecoverable failures (OOM, fatal PHP exception).
+</Admonition>
+
+---
+
+## World
+
+```wit
+world wp-graphql-bleep {
+    import platform;
+    export graphql-backend;
+}
+```
+
+<KeyVal rows={[
+  ['Toolchain', '`wp-wasm-build` CLI (wraps Emscripten + WordPress bundler)'],
+  ['Register', 'Push the .wasm component as an OCI artifact, sign it, create a Bleep'],
+  ['Mutations', 'Opt-in via manifest `allow-mutations: true`; default is readonly'],
+  ['Outbound HTTP', 'The component MUST NOT call any network socket'],
+  ['DB access', 'Read-only; host enforces at SQL parser level'],
+]} />
+
+---
+
+## Security Model
+
+<Steps>
+
+**No network** — The component must not call any network socket. No outbound HTTP. Query in, response out.
+
+**Read-only DB** — Host parses SQL and rejects DML/DDL. Only SELECT statements reach WordPress.
+
+**Declared secrets** — Only secret names listed in the bleep manifest's `required-secrets` can be retrieved. Host rejects undeclared names.
+
+**Mutations opt-in** — GraphQL mutations are disabled by default. Bleep manifest must declare `allow-mutations: true` to enable them.
+
+**Depth & complexity limits** — Each bleep declares `max-depth` and `max-complexity` in its descriptor. Host can override at the platform level.
+
+</Steps>

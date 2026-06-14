@@ -108,32 +108,40 @@ const config: Config = {
       title: 'RAGBAZ ATLAS',
       logo: {
         alt: 'RAGBAZ',
-        src: 'logo-ragbaz-icon.png',
+        src: 'img/logo-mark.svg',
       },
       items: [
-        {href: 'https://ragbaz.xyz', label: 'RAGBAZ', position: 'left'},
+        {href: 'https://ragbaz.cc', label: 'RAGBAZ', position: 'left'},
         {
           type: 'docSidebar',
           sidebarId: 'atlasSidebar',
           position: 'left',
           label: 'Projects',
         },
-        {to: '/docs/intro', label: 'Overview', position: 'left'},
         {to: '/docs/products/overview', label: 'Products', position: 'right'},
-        {to: '/docs/infra/overview', label: 'Infra', position: 'right'},
-        {href: 'https://offer.ragbaz.xyz', label: 'Offer', position: 'right'},
         {
           type: 'dropdown',
-          label: 'UI',
+          label: 'Drafts',
           position: 'right',
           items: [
             {to: '/drafts/font-chooser', label: 'Font Chooser'},
             {to: '/drafts/theme-editor', label: 'Theme Editor'},
             {to: '/drafts/docker-compose-view', label: 'Compose View'},
+            {to: '/drafts/spec-audio-sink', label: 'Audio Sink Bleep'},
+            {to: '/drafts/spec-phoneme-app', label: 'Phoneme Tauri App'},
+            {to: '/drafts/spec-wp-graphql', label: 'WP GraphQL Bleep'},
+          ],
+        },
+        {
+          type: 'dropdown',
+          label: 'UI',
+          position: 'right',
+          items: [
             {to: '/docs/components/bazweave-kit/description', label: 'Bazweave Kit'},
             {to: '/docs/components/bazweave-kit/widgets', label: 'Widgets Demo'},
           ],
         },
+        {to: '/docs/infra/overview', label: 'Infra', position: 'right'},
       ],
     },
     footer: {
@@ -142,7 +150,7 @@ const config: Config = {
         {
           title: 'Docs',
           items: [
-            {label: 'ragbaz.xyz', href: 'https://ragbaz.xyz'},
+            {label: 'ragbaz.cc', href: 'https://ragbaz.cc'},
             {label: 'Overview', to: '/docs/intro'},
             {label: 'Products', to: '/docs/products/overview'},
           ],

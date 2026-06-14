@@ -1,0 +1,177 @@
+<Hero
+  marque="SPEC"
+  tagline="// audio sink bleep"
+  title="BAZ Audio Sink Bleep"
+  subtitle="ragbaz:audio-sink — version 0.1.0"
+  lede="Consume audio artifacts from a RAGBAZ pipeline and publish them as a podcast-formatted stream: RSS feed, episode enclosures, chapter markers, transcripts, and artwork — delivered through a CDN, optionally pinned to IPFS, and optionally mirrored as a Tor hidden service."
+  axes={['RSS', 'CDN', 'IPFS', 'TOR', 'WASM']}
+/>
+
+<Lead>
+  Two-node Nordic origin (fillmeup / konsonans) behind TailScale — podcast for
+  ~500 listeners per tenant, global reach via Cloudflare R2 + Workers, MP3 primary
+  with Opus alternate.
+</Lead>
+
+<Badge color="orange">Draft v0.1</Badge>
+<Badge color="gray">2026-06-03</Badge>
+
+---
+
+## Status Overview
+
+<Callout accent="green">
+  **RSS 2.0 + iTunes namespace**, **Podlove chapters + VTT transcripts**,
+  **Cloudflare R2 + Workers** delivery, **IPFS archive layer** — all
+  production-ready.
+</Callout>
+
+<Callout accent="yellow">
+  **Tor `.onion` enclosure mirror** and **IPFS as primary delivery** are
+  experimental. **HLS for podcast** is niche.
+</Callout>
+
+---
+
+## Delivery Architecture
+
+```
+konsonans (Oslo) ───┐
+                    ├── TailScale ── cloudflared tunnel ──► Cloudflare R2 + Workers
+fillmeup (Stockholm)┘                                       330+ PoPs globally
+                                                                    │
+                                          ┌─────────────────────────┼──────────────┐
+                                        EU <40ms               NA <90ms       APAC <200ms
+                                        P95                    P95             P95
+```
+
+<KeyVal rows={[
+  ['Decision', 'Rationale'],
+  ['R2 over Bunny', 'Zero egress; DNS already on Cloudflare; Workers for RSS logic'],
+  ['Direct download over HLS', 'Universal client support; no DAI requirement'],
+  ['Filebase for IPFS', 'S3-compatible API simplest from Wasm host; 3-region replication'],
+  ['TailScale tunnel as origin', 'No public ingress needed on fillmeup or konsonans'],
+  ['Opt-in Tor only', 'High operational burden; reserve for explicit need'],
+  ['MP3 primary + Opus alternate', 'Apple Podcasts compatibility floor; Opus for supporting clients'],
+]} />
+
+---
+
+## Podcast Output Formats
+
+### RSS 2.0 + iTunes / Spotify
+
+<Admonition type="info">
+  Channel requires `<title>`, `<description>`, `<language>`, `<copyright>`,
+  `<itunes:author>`, `<itunes:owner>`, `<itunes:category>`, `<itunes:image>`
+  (1400×1400 min, 3000×3000 max, square, RGB, ≤500 KB).
+</Admonition>
+
+Items require `<enclosure>`, `<guid>`, `<pubDate>`, `<itunes:duration>`,
+`<itunes:episode>`, `<itunes:season>`, `<itunes:episodeType>`.
+
+### Enclosure Codecs
+
+<SpecTable rows={[
+  ['MP3 (CBR 128 kbps)', 'audio/mpeg', '**Primary** — universal client support'],
+  ['AAC-LC (M4A, 96–128 kbps)', 'audio/mp4', '`<podcast:alternateEnclosure>`'],
+  ['Opus (OGG, 64–96 kbps)', 'audio/ogg', '`<podcast:alternateEnclosure>` — not Apple Podcasts'],
+]} />
+
+### CDN Latency Benchmarks (TTFB P50 / P95)
+
+<SpecTable rows={[
+  ['Direct from Stockholm (no CDN)', '20 / 60 ms', '50 / 110 ms', '110 / 200 ms', '280 / 450 ms'],
+  ['Cloudflare R2 + Workers (cached)', '15 / 35 ms', '25 / 55 ms', '28 / 65 ms', '55 / 130 ms'],
+  ['Bunny.net High-Volume', '14 / 32 ms', '24 / 50 ms', '32 / 70 ms', '65 / 150 ms'],
+  ['Fastly', '16 / 35 ms', '28 / 60 ms', '30 / 65 ms', '70 / 160 ms'],
+  ['IPFS via gateway (warm)', '80 / 250 ms', '120 / 350 ms', '150 / 400 ms', '350 / 900 ms'],
+  ['IPFS cold (DHT lookup)', '1.5 / 8 s', '2 / 10 s', '3 / 12 s', '5 / 20 s'],
+  ['Tor v3 hidden service', '250 / 800 ms', '300 / 900 ms', '400 / 1200 ms', '700 / 2000 ms'],
+]} />
+
+---
+
+## WIT Interface
+
+```wit
+package ragbaz:audio-sink@0.1.0;
+
+interface types {
+  record audio-artifact {
+    bytes: list<u8>,
+    mime: string,
+    duration-seconds: f32,
+    bitrate-kbps: u32,
+  }
+
+  record episode-metadata {
+    title: string,
+    description: string,
+    episode-number: option<u32>,
+    season-number: option<u32>,
+    episode-type: episode-type,
+    pub-date-rfc3339: string,
+    explicit: bool,
+    artwork: option<artwork>,
+    chapters: list<chapter>,
+    transcript-vtt: option<string>,
+    guid: string,
+  }
+
+  variant episode-type { full, trailer, bonus }
+  // ... (full spec in ragbaz:audio-sink package)
+}
+```
+
+---
+
+## Publish Pipeline
+
+<Steps>
+
+**Validate** — Check audio MIME, duration, artwork dimensions. Compute content SHA-256 → episode URL slug (immutable after publish).
+
+**Upload** — Upload enclosure + alternate codecs to CDN target. Upload artwork (resized if needed), chapters JSON, transcript VTT.
+
+**Optional pin** — Pin to IPFS; capture CID. Mirror to Tor hidden service via TailScale tunnel.
+
+**Feed** — Regenerate RSS feed with new `<item>`. Upload `feed.xml` to CDN root. Purge CDN cache on `feed.xml` only (episodes are immutable, never purged).
+
+**Pre-warm** — Warm IPFS gateways with parallel HEAD requests.
+
+**Result** — Return `sink-result` with enclosure URL, IPFS CID, onion URL, feed URL, warnings.
+
+</Steps>
+
+<Callout accent="orange">
+  **Idempotency** — re-running publish for same `(podcast_id, episode.guid)`
+  updates in place. **Partial failure** — IPFS and Tor failures are non-fatal;
+  captured in `warnings`.
+</Callout>
+
+---
+
+## Status Matrix
+
+<KeyVal rows={[
+  ['RSS 2.0 + iTunes namespace', 'Production-ready'],
+  ['Podlove chapters + VTT transcripts', 'Production-ready'],
+  ['Cloudflare R2 + Workers delivery', 'Production-ready'],
+  ['Bunny.net as CDN alternative', 'Production-ready'],
+  ['Filebase / Pinata IPFS archive layer', 'Production-ready'],
+  ['IPFS as primary delivery', 'Experimental'],
+  ['Tor `.onion` enclosure mirror', 'Experimental'],
+  ['Tor RSS in podcast apps', 'Not viable'],
+  ['HLS for podcast', 'Niche'],
+]} />
+
+---
+
+## Open Questions
+
+1. **Analytics** — IAB Tech Lab v2 Podcast Measurement compliance? Requires Range-request deduplication in Workers.
+2. **Ad insertion** — DAI in scope? If yes, HLS path becomes mandatory.
+3. **Multi-show per tenant** — `podcast_id` maps 1:1 with tenant or N:1?
+4. **GDPR + IPFS** — Unpin works on pinning services; DHT echoes may persist.
+5. **Value4Value** — `<podcast:value>` blocks? Requires per-tenant Lightning endpoint.

@@ -2,10 +2,6 @@ import React, { useRef, useEffect, useCallback, useState } from 'react';
 
 const mono = 'ui-monospace, SFMono-Regular, "Intel One Mono", monospace';
 
-function vec3(x: number, y: number, z: number): [number, number, number] {
-  return [x, y, z];
-}
-
 function rotate(v: [number, number, number], yaw: number, pitch: number): [number, number, number] {
   const [x, y, z] = v;
   const cy = Math.cos(yaw), sy = Math.sin(yaw);
@@ -42,10 +38,28 @@ interface Vector3 {
   label: string;
 }
 
-export default function PointCloudSphere({ width = 560, height = 560 }: { width?: number; height?: number }) {
+interface PointCloudSphereProps {
+  width?: number;
+  height?: number;
+  mode?: 'interactive' | 'view';
+  yawSpeed?: number;
+  pitchSpeed?: number;
+  initialYaw?: number;
+  initialPitch?: number;
+}
+
+export default function PointCloudSphere({
+  width = 560,
+  height = 560,
+  mode = 'interactive',
+  yawSpeed = 0.004,
+  pitchSpeed = 0,
+  initialYaw = -0.6,
+  initialPitch = 0.35,
+}: PointCloudSphereProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [yaw, setYaw] = useState(-0.6);
-  const [pitch, setPitch] = useState(0.35);
+  const [yaw, setYaw] = useState(initialYaw);
+  const [pitch, setPitch] = useState(initialPitch);
   const [vectors, setVectors] = useState<Vector3[]>([
     { v: [0.9, 0.4, 0.2], color: '#fe8019', label: 'v₀' },
     { v: [-0.3, 0.8, -0.5], color: '#8ec07c', label: 'v₁' },
@@ -97,9 +111,9 @@ export default function PointCloudSphere({ width = 560, height = 560 }: { width?
     }
 
     const axes = [
-      { v: [1.25, 0, 0], color: '#ff9900', lbl: 'X' },
-      { v: [0, 1.25, 0], color: '#b8bb26', lbl: 'Y' },
-      { v: [0, 0, 1.25], color: '#7ab8ff', lbl: 'Z' },
+      { v: [1.25, 0, 0] as [number, number, number], color: '#ff9900', lbl: 'X' },
+      { v: [0, 1.25, 0] as [number, number, number], color: '#b8bb26', lbl: 'Y' },
+      { v: [0, 0, 1.25] as [number, number, number], color: '#7ab8ff', lbl: 'Z' },
     ];
     const negAxes = axes.map(a => ({ ...a, v: a.v.map(c => -c * 0.8) as [number, number, number], lbl: '' }));
     const allAxes = [...axes, ...negAxes].sort((a, b) => rotate(a.v, yawRef.current, pitchRef.current)[2] - rotate(b.v, yawRef.current, pitchRef.current)[2]);
@@ -157,18 +171,25 @@ export default function PointCloudSphere({ width = 560, height = 560 }: { width?
     }
   }, [vectors]);
 
+  const isView = mode === 'view';
+
   useEffect(() => {
     let animId: number;
     function tick() {
-      if (!draggingRef.current && Date.now() - lastTouchRef.current > 1800) {
-        setYaw(y => y + 0.004);
+      if (isView) {
+        setYaw(y => y + yawSpeed);
+        setPitch(p => p + pitchSpeed);
+      } else {
+        if (!draggingRef.current && Date.now() - lastTouchRef.current > 1800) {
+          setYaw(y => y + 0.004);
+        }
       }
       animId = requestAnimationFrame(tick);
     }
     draw();
     animId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animId);
-  }, [draw]);
+  }, [draw, isView, yawSpeed, pitchSpeed]);
 
   useEffect(() => {
     draw();
@@ -207,8 +228,22 @@ export default function PointCloudSphere({ width = 560, height = 560 }: { width?
   const normPitch = Math.max(-1, Math.min(1, pitch / (Math.PI / 2)));
 
   const P = '#f3c46c';
-  const B = '#7ab8ff';
   const G = '#928374';
+
+  if (isView) {
+    return (
+      <div style={{
+        margin: '16px 0',
+        position: 'relative', userSelect: 'none',
+        background: 'radial-gradient(circle at 50% 50%, #1a1308 0%, #0a0807 70%, #050403 100%)',
+        border: '1px solid #2a2a2a', borderRadius: 8, overflow: 'hidden',
+        aspectRatio: '1 / 1',
+      }}>
+        <canvas ref={canvasRef} width={width} height={height}
+          style={{ display: 'block', width: '100%', height: '100%' }} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) 220px', gap: 14, margin: '16px 0' }}>

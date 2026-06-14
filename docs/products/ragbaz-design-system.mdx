@@ -121,7 +121,23 @@ Status and semantic feedback colors.
   {token: '--purple-1', value: '#d3869b', use: 'rare accent'},
   {token: '--aqua-1', value: '#8ec07c', use: 'info / expression tokens'},
   {token: '--gruv-orange', value: '#fe8019', use: 'between orange-3/orange-4'},
+  {token: '--magenta-1', value: '#d3869b', use: 'legacy alias for --purple-1'},
 ]} />
+
+### Controls & Chrome
+
+Button borders and chrome tokens — dark gray default, warm/cool contextual variants.
+
+<ColorPalette title="Controls" colors={[
+  {token: '--btn-border', value: '#3a3a3a', use: 'default 2px border'},
+  {token: '--btn-border-hover', value: '#5a5a5a', use: 'lifts on hover'},
+  {token: '--btn-border-warm', value: '#f3c46c', use: 'contextual brand-warm'},
+  {token: '--btn-border-cool', value: '#7ab8ff', use: 'contextual brand-cool'},
+]} />
+
+<Callout accent="orange">
+  <code>--btn-border-warm</code> and <code>--btn-border-cool</code> resolve to their respective brand accent (orange-1 / blue-1) — included here for a complete token inventory.
+</Callout>
 
 ---
 
@@ -131,21 +147,21 @@ Status and semantic feedback colors.
 
 <Tabs defaultValue="specimen">
 <TabItem value="specimen" label="Specimen">
-  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 12, color: '#9f9f9f' }}>
+  <div style={{ fontSize: 12, color: '#9f9f9f' }}>
     {[
-      {token: '--t-display', size: '44px', lh: '1.15', font: 'Noto Sans 800', color: '#7ab8ff', text: 'Aa  Display'},
-      {token: '--t-h1',      size: '28px', lh: '1.15', font: 'Noto Sans 700', color: '#7ab8ff', text: 'Aa  Heading 1'},
-      {token: '--t-h2',      size: '20px', lh: '1.35', font: 'Intel One Mono 700', color: '#f3c46c', text: 'Aa  Heading 2'},
-      {token: '--t-h3',      size: '16px', lh: '1.35', font: 'Intel One Mono 600', color: '#f2a77a', text: 'Aa  Heading 3'},
-      {token: '--t-body',    size: '14px', lh: '1.55', font: 'Noto Sans 400', color: '#d8c29d', text: 'Aa  Body text specimen showing the default reading size. Used for paragraphs, descriptions, and general content.'},
-      {token: '--t-small',   size: '12px', lh: '1.55', font: 'Intel One Mono', color: '#d4c19a', text: 'Aa  Small label text specimen'},
-      {token: '--t-micro',   size: '11px', lh: '1.55', font: 'Intel One Mono', color: '#9f9f9f', text: 'Aa  micro caption'},
-    ].map(({ token, size, lh, font, color, text }) => (
+      {token: '--t-display', size: '44px', lh: '1.15', font: 'Noto Sans 800', fontFamily: '"Noto Sans", sans-serif', color: '#7ab8ff', text: 'Aa  Display'},
+      {token: '--t-h1',      size: '28px', lh: '1.15', font: 'Noto Sans 700', fontFamily: '"Noto Sans", sans-serif', color: '#7ab8ff', text: 'Aa  Heading 1'},
+      {token: '--t-h2',      size: '20px', lh: '1.35', font: 'Intel One Mono 700', fontFamily: '"Intel One Mono", monospace', color: '#f3c46c', text: 'Aa  Heading 2'},
+      {token: '--t-h3',      size: '16px', lh: '1.35', font: 'Intel One Mono 600', fontFamily: '"Intel One Mono", monospace', color: '#f2a77a', text: 'Aa  Heading 3'},
+      {token: '--t-body',    size: '14px', lh: '1.55', font: 'Noto Sans 400', fontFamily: '"Noto Sans", sans-serif', color: '#d8c29d', text: 'Aa  Body text specimen showing the default reading size. Used for paragraphs, descriptions, and general content.'},
+      {token: '--t-small',   size: '12px', lh: '1.55', font: 'Intel One Mono 700', fontFamily: '"Intel One Mono", monospace', color: '#ff9900', text: 'Aa  Small label text specimen'},
+      {token: '--t-micro',   size: '11px', lh: '1.55', font: 'Intel One Mono', fontFamily: '"Intel One Mono", monospace', color: '#9f9f9f', text: 'Aa  micro caption'},
+    ].map(({ token, size, lh, font, fontFamily, color, text }) => (
       <div key={token} style={{ display: 'flex', gap: 12, padding: '7px 0', borderBottom: '1px solid #2a2a2a', alignItems: 'center' }}>
-        <span style={{ minWidth: 100, color: '#f3c46c' }}>{token}</span>
-        <span style={{ minWidth: 60, color: '#737373' }}>{size} / {lh}</span>
-        <span style={{ minWidth: 180, color: '#737373', fontSize: 11 }}>{font}</span>
-        <span style={{ fontSize: parseInt(size), lineHeight: lh, color, fontWeight: font.includes('800') ? 800 : font.includes('700') ? 700 : font.includes('600') ? 600 : 400 }}>{text}</span>
+        <span style={{ minWidth: 100, color: '#f3c46c', fontFamily: 'ui-monospace, monospace' }}>{token}</span>
+        <span style={{ minWidth: 60, color: '#737373', fontFamily: 'ui-monospace, monospace' }}>{size} / {lh}</span>
+        <span style={{ minWidth: 180, color: '#737373', fontSize: 11, fontFamily: 'ui-monospace, monospace' }}>{font}</span>
+        <span style={{ fontSize: parseInt(size), lineHeight: lh, color, fontFamily, fontWeight: font.includes('800') ? 800 : font.includes('700') ? 700 : font.includes('600') ? 600 : 400 }}>{text}</span>
       </div>
     ))}
   </div>
@@ -157,22 +173,27 @@ Status and semantic feedback colors.
     ['--t-h2', '20px · 700 Intel One Mono · orange-1'],
     ['--t-h3', '16px · 600 Intel One Mono · orange-2'],
     ['--t-body', '14px · 400 Noto Sans · fg-2'],
-    ['--t-small', '12px · Intel One Mono · fg-3'],
+    ['--t-small', '12px · 700 Intel One Mono · orange-3'],
     ['--t-micro', '11px · Intel One Mono · fg-4'],
   ]} />
 </TabItem>
 <TabItem value="classes" label="Classes">
-  | Class | Font | Weight | Size | Color |
-  |---|---|---|---|---|
-  | `.rb-display` | sans | 800 | 44px | blue-1 |
-  | `.rb-h1` | sans | 700 | 28px | blue-1 |
-  | `.rb-h2` | mono | 700 | 20px | orange-1 |
-  | `.rb-h3` | mono | 600 | 16px | orange-2 |
-  | `.rb-body` | sans | 400 | 14px | fg-2 |
-  | `.rb-prose` | serif | 400 | 14px | fg-2 |
-  | `.rb-mono` | mono | 400 | 14px | fg-3 |
-  | `.rb-label` | mono | 400 | 11px | fg-4 |
-  | `.rb-eyebrow` | mono | 700 | 12px | orange-3 |
+
+<SpecTable rows={[
+  ['.rb-display', 'sans', '800', '44px', 'blue-1'],
+  ['.rb-h1', 'sans', '700', '28px', 'blue-1'],
+  ['.rb-h2', 'mono', '700', '20px', 'orange-1'],
+  ['.rb-h3', 'mono', '600', '16px', 'orange-2'],
+  ['.rb-body', 'sans', '400', '14px', 'fg-2'],
+  ['.rb-prose', 'serif', '400', '14px', 'fg-2'],
+  ['.rb-mono', 'mono', '400', '14px', 'fg-3'],
+  ['.rb-label', 'mono', '400', '11px', 'fg-4'],
+  ['.rb-eyebrow', 'mono', '700', '12px', 'orange-3'],
+  ['.rb-num', 'mono', '400', '14px', 'orange-3'],
+  ['.rb-code', 'mono', '400', '0.94em', 'orange-2'],
+  ['.rb-em', 'serif', '400', '14px', 'fg-2'],
+]} />
+
 </TabItem>
 </Tabs>
 
@@ -241,12 +262,29 @@ Status and semantic feedback colors.
 
 ## Shadows
 
+<ColorPalette title="Shadow Glows" desc="color-bearing shadow tokens" colors={[
+  {token: '--shadow-glow', value: '#f3c46c', use: 'orange active caret (25% opacity)'},
+  {token: '--shadow-glow-blue', value: '#7ab8ff', use: 'blue focus ring (25% opacity)'},
+]} />
+
 <KeyVal rows={[
   ['--shadow-1', '0 1px 0 rgba(0,0,0,0.4) — subtle 3D separation'],
   ['--shadow-2', '0 4px 18px rgba(0,0,0,0.45) — elevated surfaces'],
   ['--shadow-glow', '0 0 0 1px rgba(243,196,108,0.25) — orange active caret'],
   ['--shadow-glow-blue', '0 0 0 1px rgba(122,184,255,0.25) — blue focus ring'],
 ]} />
+
+<div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
+  {[
+    { label: '--shadow-glow', color: '#f3c46c', style: { boxShadow: '0 0 0 2px rgba(243,196,108,0.25)' } },
+    { label: '--shadow-glow-blue', color: '#7ab8ff', style: { boxShadow: '0 0 0 2px rgba(122,184,255,0.25)' } },
+  ].map(s => (
+    <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'ui-monospace, monospace', fontSize: 11, color: '#928374' }}>
+      <div style={{ width: 48, height: 48, borderRadius: 4, background: '#181818', ...s.style }} />
+      <span>{s.label}</span>
+    </div>
+  ))}
+</div>
 
 ---
 
@@ -310,15 +348,24 @@ Animations limited to hover transitions, focus rings, and content visibility
 
 ### Point-Cloud Sphere
 
-Drag to rotate the 720-point Fibonacci sphere in 3D. The compass needle
-tracks yaw; the pitch bar fills on tilt. Toggle vectors on/off to visualize
-orientation in the rotating frame.
+Two modes: **interactive** (drag to orbit, compass/pitch monitors, vector
+toggles) and **view** (auto-rotating, no UI overlays, controlled via props).
 
-<PointCloudSphere />
+<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '16px 0' }}>
+  <div>
+    <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: '#928374', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>mode="interactive"</div>
+    <PointCloudSphere mode="interactive" />
+  </div>
+  <div>
+    <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: '#928374', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>mode="view"</div>
+    <PointCloudSphere mode="view" yawSpeed={0.006} pitchSpeed={0.002} />
+  </div>
+</div>
 
-Each canvas frame computes point-depth sorting, axis rendering with
-negative-tail dashed lines, and per-vector arrowheads. The idle auto-rotate
-kicks in after 1.8 s of no interaction.
+The interactive mode shows compass, pitch monitor, and vector toggles
+alongside the 720-point Fibonacci sphere. The view mode strips all UI and
+drives rotation from `yawSpeed` / `pitchSpeed` props — suitable for hero
+sections or ambient background visuals.
 
 ### Bone Layout View
 

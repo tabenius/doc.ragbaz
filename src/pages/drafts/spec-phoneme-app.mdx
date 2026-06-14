@@ -1,0 +1,263 @@
+<Hero
+  marque="SPEC"
+  tagline="// phoneme tauri app"
+  title="Phoneme / Audio Analysis Tauri App"
+  subtitle="Real-time MFCC, formant, phoneme, and prosody visualisation"
+  lede="A didactic, real-time audio analysis desktop app for Windows 10/11 built on Tauri 2. Visualises MFCC cepstrum heatmaps, formants (F1–F4), phonemes, and prosody from live microphone input, with dual recogniser backends and pluggable stream sinks."
+  axes={['DSP', 'MFCC', 'FORMANT', 'PHONEME', 'STREAM', 'TAURI']}
+/>
+
+<Lead>
+  Windows desktop (Tauri 2), hobbyist ML/AI learners and schools. Runs entirely
+  offline — no cloud dependency — with optional Icecast / RTMP / HLS streaming.
+</Lead>
+
+<Badge color="orange">Draft v0.1</Badge>
+<Badge color="blue">Windows 10/11</Badge>
+<Badge color="gray">Target: Tauri 2</Badge>
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Tauri 2 shell (Rust process)                                    │
+│                                                                  │
+│  cpal WASAPI capture ──► FramePipeline ──► IPC events ──► UI    │
+│                                │                                 │
+│                         ┌──────▼──────┐                          │
+│                         │  DSP Core   │  rustfft / dasp          │
+│                         │  MFCCs      │                          │
+│                         │  LPC+formants│                         │
+│                         │  F0/prosody  │                         │
+│                         └──────┬──────┘                          │
+│                                │                                 │
+│                    ┌───────────▼───────────┐                     │
+│                    │  PhonemeRecogniser     │                     │
+│                    │  HmmRecogniser / Svm   │                     │
+│                    └───────────┬───────────┘                     │
+│                                │ AnalysisFrame (per 10ms)        │
+│                    ┌───────────▼───────────┐                     │
+│                    │  StreamSinkRouter     │                     │
+│                    │  Icecast / RTMP / HLS │                     │
+│                    │  WebRTC (v2)          │                     │
+│                    └───────────────────────┘                     │
+│                                                                  │
+│  WebView2 (React + Vite)                                         │
+│  ├── MFCC heatmap stream  (@visx/heatmap or d3)                 │
+│  ├── Prosody overlay      (F0 line + RMS band)                  │
+│  ├── Phoneme timeline     (IPA/ARPABET segments)                │
+│  ├── Formant vowel space  (F1/F2 scatter)                       │
+│  └── Stream sink controls (mount URL, codec, start/stop)        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## DSP Pipeline
+
+### Framing
+
+- Sample rate: **16 kHz** (44.1/48 kHz downsampled internally)
+- Frame: **25 ms** (400 samples @ 16 kHz), hop: **10 ms** (160 samples)
+- Window: **Hamming**
+
+### Feature Extraction
+
+<SpecTable rows={[
+  ['MFCC (Cepstrum)', '39-dim vector per frame', 'Pre-emphasis → FFT → 26 mel filters → log → DCT-II → Δ + ΔΔ'],
+  ['Formants (LPC)', 'F1–F4 in Hz', 'LPC order 18 → Durbin–Levinson → complex roots → Hz conversion'],
+  ['F0 (Pitch)', 'Option&lt;f32&gt;', 'YIN autocorrelation + CMNDF, threshold 0.1'],
+  ['RMS Energy', 'f32 dB', '√(Σx²/N) per frame'],
+  ['Speaking Rate', 'syllables/s', 'Energy envelope peak detection'],
+  ['Voiced/Unvoiced', 'bool', 'ZCR + energy threshold'],
+]} />
+
+### AnalysisFrame (IPC payload, 100 Hz)
+
+```rust
+pub struct AnalysisFrame {
+    pub timestamp_ms:       u64,
+    pub mfcc:               [f32; 39],
+    pub formants:           [f32; 4],
+    pub formant_bw:         [f32; 4],
+    pub f0_hz:              Option<f32>,
+    pub rms_db:             f32,
+    pub phoneme:            PhonemeLabel,
+    pub phoneme_confidence: f32,
+    pub voiced:             bool,
+}
+```
+
+---
+
+## Phoneme Recogniser
+
+<Tabs defaultValue="hmm">
+<TabItem value="hmm" label="HMM Recogniser">
+
+- **39 phonemes** (ARPABET), one left-to-right HMM each
+- **3 states** per phoneme, diagonal Gaussian emission
+- **Training**: Offline Baum-Welch on LibriSpeech MFCC (open licence)
+- **Runtime**: Viterbi decode over phoneme-graph
+- **Model**: `resources/hmm_models.bincode` (~2 MB)
+
+</TabItem>
+<TabItem value="svm" label="SVM Recogniser">
+
+- **Multi-class OvO SVM**, RBF kernel (γ = 1/39, C = 10)
+- **Features**: 39-dim MFCC+Δ+ΔΔ, z-scored (training mean/var bundled)
+- **Backend**: `linfa-svm` — pure Rust, no BLAS required for inference
+- **Model**: `resources/svm_model.bincode` (~8 MB)
+
+</TabItem>
+<TabItem value="retrain" label="Retrain Panel (stretch)">
+
+Record own voice → label phonemes → retrain SVM in ~10 s (fast) or HMM in
+~60 s (slow). Lets students observe how decision boundaries shift with data.
+
+</TabItem>
+</Tabs>
+
+<Callout accent="orange">
+  Runtime swap between HMM and SVM is instantaneous — both models stay loaded
+  as trait objects behind a `Box<dyn PhonemeRecogniser>`.
+</Callout>
+
+---
+
+## Streaming Sinks
+
+### IcecastAudioSink
+
+```
+PUT /mountpoint HTTP/1.0
+Host: icecast.example.com:8000
+Authorization: Basic <base64(source:password)>
+Content-Type: audio/ogg
+ice-name: Phoneme Analysis Stream
+
+<continuous encoded audio frames…>
+```
+
+- **Opus** encoding (`opus` crate) — recommended for lower bitrate
+- **MP3** via `lame-sys` bindings as fallback
+- Reconnect loop with exponential backoff
+
+### RTMP + HLS (Video)
+
+spawn `ffmpeg` as child process — avoids native codec linking:
+
+```
+ffmpeg:
+  -f rawvideo -pixel_format rgba -video_size 1280×720 -framerate 30 -i pipe:0
+  -f s16le -ar 16000 -ac 1 -i pipe:1
+  -c:v libx264 -preset ultrafast -tune zerolatency -b:v 800k
+  -c:a aac -b:a 64k
+  -f flv rtmp://localhost:1935/live/analysis
+```
+
+**Capture options**: headless canvas (`tiny-skia`, recommended v1) or DXGI duplication (`windows-rs`, opt-in).
+
+---
+
+## Classroom Setup
+
+```
+Teacher laptop (TailScale)
+├── App → IcecastAudioSink → icecast2 :8000
+└── App → RtmpVideoSink → MediaMTX :1935 → HLS :8888
+
+Students (same Tailnet)
+├── VLC → http://<teacher-ts-ip>:8000/phoneme.ogg
+└── VLC → http://<teacher-ts-ip>:8888/analysis/index.m3u8
+```
+
+<Admonition type="tip">
+  Using TailScale avoids school firewall issues — both teacher and students on
+  the same Tailnet. No public IP, no port forwarding.
+</Admonition>
+
+---
+
+## Multichannel Audio
+
+### Channel Layouts Supported
+
+| Layout | Channels | Streaming via Opus (Icecast) | Streaming via RTMP/HLS |
+|--------|----------|------------------------------|------------------------|
+| Mono | 1 | ✓ | ✓ |
+| Stereo | 2 | ✓ | ✓ |
+| 5.1 Surround | 6 | ✓ | ✓ (AC-3/E-AC-3) |
+| 7.1 Surround | 8 | ✓ | ✓ (AC-3/E-AC-3) |
+| Custom (Ambisonics, Atmos) | arbitrary | ✓ (up to 8ch) | via custom codec tag |
+
+<Callout accent="green">
+  **Recommended multichannel path**: OGG/Opus via Icecast — Opus channel
+  mapping family 1 supports up to 8 discrete channels, patent-free, accepted by
+  VLC/mpv/most players.
+</Callout>
+
+### Subtitle Streaming
+
+```rust
+pub struct SubtitleCue {
+    pub sequence:  u32,
+    pub start_ms:  u64,
+    pub end_ms:    u64,
+    pub text:      String,
+}
+```
+
+SRT / WebVTT — structurally identical, one-line conversion. Sources: manual SRT
+file, live phoneme auto-subtitling, Whisper STT subprocess, user-typed captions.
+
+---
+
+## Crate Dependencies
+
+```toml
+tauri        = "2"
+cpal         = "0.15"          # WASAPI audio capture
+rustfft      = "6"             # STFT
+dasp         = "0.11"          # signal processing primitives
+linfa-svm    = "0.7"           # kernel-SVM inference
+reqwest      = { version = "0.12", features = ["blocking"] }
+opus         = "0.3"           # Opus encode for Icecast
+flume        = "0.11"          # channel for streaming body
+rml_rtmp     = "0.8"           # native RTMP (v2)
+tiny-skia    = "0.11"          # headless canvas
+m3u8-rs      = "6"             # HLS manifest
+bincode      = "1"             # model serialisation
+serde        = { version = "1", features = ["derive"] }
+```
+
+---
+
+## Status Matrix
+
+<KeyVal rows={[
+  ['MFCC + LPC + YIN (Rust)', 'Production-ready — well-understood algorithms'],
+  ['HMM Baum-Welch + Viterbi', 'Moderate — ~300-line custom impl'],
+  ['linfa SVM inference', 'Production-ready'],
+  ['IcecastAudioSink (Opus)', 'Production-ready — simple HTTP protocol'],
+  ['Headless canvas (tiny-skia)', 'Production-ready'],
+  ['RTMP via ffmpeg child process', 'Production-ready workaround'],
+  ['RTMP via rml_rtmp native', 'Beta'],
+  ['DXGI window capture', 'Moderate — windows-rs docs thin'],
+  ['HLS file sink', 'Production-ready'],
+  ['WebRTC sink', 'Experimental — defer to v2'],
+  ['In-app retrain UI', 'Stretch goal'],
+]} />
+
+---
+
+## Open Questions
+
+1. **Language scope** — English ARPABET (39 phonemes) only, or IPA superset?
+2. **Training data** — TIMIT is LDC-licensed. Use LibriSpeech + MFA for open corpus?
+3. **Packaging** — NSIS installer, MSIX, or `winget` manifest?
+4. **Icecast on TailScale** — Confirm school networks allow TailScale client install.
+5. **WebRTC v2** — Prioritise for peer-to-peer classroom P2P or keep HLS?
+6. **lame-sys licensing** — MP3 encoder uses LGPL/patents; Opus is preferred to avoid licensing complexity.

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="RAGBAZ">
+  <defs>
+    <radialGradient id="ember" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffe2ad"/>
+      <stop offset="55%" stop-color="#f3c46c"/>
+      <stop offset="100%" stop-color="#e0a83f"/>
+    </radialGradient>
+  </defs>
+  <!-- Hexagon outline (transparent bg, adapts to navbar) -->
+  <polygon points="32,6 54,19 54,45 32,58 10,45 10,19"
+           fill="none" stroke="#f3c46c" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Ember core -->
+  <circle cx="32" cy="32" r="9" fill="url(#ember)"/>
+  <!-- Core highlight -->
+  <circle cx="29.5" cy="29.5" r="3" fill="#fff3df" opacity="0.65"/>
+</svg>
