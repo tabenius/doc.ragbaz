@@ -1,7 +1,17 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import {existsSync} from 'node:fs';
 import path from 'node:path';
+
+const fontChooserMdxEntry = [
+  '../experiments/react-google-font-chooser-ui/mdx/index.jsx',
+  '../../experiments/react-google-font-chooser-ui/mdx/index.jsx',
+  '../experiments/omniland/react-google-font-chooser-ui/mdx/index.jsx',
+  '../../experiments/omniland/react-google-font-chooser-ui/mdx/index.jsx',
+]
+  .map((candidate) => path.resolve(process.cwd(), candidate))
+  .find((candidate) => existsSync(candidate));
 
 const config: Config = {
   title: 'RAGBAZ Atlas',
@@ -33,10 +43,9 @@ const config: Config = {
           return {
             resolve: {
               alias: {
-                '@font-chooser/mdx': path.resolve(
-                  process.cwd(),
-                  '../experiments/react-google-font-chooser-ui/mdx/index.jsx',
-                ),
+                '@font-chooser/mdx':
+                  fontChooserMdxEntry ||
+                  path.resolve(process.cwd(), '../experiments/react-google-font-chooser-ui/mdx/index.jsx'),
               },
             },
           };
