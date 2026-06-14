@@ -11,38 +11,38 @@ HAProxy frontend at `doc.ragbaz.cc`.
 - `docker-compose.yml` — runtime definition binding `127.0.0.1:8890`.
 - `Makefile` — `build` (Docusaurus export + image), `image` (image only),
   `push`, `pull`, `deploy`, `clean`.
-- `systemd/doc-ragbaz-xyz.service` — user-systemd unit for boot-time startup.
-- `haproxy/doc-ragbaz-xyz.cfg` — routing snippet to merge into
+- `systemd/doc-ragbaz-cc.service` — user-systemd unit for boot-time startup.
+- `haproxy/doc-ragbaz-cc.cfg` — routing snippet to merge into
   `/etc/haproxy/haproxy.cfg` on konsonans.
 
 ## Usage (on konsonans)
 
 ```bash
-cd /data/src/sites/doc.ragbaz.cc/deploy
+cd /data/src/doc.ragbaz.cc/deploy
 docker login registry.ragbaz.cc
 make build     # rebuild static export + registry-tagged image
-make push      # publish registry.ragbaz.cc/ragbaz/doc-ragbaz-xyz:latest
+make push      # publish registry.ragbaz.cc/ragbaz/doc-ragbaz-cc:latest
 make pull      # fetch the published image on another machine
 make deploy    # (re)create the container from DOC_IMAGE
 ```
 
 The container listens on `127.0.0.1:8890`; HAProxy forwards `doc.ragbaz.cc`
-there. The host wildcard cert `ragbaz.xyz.pem` already covers this subdomain.
+there. The host certificate for `ragbaz.cc` must cover this subdomain.
 The default image reference is
-`registry.ragbaz.cc/ragbaz/doc-ragbaz-xyz:latest`. Override it with
+`registry.ragbaz.cc/ragbaz/doc-ragbaz-cc:latest`. Override it with
 `DOC_IMAGE=... make deploy` for one-off testing.
 
 ## HAProxy
 
-Merge `haproxy/doc-ragbaz-xyz.cfg` into the `konsonans` frontend and backend
+Merge `haproxy/doc-ragbaz-cc.cfg` into the `konsonans` frontend and backend
 section of `/etc/haproxy/haproxy.cfg`, then `sudo systemctl reload haproxy`.
 
 ## Boot persistence
 
 ```bash
 mkdir -p ~/.config/systemd/user
-cp systemd/doc-ragbaz-xyz.service ~/.config/systemd/user/
+cp systemd/doc-ragbaz-cc.service ~/.config/systemd/user/
 systemctl --user daemon-reload
-systemctl --user enable --now doc-ragbaz-xyz.service
+systemctl --user enable --now doc-ragbaz-cc.service
 loginctl enable-linger "$USER"
 ```

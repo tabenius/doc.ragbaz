@@ -2,10 +2,10 @@ SHELL := /bin/bash
 
 ROOT := $(realpath $(CURDIR)/..)
 REGISTRY := registry.ragbaz.cc
-IMAGE_NAME := ragbaz/doc-ragbaz-xyz
+IMAGE_NAME := ragbaz/doc-ragbaz-cc
 IMAGE_TAG := latest
 IMAGE := $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
-COMPOSE_PROJECT_NAME := doc-ragbaz-xyz
+COMPOSE_PROJECT_NAME := doc-ragbaz-cc
 COMPOSE := COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) DOC_IMAGE=$(IMAGE) docker compose -f $(CURDIR)/docker-compose.yml
 
 .PHONY: all build image push pull deploy clean

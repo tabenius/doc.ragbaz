@@ -20,7 +20,7 @@ flowchart TB
     CF -->|"HTTPS 443 → origin"| HAP
 
     subgraph konsonans["konsonans · 91.190.155.197"]
-        HAP[["HAProxy frontend<br/>:80 / :443 (TLS ragbaz.xyz.pem)"]]
+        HAP[["HAProxy frontend<br/>:80 / :443 (TLS ragbaz.xyz.pem + ragbaz.cc cert)"]]
 
         subgraph web["Web / docs backends"]
             REG[("ragbaz-registry<br/>Docker Registry v2 · :5000")]
@@ -97,4 +97,5 @@ flowchart TB
 | SMTP `:25` / `:465` / `:587` | mail frontends | `:2225` / `:4465` / `:5587` |
 
 The wildcard cert `ragbaz.xyz.pem` terminates TLS for every `*.ragbaz.xyz`
-subdomain; DNS is Cloudflare-proxied to the konsonans origin.
+subdomain, and the `ragbaz.cc` certificate covers the `.cc` public hosts. DNS
+is Cloudflare-proxied to the konsonans origin.

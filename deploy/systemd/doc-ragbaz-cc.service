@@ -6,11 +6,11 @@ After=docker.service default.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/data/src/sites/doc.ragbaz.cc/deploy
+WorkingDirectory=/data/src/doc.ragbaz.cc/deploy
 Environment=DOCKER_HOST=unix://%t/docker.sock
 Environment=XDG_RUNTIME_DIR=%t
-Environment=COMPOSE_PROJECT_NAME=doc-ragbaz-xyz
-Environment=DOC_IMAGE=registry.ragbaz.cc/ragbaz/doc-ragbaz-xyz:latest
+Environment=COMPOSE_PROJECT_NAME=doc-ragbaz-cc
+Environment=DOC_IMAGE=registry.ragbaz.cc/ragbaz/doc-ragbaz-cc:latest
 ExecStart=/usr/bin/docker compose -f docker-compose.yml up -d
 ExecStop=/usr/bin/docker compose -f docker-compose.yml down
 

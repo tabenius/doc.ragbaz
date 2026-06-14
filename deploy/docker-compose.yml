@@ -1,7 +1,7 @@
 services:
   doc-site:
-    image: ${DOC_IMAGE:-doc-ragbaz-xyz:latest}
-    container_name: doc-ragbaz-xyz-content
+    image: ${DOC_IMAGE:-doc-ragbaz-cc:latest}
+    container_name: doc-ragbaz-cc-content
     restart: unless-stopped
     ports:
       - "127.0.0.1:8890:80"
@@ -9,10 +9,10 @@ services:
       - traefik-public
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.doc-ragbaz-xyz.rule=Host(`doc.ragbaz.cc`) || Host(`www.doc.ragbaz.cc`)"
-      - "traefik.http.routers.doc-ragbaz-xyz.tls=true"
-      - "traefik.http.routers.doc-ragbaz-xyz.tls.certresolver=le-dns"
-      - "traefik.http.services.doc-ragbaz-xyz.loadbalancer.server.port=80"
+      - "traefik.http.routers.doc-ragbaz-cc.rule=Host(`doc.ragbaz.cc`) || Host(`www.doc.ragbaz.cc`)"
+      - "traefik.http.routers.doc-ragbaz-cc.tls=true"
+      - "traefik.http.routers.doc-ragbaz-cc.tls.certresolver=le-dns"
+      - "traefik.http.services.doc-ragbaz-cc.loadbalancer.server.port=80"
 
 networks:
   traefik-public:
