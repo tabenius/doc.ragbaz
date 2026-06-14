@@ -1,14 +1,16 @@
 import {
+  ThemeEditorWorkbench,
   ThemeEditorTemplateDeck,
   ThemeFontDependencyExample,
   ThemeMdxExample,
   ThemeRoleMatrix,
   ThemeSpecimen,
+  ThemeSpecimenSuite,
 } from '@ragbaz/bazweave-theme/mdx';
 
 # Theme Editor MDX Components
 
-The standalone `@ragbaz/bazweave-theme` experiment exports MDX-ready theme
+The standalone `@ragbaz/bazweave-theme` experiment exports MDX-ready JSON theme
 editor components for documentation systems such as Docusaurus. It depends on
 `@ragbaz/bazweave-font` for shared font specimens, so theme examples can show
 the same type vocabulary as the font chooser without copying component code.
@@ -21,15 +23,26 @@ Button text. The MDX layer keeps those presets portable and interactive.
 
 ```jsx
 import {
+  ThemeEditorWorkbench,
   ThemeEditorTemplateDeck,
   ThemeFontDependencyExample,
   ThemeMdxExample,
   ThemeRoleMatrix,
   ThemeSpecimen,
+  ThemeSpecimenSuite,
 } from '@ragbaz/bazweave-theme/mdx';
 ```
 
-## Live Template Deck
+## Live Theme Editor
+
+The workbench is the MDX-safe theme editor surface: choose a preset, edit the two
+typography palette slots, switch role families, edit the underlying JSON, copy
+it, save/load it through page `localStorage`, and export it as a `.json` file.
+The specimen suite updates from that JSON-backed theme state.
+
+<ThemeEditorWorkbench active="technical" />
+
+## Template Deck
 
 The template deck lets an MDX page compare extracted theme presets inline. Click
 a preset to update the role matrix and specimen block.
@@ -48,6 +61,13 @@ roles.
 Specimen blocks are compact enough to place next to theme configuration notes.
 
 <ThemeSpecimen theme="warm" />
+
+## Specimen Suite
+
+The suite expands the preview into the surfaces we usually check together:
+prose, command/data panels, cards, buttons, and form controls.
+
+<ThemeSpecimenSuite theme="haute" />
 
 ## Font Package Dependency
 
