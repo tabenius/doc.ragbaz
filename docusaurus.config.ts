@@ -148,7 +148,7 @@ const config: Config = {
     prism: {
       theme: ragbazPrismTheme,
       darkTheme: ragbazPrismTheme,
-      additionalLanguages: ['yaml'],
+      additionalLanguages: ['yaml', 'docker', 'bash'],
     },
   } satisfies Preset.ThemeConfig,
 };

@@ -68,6 +68,18 @@ export default function prismIncludeLanguages(PrismObject) {
     punctuation: /[{}()<>\[\];,.]/,
   };
 
+  // ── Gleam — the auditable oracle language ────────────────────
+  PrismObject.languages.gleam = {
+    comment: {pattern: /\/\/.*/, greedy: true},
+    annotation: {pattern: /@\w+(?:\([^)]*\))?/, alias: 'keyword'},
+    string: {pattern: /"(?:[^"\\\n]|\\.)*"/, greedy: true},
+    keyword: /\b(?:pub|fn|case|let|assert|expect|type|if|use|as|opaque|todo|panic|const|import|opaque)\b/,
+    type: /\b[A-Z]\w*\b/,
+    operator: /->|<>|\|>|>=|<=|==|!=|\.\.|::|=>/,
+    number: /\b(?:0x[0-9a-fA-F_]+|\d[\d_]*)\b/,
+    punctuation: /[{}()\[\],:;.]/,
+  };
+
   // ── Roux — Glither shared grammar engine (PEG / pest format) ──
   PrismObject.languages.roux = {
     comment: [

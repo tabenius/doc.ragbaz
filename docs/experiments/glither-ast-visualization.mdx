@@ -6,10 +6,11 @@ description: Interactive AST/parse-tree visualizations for glither policy DSL ru
 
 import { useState } from 'react';
 
-{/* AstNode: collapsible tree node */}
+{/* AstNode: collapsible tree node with aligned connector lines */}
 export function AstNode({ node, depth = 0 }) {
   const [collapsed, setCollapsed] = useState(false);
-  const hasChildren = node.children && node.children.length > 0;
+  const hasChildren = node.children?.length > 0;
+  const toggleWidth = 14;
 
   const colors = {
     root:      '#f3c46c',
@@ -20,27 +21,24 @@ export function AstNode({ node, depth = 0 }) {
     predicate: '#d3869b',
     meta:      '#9f9f9f',
   };
-  const color   = colors[node.role] || colors.structure;
-  const toggle  = () => setCollapsed(c => !c);
+  const color = colors[node.role] || colors.structure;
 
   return (
-    <div style={{ marginLeft: depth > 0 ? 18 : 0 }}>
+    <div style={{ paddingLeft: depth > 0 ? 20 : 0 }}>
       <div
-        onClick={hasChildren ? toggle : undefined}
+        onClick={hasChildren ? () => setCollapsed(c => !c) : undefined}
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '2px 0', cursor: hasChildren ? 'pointer' : 'default',
-          borderLeft: depth > 0 ? '1px solid #2a2a2a' : 'none',
-          paddingLeft: depth > 0 ? 10 : 0,
           userSelect: 'none',
         }}
       >
-        {hasChildren && (
-          <span style={{ color: '#737373', fontSize: 10, width: 12, display: 'inline-block' }}>
-            {collapsed ? '▶' : '▼'}
-          </span>
-        )}
-        {!hasChildren && <span style={{ width: 12 }} />}
+        <span style={{
+          width: toggleWidth, display: 'inline-block', flexShrink: 0,
+          color: '#737373', fontSize: 10, textAlign: 'center',
+        }}>
+          {hasChildren ? (collapsed ? '▶' : '▼') : ''}
+        </span>
         <span style={{
           display: 'inline-block',
           background: color + '20',
@@ -79,7 +77,7 @@ export function AstNode({ node, depth = 0 }) {
         )}
       </div>
       {hasChildren && !collapsed && (
-        <div style={{ borderLeft: '1px solid #2a2a2a', marginLeft: 5, paddingLeft: 5 }}>
+        <div style={{ borderLeft: '1px solid #2a2a2a', marginLeft: toggleWidth / 2 }}>
           {node.children.map((child, i) => (
             <AstNode key={i} node={child} depth={depth + 1} />
           ))}
