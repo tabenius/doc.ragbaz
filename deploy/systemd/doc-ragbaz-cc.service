@@ -6,7 +6,7 @@ After=docker.service default.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/data/src/doc.ragbaz.cc/deploy
+WorkingDirectory=/data/src/sites/doc.ragbaz.cc/deploy
 Environment=DOCKER_HOST=unix://%t/docker.sock
 Environment=XDG_RUNTIME_DIR=%t
 Environment=COMPOSE_PROJECT_NAME=doc-ragbaz-xyz

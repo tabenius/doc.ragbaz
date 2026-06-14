@@ -18,7 +18,7 @@ HAProxy frontend at `doc.ragbaz.cc`.
 ## Usage (on konsonans)
 
 ```bash
-cd /data/src/doc.ragbaz.cc/deploy
+cd /data/src/sites/doc.ragbaz.cc/deploy
 docker login registry.ragbaz.cc
 make build     # rebuild static export + registry-tagged image
 make push      # publish registry.ragbaz.cc/ragbaz/doc-ragbaz-xyz:latest

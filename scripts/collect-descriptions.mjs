@@ -2,7 +2,7 @@
 // Walk SRC_ROOT for */docs/DESCRIPTION.mdx and emit a per-subsystem section set
 // (description + introduction/architecture/quick-start/manual/license/pricing/download)
 // under the Atlas docs/components/<slug>/ tree.
-//   SRC_ROOT=/data/src SITE=/data/src/doc.ragbaz.cc node scripts/collect-descriptions.mjs [--write]
+//   SRC_ROOT=/data/src SITE=/data/src/sites/doc.ragbaz.cc node scripts/collect-descriptions.mjs [--write]
 import { readdir, readFile, mkdir, writeFile, stat } from 'node:fs/promises';
 import { join, basename, relative } from 'node:path';
 const SRC_ROOT = process.env.SRC_ROOT || '/data/src';
