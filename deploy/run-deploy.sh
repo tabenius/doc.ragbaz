@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd /data/src/doc.ragbaz.cc
+cd /data/src/sites/doc.ragbaz.cc
 echo "[1/4] npm ci";    npm ci
 echo "[2/4] make build"; make -C deploy build
 echo "[3/4] make deploy"; make -C deploy deploy
