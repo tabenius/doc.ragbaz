@@ -1,7 +1,7 @@
 ---
 title: Traefik Reverse Proxy
 sidebar_position: 3
-description: Traefik reverse proxy configuration for routing ragbaz.xyz and ragbaz.cc domains.
+description: Traefik reverse proxy configuration for routing ragbaz.cc and ragbaz.cc domains.
 ---
 
 # Traefik Reverse Proxy
@@ -22,8 +22,8 @@ infra/traefik/
 ## Routes
 
 Traefik routes traffic for:
-- `ragbaz.xyz` — primary domain
-- `*.ragbaz.xyz` — subdomain wildcard
+- `ragbaz.cc` — primary domain
+- `*.ragbaz.cc` — subdomain wildcard
 - `ragbaz.cc` — secondary domain
 - `*.ragbaz.cc` — subdomain wildcard (tenant sites)
 - `secrets.ragbaz.cc` — Infisical secrets manager
@@ -32,12 +32,11 @@ Traefik routes traffic for:
 
 | Service | Domain | Backend |
 |---|---|---|
-| Primary site | `ragbaz.xyz` | Next.js storefront |
-| Documentation | `doc.ragbaz.cc` | Docusaurus (via offer.ragbaz.xyz) |
-| Offer | `offer.ragbaz.xyz` | Nginx redirect |
+| Primary site | `ragbaz.cc` | Next.js storefront |
+| Documentation | `doc.ragbaz.cc` | Docusaurus |
 | Secrets | `secrets.ragbaz.cc` | Infisical |
 | Tenant sites | `*.ragbaz.cc` | Gatekeeper / wp-sidecar |
-| Registry | `registry.ragbaz.xyz` | Docker Registry 2 |
+| Registry | `registry.ragbaz.cc` | Docker Registry 2 |
 
 ## Relationship to Workspace
 

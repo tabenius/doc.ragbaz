@@ -8,21 +8,21 @@ description: HAProxy configuration patches for routing RAGBAZ domains and servic
 
 Path: `infra/haproxy/`
 
-HAProxy configuration for routing `ragbaz.xyz` and `ragbaz.cc` domains. Provides TLS termination, domain routing, and backend load balancing for services in the RAGBAZ infrastructure.
+HAProxy configuration for routing `ragbaz.cc` and `ragbaz.cc` domains. Provides TLS termination, domain routing, and backend load balancing for services in the RAGBAZ infrastructure.
 
 ## Configuration
 
 ```
 infra/haproxy/
-└── ragbaz-xyz-patch.cfg    — HAProxy routing patch for ragbaz.xyz domains
+└── ragbaz-xyz-patch.cfg    — HAProxy routing patch for ragbaz.cc domains
 ```
 
 ## Routes Managed
 
 | Domain | Backend | Target |
 |---|---|---|
-| `ragbaz.xyz` | `secure_wp_backend` | `127.0.0.1:8080` (gatekeeper) |
-| `*.ragbaz.xyz` | Various | Service-specific backends |
+| `ragbaz.cc` | `secure_wp_backend` | `127.0.0.1:8080` (gatekeeper) |
+| `*.ragbaz.cc` | Various | Service-specific backends |
 | `ragbaz.cc` | `secure_wp_backend` | `127.0.0.1:8080` |
 | `*.ragbaz.cc` | Per-tenant | Gatekeeper / wp-sidecar |
 
@@ -39,5 +39,4 @@ infra/haproxy/
 HAProxy operates alongside Traefik as the infrastructure routing layer:
 - **`infra/traefik/`** — primary reverse proxy for most services
 - **`products/articulate/gatekeeper/`** — the primary backend for `secure_wp_backend`
-- **`offer.ragbaz.xyz/`** — uses HAProxy routing snippet
 - **`products/articulate/universe/`** — storefront backend

@@ -1,14 +1,14 @@
 ---
 title: Chatwoot — Customer Support Platform
 sidebar_position: 7
-description: Self-hosted Chatwoot deployment for customer engagement and support at ragbaz.xyz.
+description: Self-hosted Chatwoot deployment for customer engagement and support at ragbaz.cc.
 ---
 
 # Chatwoot
 
 Path: `chatwoot/`
 
-A self-hosted deployment of [Chatwoot](https://www.chatwoot.com/), an open-source customer engagement and support platform (comparable to Intercom or Zendesk). Configured for the ragbaz.xyz domain.
+A self-hosted deployment of [Chatwoot](https://www.chatwoot.com/), an open-source customer engagement and support platform (comparable to Intercom or Zendesk). Configured for the ragbaz.cc domain.
 
 ## Stack
 
@@ -42,7 +42,7 @@ The `.env` file contains comprehensive configuration for:
 - **Redis:** Connection and pool settings
 - **Social channels:** Twitter, Facebook, WhatsApp (optional)
 - **Integrations:** Stripe, OpenAI
-- **Domain:** ragbaz.xyz hostname
+- **Domain:** ragbaz.cc hostname
 - **Storage:** Active Storage with local disk
 
 ## Deployment

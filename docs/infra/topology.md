@@ -16,15 +16,14 @@ each component listens on, the protocols in use, and how requests are routed.
 
 ```mermaid
 flowchart TB
-    NET(["Internet"]) -->|"HTTPS 443"| CF{{"Cloudflare proxy<br/>*.ragbaz.xyz · ragbaz.cc"}}
+    NET(["Internet"]) -->|"HTTPS 443"| CF{{"Cloudflare proxy<br/>*.ragbaz.cc · ragbaz.cc"}}
     CF -->|"HTTPS 443 → origin"| HAP
 
     subgraph konsonans["konsonans · 91.190.155.197"]
-        HAP[["HAProxy frontend<br/>:80 / :443 (TLS ragbaz.xyz.pem + ragbaz.cc cert)"]]
+        HAP[["HAProxy frontend<br/>:80 / :443 (TLS ragbaz.cc.pem + ragbaz.cc cert)"]]
 
         subgraph web["Web / docs backends"]
             REG[("ragbaz-registry<br/>Docker Registry v2 · :5000")]
-            OFFER["offer nginx · :8889<br/>(Atlas build)"]
             DOC["doc nginx · :8890<br/>(Atlas build)"]
             CADDY["caddy1 tenant gateway · :4555"]
             VVITE["vrak Vite · :4444"]
@@ -56,10 +55,9 @@ flowchart TB
 
     HAP -->|"registry.ragbaz.cc/.xyz"| REG
     HAP -->|"ragbaz.cc + *.ragbaz.cc"| GW
-    HAP -->|"app/my/*.ragbaz.xyz tenants"| CADDY
+    HAP -->|"app/my/*.ragbaz.cc tenants"| CADDY
     HAP -->|"vrak /api/"| VAPI
-    HAP -->|"vrak.ragbaz.xyz"| VVITE
-    HAP -->|"offer.ragbaz.xyz"| OFFER
+    HAP -->|"vrak.ragbaz.cc"| VVITE
     HAP -->|"doc.ragbaz.cc"| DOC
     HAP -->|"UA: fwknop SPA"| FWK
     HAP -->|"SMTP 25/465/587"| PFX
@@ -86,16 +84,15 @@ flowchart TB
 
 | Host / match | Backend | Target |
 |---|---|---|
-| `registry.ragbaz.cc` / `registry.ragbaz.xyz` | `ragbaz_registry` | `127.0.0.1:5000` |
+| `registry.ragbaz.cc` / `registry.ragbaz.cc` | `ragbaz_registry` | `127.0.0.1:5000` |
 | `ragbaz.cc` + `*.ragbaz.cc` | `secure_wp_backend` | `127.0.0.1:8080` (gatekeeper) |
-| `app.ragbaz.xyz`, `my.ragbaz.xyz`, `*.ragbaz.xyz` | `app/wp/tenant_backend` | `127.0.0.1:4555` (caddy) |
-| `vrak.ragbaz.xyz` + `/api/` | `vrakAPI` | `127.0.0.1:5555` |
-| `vrak.ragbaz.xyz` | `vrak_app` | `127.0.0.1:4444` |
-| `offer.ragbaz.xyz` | `offer_backend` | `127.0.0.1:8889` |
+| `app.ragbaz.cc`, `my.ragbaz.cc`, `*.ragbaz.cc` | `app/wp/tenant_backend` | `127.0.0.1:4555` (caddy) |
+| `vrak.ragbaz.cc` + `/api/` | `vrakAPI` | `127.0.0.1:5555` |
+| `vrak.ragbaz.cc` | `vrak_app` | `127.0.0.1:4444` |
 | `doc.ragbaz.cc` | `doc_backend` | `127.0.0.1:8890` |
 | User-Agent `fwknop` | `fwknop` | `127.0.0.1:8181` |
 | SMTP `:25` / `:465` / `:587` | mail frontends | `:2225` / `:4465` / `:5587` |
 
-The wildcard cert `ragbaz.xyz.pem` terminates TLS for every `*.ragbaz.xyz`
+The wildcard cert `ragbaz.cc.pem` terminates TLS for every `*.ragbaz.cc`
 subdomain, and the `ragbaz.cc` certificate covers the `.cc` public hosts. DNS
 is Cloudflare-proxied to the konsonans origin.

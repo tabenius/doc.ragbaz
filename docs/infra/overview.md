@@ -12,7 +12,7 @@ The `infra/` tree contains support tooling rather than end-user products.
 
 | Directory | Purpose | Technologies |
 |---|---|---|
-| **Traefik** | Primary reverse proxy for ragbaz.xyz and ragbaz.cc domains | Traefik, Docker, Let's Encrypt |
+| **Traefik** | Primary reverse proxy for ragbaz.cc and ragbaz.cc domains | Traefik, Docker, Let's Encrypt |
 | **HAProxy** | Routing patch for secure WordPress backend and domain routing | HAProxy |
 | **Infisical** | Self-hosted secrets management at secrets.ragbaz.cc | Infisical, PostgreSQL, Redis, Docker Compose |
 | **Traefik + Strapi** | Traefik + Strapi CMS setup | Docker, Traefik, Strapi |

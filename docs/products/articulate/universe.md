@@ -25,7 +25,7 @@ The workspace ties together:
 
 - `storefront/`: current storefront and admin control plane.
 - `wp-cf-front-oss/`: open-source mirror of the storefront stack.
-- `ragbaz.xyz/`: Cloudflare Worker service for plugin handshake, previews, and telemetry.
+- `ragbaz.cc/`: Cloudflare Worker service for plugin handshake, previews, and telemetry.
 - `multitenant-wp-mcp-docker-legacy/`: older Dockerized platform kept for compatibility work.
 - `wp-proxy/`, `wp-from-backup/`, `wp-cf-front/`: support, migration, or reference repos.
 

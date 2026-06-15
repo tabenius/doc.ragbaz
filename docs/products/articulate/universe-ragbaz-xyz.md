@@ -6,9 +6,9 @@ description: Companion Cloudflare Worker service in the Universe workspace.
 
 # Universe Ragbaz.xyz
 
-Path: `products/articulate/universe/ragbaz.xyz`
+Path: `products/articulate/universe/ragbaz.cc`
 
-`ragbaz.xyz` is the companion Cloudflare Worker service inside the Universe workspace.
+`ragbaz.cc` is the companion Cloudflare Worker service inside the Universe workspace.
 
 ## Scope
 
