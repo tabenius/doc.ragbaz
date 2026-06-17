@@ -5,7 +5,7 @@ description: The BAZ platform architecture — BAZ.CX (exchange connector), BAZ.
 
 # BAZ platform architecture & `glither.hft` dialect specification
 
-**Status:** implementation in progress — BAZ.HFT compiler complete (parse, check, Rust codegen, WIT codegen), BAZ.Palantir scaffolded, BAZ.CX and BAZ.Luna in design.
+**Status:** all three services built and committed — BAZ.CX (Python exchange connector, 8/8 tests passing), BAZ.Palantir (Rust axum server, zero warnings), BAZ.Luna (Vite frontend with CodeMirror + marked + hljs, lazy-loaded). BAZ.HFT compiler complete (parse, check, Rust codegen, WIT codegen, 20 tests).
 **Scope:** the BAZ real-time trading platform: exchange connectivity, strategy orchestration, rule compilation and audit, frontend visualization.
 **Predecessor:** [Glither → WASM/WIT compiler spec](./glither-wasm-wit-compiler-spec) (the base Glither compiler upon which `glither.hft` is built).
 **Author:** RAGBAZ · Tobias Abenius · 2026-06-16.

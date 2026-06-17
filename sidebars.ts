@@ -59,6 +59,16 @@ const sidebars: SidebarsConfig = {
       label: 'Experiments',
       items: [
         'experiments/overview',
+        {
+          type: 'category',
+          label: 'BAZ Platform',
+          items: [
+            'experiments/baz-architecture',
+            'experiments/baz-luna',
+            'experiments/baz-palantir',
+            'experiments/baz-cx',
+          ],
+        },
         'experiments/glither-wasm-wit-compiler-spec',
         'experiments/glither-mailguard-example',
         'experiments/glither-world-sketch',
