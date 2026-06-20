@@ -18,7 +18,20 @@ This document is a **draft spec** — it defines the aspirational surface before
 
 ## Concept
 
-BAZaar is a storefront that is also a workshop. Every listing is:
+**Bazaar** covers anything in the RAGBAZ workspace that relates to packaging, selling, documenting, and deploying components:
+
+- **Docker Compose–based components** — services wired via `docker-compose.yml`, each with its own Dockerfile, health checks, and inter-service dependencies
+- **Components depending on ragbaz modules/repos/subsystems** — any service that references another RAGBAZ project, design system, or shared library
+- **Self-host/deploy aspects** — deployment pipelines (Docker, systemd, compose), environment configuration, DNS setup, certificate management
+- **Price + included cards list** — tiered pricing (free / paid / subscription), feature breakdown per tier, what's included in each card
+- **Marketplace/shop** — listing CRUD, cart, checkout, specimen viewers, order management
+- **Documentation & technical documentation** — per-component docs, API references, architecture specs, deployment guides, versioned manuals
+
+A listing in the bazaar captures all of these facets. Every RAGBAZ product, experiment, and infrastructure component is a potential bazaar listing.
+
+### BAZaar (the storefront)
+
+BAZaar is the marketplace storefront that surfaces bazaar listings. Every listing is:
 
 - **a shop item** — purchasable, licensable, or free
 - **a deployment target** — one-click deploy to a tenant's infrastructure
