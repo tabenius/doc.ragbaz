@@ -8,6 +8,7 @@ const sidebars: SidebarsConfig = {
       label: 'Products',
       items: [
         'products/overview',
+        'products/ai-governance',
         {
           type: 'category',
           label: 'Core',
