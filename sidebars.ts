@@ -75,6 +75,7 @@ const sidebars: SidebarsConfig = {
         'experiments/glither-world-sketch',
         'experiments/dana-no-retrograde-sketch',
         'experiments/glither-governance',
+        'experiments/eu-ai-act-compliance-plan',
         'experiments/glither-ast-visualization',
         'experiments/comet-trail',
         'experiments/omniland/overview',
