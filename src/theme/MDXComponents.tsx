@@ -4,6 +4,15 @@ import ComposeSystemView from '@site/src/components/ComposeSystemView';
 import ColorPalette from '@site/src/components/ColorPalette';
 import PointCloudSphere from '@site/src/components/PointCloudSphere';
 import BoneLayout from '@site/src/components/BoneLayout';
+import {
+  BAZHFTIndicatorSuite,
+  BAZHFTPriceChart,
+  BAZHFTRSIGauge,
+  BAZHFTOscillatorBar,
+  BAZHFTMACDPanel,
+  BAZLunaPhasePanel,
+  BAZPalantirStreamPanel,
+} from '@site/src/components/BAZHFTIndicators';
 
 const mono = 'ui-monospace, SFMono-Regular, "Intel One Mono", monospace';
 const ACCENT: Record<string, string> = {
@@ -93,11 +102,11 @@ const KeyVal = ({ rows = [] }: any) => (
   <div style={{ margin: '12px 0', borderRadius: 6, overflow: 'hidden' }}>
     {rows.map(([k, v]: any, i: number) => (
       <div key={i} style={{
-        display: 'flex', gap: 16, padding: '8px 12px', fontSize: 14,
+        display: 'flex', flexWrap: 'wrap', gap: '4px 16px', padding: '8px 12px', fontSize: 14,
         background: i % 2 === 0 ? '#282828' : '#1d2021',
       }}>
-        <span style={{ fontFamily: mono, fontSize: 12, color: '#fabd2f', minWidth: 150, flexShrink: 0 }}>{k}</span>
-        <span style={{ color: '#d5c4a1' }}>{v}</span>
+        <span style={{ fontFamily: mono, fontSize: 12, color: '#fabd2f', minWidth: 'min(150px, 100%)', flexShrink: 0 }}>{k}</span>
+        <span style={{ color: '#d5c4a1', minWidth: 0, flex: '1 1 200px' }}>{v}</span>
       </div>
     ))}
   </div>
@@ -225,17 +234,26 @@ const Reveal = ({ label = 'reveal', hiddenLabel = 'hide', children }: any) => {
 };
 
 const SpecTable = ({ rows }: any) => (
-  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, margin: '12px 0' }}>
-    <tbody>
-      {rows.map(([token, value, note]: any, i: number) => (
-        <tr key={i} style={{ background: i % 2 === 0 ? 'transparent' : '#282828' }}>
-          <td style={{ color: '#fabd2f', fontFamily: mono, fontSize: 12, width: '30%', padding: '9px 8px', borderBottom: '1px solid #3c3836', verticalAlign: 'top' }}>{token}</td>
-          <td style={{ fontFamily: mono, fontSize: 12, padding: '9px 8px', borderBottom: '1px solid #3c3836', verticalAlign: 'top' }}>{value}</td>
-          <td style={{ color: '#928374', padding: '9px 8px', borderBottom: '1px solid #3c3836', verticalAlign: 'top', fontSize: 13 }}>{note}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+  <div style={{ overflowX: 'auto', margin: '12px 0' }}>
+    <table style={{ width: '100%', minWidth: 380, borderCollapse: 'collapse', fontSize: 14 }}>
+      <tbody>
+        {rows.map(([token, value, note]: any, i: number) => (
+          <tr key={i} style={{ background: i % 2 === 0 ? 'transparent' : '#282828' }}>
+            <td style={{ color: '#fabd2f', fontFamily: mono, fontSize: 12, width: '30%', padding: '9px 8px', borderBottom: '1px solid #3c3836', verticalAlign: 'top', whiteSpace: 'nowrap' }}>{token}</td>
+            <td style={{ fontFamily: mono, fontSize: 12, padding: '9px 8px', borderBottom: '1px solid #3c3836', verticalAlign: 'top', whiteSpace: 'nowrap' }}>{value}</td>
+            <td style={{ color: '#928374', padding: '9px 8px', borderBottom: '1px solid #3c3836', verticalAlign: 'top', fontSize: 13 }}>{note}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 );
 
-export default { ...MDXComponents, Hero, Lead, Plate, Callout, Admonition, Badge, KeyVal, ComposeSystemView, Tabs, TabItem, Steps, Reveal, SpecTable, ColorPalette, PointCloudSphere, BoneLayout };
+export default {
+  ...MDXComponents,
+  Hero, Lead, Plate, Callout, Admonition, Badge, KeyVal,
+  ComposeSystemView, Tabs, TabItem, Steps, Reveal, SpecTable, ColorPalette,
+  PointCloudSphere, BoneLayout,
+  BAZHFTIndicatorSuite, BAZHFTPriceChart, BAZHFTRSIGauge, BAZHFTOscillatorBar,
+  BAZHFTMACDPanel, BAZLunaPhasePanel, BAZPalantirStreamPanel,
+};

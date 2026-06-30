@@ -53,6 +53,15 @@ const sidebars: SidebarsConfig = {
           ],
         },
         'products/bazaar',
+        {
+          type: 'category',
+          label: 'BAZ Signal Stack',
+          items: [
+            'products/baz-hft',
+            'products/baz-luna',
+            'products/baz-palantir',
+          ],
+        },
       ],
     },
     {

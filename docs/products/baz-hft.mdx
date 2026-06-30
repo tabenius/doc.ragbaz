@@ -1,0 +1,223 @@
+---
+title: BAZ.HFT
+sidebar_position: 15
+description: Signal processing and technical indicator toolkit for systematic trading strategies built on the RAGBAZ stack.
+---
+
+import { BAZHFTIndicatorSuite, BAZHFTRSIGauge, BAZHFTOscillatorBar, BAZHFTPriceChart, BAZHFTMACDPanel } from '../../src/components/BAZHFTIndicators';
+
+<Hero
+  marque="BAZ.HFT"
+  tagline="// systematic signal processing"
+  title="BAZ.HFT"
+  subtitle="products/baz-hft · indicator & signal toolkit"
+  lede="A high-frequency signal processing and technical indicator suite for systematic trading strategies. Deterministic computation, typed signal graphs, and composable indicator pipelines built on the RAGBAZ stack."
+  axes={['INDICATORS', 'OSCILLATORS', 'SIGNALS', 'DSL', 'STREAMING', 'WASM']}
+/>
+
+<Lead>
+BAZ.HFT is the RAGBAZ systematic trading toolkit — a composable pipeline of technical
+indicators, oscillators, and signal generators compiled to deterministic, sandboxed WASM
+components and wired through the RAGBAZ membrane graph.
+</Lead>
+
+---
+
+## Live Indicator Suite
+
+The indicator suite below is fully interactive. Select a timeframe and observe how RSI,
+Stochastic, MACD, and moving average signals update across the chart.
+
+<BAZHFTIndicatorSuite seed={7} />
+
+---
+
+## Architecture
+
+```
+Market Data Feed  (tick / bar / trade)
+      │
+      ▼
+BAZ.HFT Ingestion Pipeline
+      │   normalize · validate · timestamp
+      ▼
+Indicator Compute Graph  (deterministic, typed)
+      │   SMA / EMA / VWAP / Bollinger / ATR / RSI / MACD / Stoch / CCI / WR
+      ▼
+Signal Generator  (rule-based, composable)
+      │   crossing · threshold · divergence · regime
+      ▼
+Signal Bus  (membrane-typed event stream)
+      │
+      ├── Execution Layer  (order management, risk checks)
+      ├── BAZ.Luna         (cycle phase detection)
+      └── BAZ.Palantir     (intelligence dashboard)
+```
+
+<Admonition type="tip" title="DETERMINISM GUARANTEE">
+Every indicator in BAZ.HFT produces identical output given identical input — no
+floating-point non-determinism, no clock dependency. Pipelines compile to WASM
+components and are verified against a Gleam reference oracle (same approach as
+Glither's conformance suite).
+</Admonition>
+
+---
+
+## Indicators
+
+<Plate section="A" title="Trend Indicators" sub="directional, non-bounded" num="1">
+
+Trend indicators track the prevailing direction of price. They are **non-bounded** —
+their values are expressed in price units and have no fixed range.
+
+<KeyVal rows={[
+  ['SMA(n)', 'Simple Moving Average — equal-weight mean of last n closes. Cheap, lag-heavy, foundational.'],
+  ['EMA(n)', 'Exponential Moving Average — recency-weighted with factor k=2/(n+1). Less lag than SMA.'],
+  ['VWAP', 'Volume-Weighted Average Price — intraday anchored mean. Institutional reference.'],
+  ['Bollinger(n, σ)', 'Band envelope: SMA(n) ± σ·std(n). Volatility-relative price position.'],
+  ['ATR(n)', 'Average True Range — mean of |High-Low|, |High-Close|, |Low-Close|. Volatility magnitude.'],
+  ['Donchian(n)', 'Highest high / lowest low channel over n bars. Breakout reference.'],
+]} />
+
+</Plate>
+
+<Plate section="B" title="Oscillators" sub="bounded, mean-reverting" num="2">
+
+Oscillators are **bounded** — they return values in a fixed range and are designed
+to identify overbought / oversold conditions and divergences.
+
+<KeyVal rows={[
+  ['RSI(14)', 'Relative Strength Index — ratio of average gains to average losses over n bars. Range [0, 100]. Overbought >70, oversold <30.'],
+  ['Stochastic(14, 3)', '%K = position within recent H/L range; %D = SMA(%K, 3). Range [0, 100]. Oversold <20, overbought >80.'],
+  ['CCI(20)', 'Commodity Channel Index — (price - SMA) / (0.015 · mean deviation). Range typically ±200.'],
+  ['Williams %R(14)', 'Inverted Stochastic %K. Range [-100, 0]. Oversold < -80, overbought > -20.'],
+  ['Momentum(10)', 'Price - Price[n]. Rate of change in price units. Sign = direction, magnitude = speed.'],
+  ['ROC(10)', 'Rate of Change as percentage: (price/price[n] - 1) × 100. Normalized momentum.'],
+]} />
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, margin: '16px 0' }}>
+  <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, padding: '12px 0' }}>
+    <BAZHFTRSIGauge value={68} label="RSI · 14" size={90} />
+  </div>
+  <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, padding: '12px 0' }}>
+    <BAZHFTRSIGauge value={27} label="Stoch %K" size={90} />
+  </div>
+  <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, padding: '12px 0' }}>
+    <BAZHFTRSIGauge value={52} label="CCI norm" size={90} />
+  </div>
+</div>
+
+</Plate>
+
+---
+
+## DSL Syntax
+
+BAZ.HFT uses a declarative signal DSL built on the Glither comprehension syntax. A signal
+rule is a typed comprehension over a bar stream:
+
+```glither
+#pragma dialect baz.hft ; fold accumulate
+
+indicator rsi14 = RSI(close, period=14)
+indicator macd  = MACD(close, fast=12, slow=26, signal=9)
+indicator bb20  = Bollinger(close, period=20, sigma=2.0)
+
+group trending = bars
+  | EMA(close, 20) > EMA(close, 50)
+
+rule long_entry =
+  bar
+  | bar in trending                              // trend filter
+  | rsi14 < 35                                   // oversold
+  | macd.histogram crosses_above 0              // momentum confirms
+  | close > bb20.lower                          // not below band
+  => signal BUY into open_position
+     on fill         into filled
+     after 4 bars    into expired
+
+rule long_exit =
+  bar in open_position
+  | rsi14 > 70                                  // overbought
+  => signal SELL into closed_position
+```
+
+### Semantic rules
+
+| Predicate | Semantics |
+|---|---|
+| `crosses_above <val>` | Previous bar below, current bar above `val` |
+| `crosses_below <val>` | Previous bar above, current bar below `val` |
+| `diverges_from <indicator>` | Price direction and indicator direction disagree over last n bars |
+| `bar in <group>` | Bar satisfies the group's selector predicates |
+| `after <n> bars` | Liveness deadline — signal expires after n bars without fill |
+
+<Admonition type="note" title="TYPED SIGNALS">
+Every signal is typed by its terminal state (`open_position`, `filled`, `expired`,
+`closed_position`). The BAZ.HFT runtime enforces that every `BUY` is eventually
+settled — an un-filled open position is a liveness violation surfaced as a lint
+at compile time.
+</Admonition>
+
+---
+
+## Optimizations
+
+### Incremental computation
+
+Indicators are **incremental** — on each new bar, only the delta is recomputed:
+
+| Indicator | Incremental form | Complexity |
+|---|---|---|
+| SMA(n) | Sum window: add new, drop oldest | O(1) |
+| EMA(n) | prev_ema × (1-k) + price × k | O(1) |
+| RSI(n) | Wilder smoothing on avg gain/loss | O(1) |
+| Stochastic(k, d) | Sliding H/L window | O(1) amortized |
+| ATR(n) | EMA of true range | O(1) |
+| MACD | Three cascaded EMAs | O(1) |
+
+### Compile-time selector pushdown
+
+The Glither compiler infers **cheap selectors** from crossing-guard predicates. In
+the example above, `| bar in trending` and `| rsi14 < 35` are pushed into an
+indexed pre-filter before the more expensive `crosses_above` check — identical to
+the SQL optimiser pattern in the core spec.
+
+### SIMD batch evaluation
+
+For bulk backtesting, BAZ.HFT compiles indicator compute graphs to WASM SIMD
+instructions (`v128` operations). A 10-year daily bar series computes all
+indicators in < 40ms on a single core.
+
+---
+
+## Future Expansions
+
+<Callout accent="blue">
+  Roadmap items are tracked in the RAGBAZ monorepo under `products/baz-hft/ROADMAP.md`.
+  The items below are explicitly **not yet implemented**.
+</Callout>
+
+| Item | Description | Target dialect |
+|---|---|---|
+| **Order Book Indicators** | Bid/ask imbalance, spread, depth heatmap | `baz.hft.orderbook` |
+| **Regime Detection** | HMM-based regime filter (trending / ranging / volatile) | `baz.hft.regime` |
+| **Pattern Recognition** | Head & shoulders, double top/bottom, triangle | `baz.hft.pattern` |
+| **Ichimoku Cloud** | Full Ichimoku Kinko Hyo with Tenkan/Kijun/Span A&B/Chikou | `baz.hft.trend` |
+| **Options Greeks** | Delta, Gamma, Theta, Vega computed from BAZ.HFT price feeds | `baz.hft.options` |
+| **BAZ.Luna integration** | Cycle phase as a filter condition in signal rules | `glither.world` link |
+| **BAZ.Palantir export** | Live indicator stream as a Palantir data source | `glither.world` link |
+| **Multi-asset correlation** | Cross-asset RSI divergence, pair trading signals | `baz.hft.multi` |
+
+---
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Signal DSL | Glither (`baz.hft` dialect) |
+| Compiler | Roux parser → typed IR → Rust/Gleam codegen |
+| Runtime | Wasmtime/WASI component with per-indicator WIT imports |
+| Data feed | WebSocket tick stream → BAZ.HFT ingestion pipeline |
+| Backtesting | WASM SIMD batch evaluation |
+| Visualization | React + SVG (doc.ragbaz.cc / BAZ.Palantir) |

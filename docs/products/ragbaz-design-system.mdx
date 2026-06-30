@@ -147,21 +147,20 @@ Button borders and chrome tokens — dark gray default, warm/cool contextual var
 
 <Tabs defaultValue="specimen">
 <TabItem value="specimen" label="Specimen">
-  <div style={{ fontSize: 12, color: '#9f9f9f' }}>
+  <div style={{ fontSize: 12, color: '#9f9f9f', overflowX: 'auto' }}>
     {[
       {token: '--t-display', size: '44px', lh: '1.15', font: 'Noto Sans 800', fontFamily: '"Noto Sans", sans-serif', color: '#7ab8ff', text: 'Aa  Display'},
       {token: '--t-h1',      size: '28px', lh: '1.15', font: 'Noto Sans 700', fontFamily: '"Noto Sans", sans-serif', color: '#7ab8ff', text: 'Aa  Heading 1'},
       {token: '--t-h2',      size: '20px', lh: '1.35', font: 'Intel One Mono 700', fontFamily: '"Intel One Mono", monospace', color: '#f3c46c', text: 'Aa  Heading 2'},
       {token: '--t-h3',      size: '16px', lh: '1.35', font: 'Intel One Mono 600', fontFamily: '"Intel One Mono", monospace', color: '#f2a77a', text: 'Aa  Heading 3'},
-      {token: '--t-body',    size: '14px', lh: '1.55', font: 'Noto Sans 400', fontFamily: '"Noto Sans", sans-serif', color: '#d8c29d', text: 'Aa  Body text specimen showing the default reading size. Used for paragraphs, descriptions, and general content.'},
-      {token: '--t-small',   size: '12px', lh: '1.55', font: 'Intel One Mono 700', fontFamily: '"Intel One Mono", monospace', color: '#ff9900', text: 'Aa  Small label text specimen'},
+      {token: '--t-body',    size: '14px', lh: '1.55', font: 'Noto Sans 400', fontFamily: '"Noto Sans", sans-serif', color: '#d8c29d', text: 'Aa  Body text specimen'},
+      {token: '--t-small',   size: '12px', lh: '1.55', font: 'Intel One Mono 700', fontFamily: '"Intel One Mono", monospace', color: '#ff9900', text: 'Aa  Small label'},
       {token: '--t-micro',   size: '11px', lh: '1.55', font: 'Intel One Mono', fontFamily: '"Intel One Mono", monospace', color: '#9f9f9f', text: 'Aa  micro caption'},
     ].map(({ token, size, lh, font, fontFamily, color, text }) => (
-      <div key={token} style={{ display: 'flex', gap: 12, padding: '7px 0', borderBottom: '1px solid #2a2a2a', alignItems: 'center' }}>
-        <span style={{ minWidth: 100, color: '#f3c46c', fontFamily: 'ui-monospace, monospace' }}>{token}</span>
-        <span style={{ minWidth: 60, color: '#737373', fontFamily: 'ui-monospace, monospace' }}>{size} / {lh}</span>
-        <span style={{ minWidth: 180, color: '#737373', fontSize: 11, fontFamily: 'ui-monospace, monospace' }}>{font}</span>
-        <span style={{ fontSize: parseInt(size), lineHeight: lh, color, fontFamily, fontWeight: font.includes('800') ? 800 : font.includes('700') ? 700 : font.includes('600') ? 600 : 400 }}>{text}</span>
+      <div key={token} style={{ display: 'flex', gap: 8, padding: '7px 0', borderBottom: '1px solid #2a2a2a', alignItems: 'center', minWidth: 0 }}>
+        <span style={{ minWidth: 'min(100px, 22%)', flexShrink: 0, color: '#f3c46c', fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>{token}</span>
+        <span style={{ minWidth: 'min(56px, 12%)', flexShrink: 0, color: '#737373', fontFamily: 'ui-monospace, monospace' }}>{size}</span>
+        <span style={{ fontSize: parseInt(size), lineHeight: lh, color, fontFamily, fontWeight: font.includes('800') ? 800 : font.includes('700') ? 700 : font.includes('600') ? 600 : 400, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</span>
       </div>
     ))}
   </div>
@@ -351,7 +350,7 @@ Animations limited to hover transitions, focus rings, and content visibility
 Two modes: **interactive** (drag to orbit, compass/pitch monitors, vector
 toggles) and **view** (auto-rotating, no UI overlays, controlled via props).
 
-<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '16px 0' }}>
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, margin: '16px 0' }}>
   <div>
     <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11, color: '#928374', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>mode="interactive"</div>
     <PointCloudSphere mode="interactive" />

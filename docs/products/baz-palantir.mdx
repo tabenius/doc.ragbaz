@@ -1,0 +1,246 @@
+---
+title: BAZ.Palantir
+sidebar_position: 17
+description: Data intelligence dashboard and analytics platform for the RAGBAZ signal stack.
+---
+
+import { BAZPalantirStreamPanel, BAZHFTRSIGauge, BAZHFTOscillatorBar } from '../../src/components/BAZHFTIndicators';
+
+<Hero
+  marque="BAZ.PALANTIR"
+  tagline="// data intelligence dashboard"
+  title="BAZ.Palantir"
+  subtitle="products/baz-palantir · analytics & observability"
+  lede="The RAGBAZ data intelligence layer — a composable analytics dashboard that aggregates signal streams from BAZ.HFT, BAZ.Luna, Glither policy verdicts, and infrastructure telemetry into a unified, membrane-typed observability surface."
+  axes={['ANALYTICS', 'SIGNALS', 'STREAMS', 'DASHBOARD', 'QUERY', 'INTELLIGENCE']}
+/>
+
+<Lead>
+BAZ.Palantir is the lens through which the RAGBAZ stack becomes legible. It receives
+typed signal streams from every membrane in the system, applies intelligence queries,
+and renders structured dashboards — all without breaking the capability-sandbox guarantees
+that protect each component.
+</Lead>
+
+---
+
+## Live Data Streams
+
+<BAZPalantirStreamPanel seed={11} />
+
+---
+
+## Architecture
+
+```
+Signal Bus  (BAZ.HFT · BAZ.Luna · Glither verdicts · infra telemetry)
+      │   typed membrane exports
+      ▼
+BAZ.Palantir Ingestor
+      │   schema validation · normalization · time-alignment
+      ▼
+Intelligence Layer
+      │
+      ├── Query Engine    (BAZ.PQL — composable signal query language)
+      ├── Aggregations    (windowed reduce, cross-stream join, percentiles)
+      ├── Alert Rules     (threshold · anomaly · divergence triggers)
+      └── Dashboard State (reactive, persisted per-tenant)
+             │
+             ▼
+Presentation Layer
+      │
+      ├── Live Dashboard  (React panels, responsive grid)
+      ├── Report Renderer (PDF via WeasyPrint / diabaz themes)
+      └── MCP Export      (structured data for downstream agents)
+```
+
+<Admonition type="tip" title="CAPABILITY ISOLATION">
+BAZ.Palantir reads from signal streams via WIT imports — it cannot reach into source
+components, only consume what they explicitly export. A rogue query cannot exfiltrate
+data that producers haven't surfaced. The same capability sandbox as Glither, applied
+to the analytics layer.
+</Admonition>
+
+---
+
+## Signal Sources
+
+<Plate section="A" title="Connected Sources" sub="membrane-typed ingestion" num="1">
+
+<KeyVal rows={[
+  ['BAZ.HFT', 'Indicator values (RSI, MACD, Stoch, BB…), trade signals (BUY/SELL/HOLD), execution fills, P&L stream.'],
+  ['BAZ.Luna', 'Cycle phase, amplitude, confidence per named cycle. Phase events (reset, peak, anomaly).'],
+  ['Glither · mailguard', 'Policy verdicts (route/quarantine/reject), enforcement latency, rule hit rates.'],
+  ['Glither · segment', 'Encryption verdicts, clearance attestations, promotion counts.'],
+  ['infra · traefik', 'Request rate, latency percentiles (p50/p95/p99), error rate, upstream health.'],
+  ['infra · provision', 'Tenant lifecycle events, deployment success/fail, domain provisioning latency.'],
+  ['articulate', 'CMS publish events, content pipeline throughput, MCP subgraph query latency.'],
+]} />
+
+</Plate>
+
+---
+
+## Query Language: BAZ.PQL
+
+BAZ.Palantir uses **BAZ.PQL** (Palantir Query Language) — a composable, time-aware
+query language for signal streams. It is an extension of the Glither comprehension
+surface adapted for aggregation over time windows:
+
+```pql
+-- Current RSI regime distribution (last 30 days)
+SELECT
+  CASE
+    WHEN rsi14 > 70 THEN 'overbought'
+    WHEN rsi14 < 30 THEN 'oversold'
+    ELSE 'neutral'
+  END AS regime,
+  COUNT(*) AS bars,
+  AVG(next_bar_return) AS avg_forward_return
+FROM baz.hft.indicators
+WHERE source = 'BAZ/USD'
+  AND timestamp > NOW() - INTERVAL '30 days'
+GROUP BY regime
+ORDER BY avg_forward_return DESC
+
+-- Phase-conditioned signal accuracy (BAZ.Luna × BAZ.HFT join)
+SELECT
+  luna.intraday.phase_bucket(8) AS phase_octant,
+  hft.signal,
+  COUNT(*) AS occurrences,
+  AVG(fill_return_1h) AS avg_1h_return,
+  STDDEV(fill_return_1h) AS volatility
+FROM baz.hft.signals
+JOIN baz.luna.phases ON timestamp = luna.timestamp
+WHERE hft.signal IN ('BUY', 'SELL')
+  AND luna.intraday.confidence > 0.7
+GROUP BY phase_octant, hft.signal
+HAVING COUNT(*) > 20
+ORDER BY phase_octant, hft.signal
+```
+
+### PQL syntax elements
+
+| Construct | Semantics |
+|---|---|
+| `WINDOW(n bars)` | Rolling window aggregation over last n bars |
+| `WINDOW(n hours)` | Rolling window by wall-clock time |
+| `ALIGN ON cycle` | Resample to cycle boundaries (BAZ.Luna integration) |
+| `JOIN ON timestamp` | Time-aligned join between two signal streams |
+| `PERCENTILE(n, expr)` | Approximate percentile (t-digest) |
+| `ANOMALY(expr, sigma)` | True if expr deviates > sigma standard deviations from rolling mean |
+| `DIVERGE(a, b, n)` | True if series a and b have opposite sign over last n periods |
+| `CROSSOVER(a, b)` | True at bars where a crosses above b |
+
+---
+
+## Dashboard Panels
+
+<Plate section="B" title="Composable Panels" sub="responsive grid, per-tenant" num="2">
+
+Each dashboard is a **named collection of panels** configured via JSON and persisted
+per-tenant in the Articulate CMS subgraph. Panels are reactive — they subscribe to
+signal streams and update live without page reload.
+
+<KeyVal rows={[
+  ['SignalStream', 'Real-time feed of typed signal events with source, timestamp, value, confidence badge.'],
+  ['IndicatorChart', 'Time-series chart for any indicator — uses BAZ.HFT compute graph output.'],
+  ['OscillatorGauge', 'Circular RSI / Stochastic / CCI gauge, auto-sourced from BAZ.HFT.'],
+  ['PhasePanel', 'BAZ.Luna cycle phase display — ring progress + oscillator bars.'],
+  ['HeatMap', 'Two-axis heatmap (time × asset, phase × signal, etc.) with PQL-driven data.'],
+  ['AlertFeed', 'Ordered list of active alerts with severity, source, trigger condition, age.'],
+  ['CorrelationMatrix', 'Rolling Pearson correlation between selected signal pairs.'],
+  ['P&L Strip', 'Cumulative P&L curve with drawdown shading from BAZ.HFT fill stream.'],
+]} />
+
+</Plate>
+
+---
+
+## Indicator Grid
+
+The indicator grid component adapts to any screen width — panels collapse from
+multi-column to single-column on small screens:
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, margin: '16px 0' }}>
+  <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, padding: '8px 0' }}>
+    <BAZHFTRSIGauge value={64} label="RSI · BAZ/USD" size={88} />
+  </div>
+  <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, padding: '8px 0' }}>
+    <BAZHFTRSIGauge value={41} label="Stoch · BAZ/USD" size={88} />
+  </div>
+  <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, padding: '8px 0' }}>
+    <BAZHFTRSIGauge value={78} label="Phase · intraday" size={88} />
+  </div>
+  <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace', fontSize: 9, color: '#7ab8ff', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Infra · Latency</div>
+    <BAZHFTOscillatorBar label="p50" value={28} min={0} max={200} overdone={{ low: 50, high: 150 }} />
+    <BAZHFTOscillatorBar label="p95" value={87} min={0} max={200} overdone={{ low: 50, high: 150 }} />
+    <BAZHFTOscillatorBar label="p99" value={142} min={0} max={200} overdone={{ low: 50, high: 150 }} />
+  </div>
+</div>
+
+---
+
+## Semantics
+
+### Signal type system
+
+All signals in BAZ.Palantir are **typed** by their source membrane's WIT export
+signature. The type system prevents dashboard configuration from connecting
+incompatible signals:
+
+```wit
+// BAZ.HFT WIT export — indicator values
+interface hft-indicators {
+  record indicator-value {
+    name: string,
+    period: u32,
+    value: f64,
+    timestamp: u64,
+    confidence: f32,    // [0, 1]
+  }
+  get-indicator: func(source: string, name: string) -> option<indicator-value>
+  subscribe-stream: func(source: string, names: list<string>) -> stream<indicator-value>
+}
+
+// BAZ.Luna WIT export — phase signals
+interface luna-phases {
+  record phase-signal {
+    cycle-name: string,
+    phase: f32,         // [0, 2π]
+    amplitude: f32,     // relative to 90d mean
+    confidence: f32,    // [0, 1]
+    timestamp: u64,
+  }
+  subscribe-cycle: func(cycle-name: string) -> stream<phase-signal>
+}
+```
+
+The BAZ.PQL type checker validates at query compile time that all JOINed streams
+export compatible timestamp types and that aggregation functions are applied to
+numerically-typed fields.
+
+### Alert semantics
+
+Alerts in BAZ.Palantir follow the Glither liveness model:
+
+- Every alert has a **terminal state** (`triggered`, `cleared`, `expired`)  
+- Every `triggered` alert must eventually reach `cleared` or `expired` — a liveness obligation
+- Alerts without a deadline are flagged by the `baz.palantir` lint at dashboard save time
+- Alert history is append-only and content-addressed — no retrograde modification
+
+---
+
+## Future Expansions
+
+| Item | Description |
+|---|---|
+| **Natural-language query** | BAZ.PQL queries generated from natural-language prompts via MCP + Claude |
+| **Causal inference** | Do-calculus operator for signal causal attribution (which signals cause P&L?) |
+| **Scenario replay** | Re-run a historical window through current indicator suite and see what would have triggered |
+| **Cross-tenant benchmarking** | Anonymized signal quality comparison across tenants (opt-in) |
+| **Report generation** | BAZ.PQL → PDF report via diabaz-themed WeasyPrint pipeline |
+| **Mobile dashboard** | Reduced-chrome dashboard optimized for phone screens via BAZ.Palantir Mobile |
+| **Slack/Discord sink** | Alert forwarding to chat via the Articulate webhook adapter |
+| **WASM panel plugins** | User-authored panel types compiled to WASM and sandboxed by BAZ.Palantir host |

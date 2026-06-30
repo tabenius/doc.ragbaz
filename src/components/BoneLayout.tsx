@@ -70,7 +70,7 @@ export default function BoneLayout() {
   const duration = 1.62;
 
   return (
-    <div style={{ margin: '16px 0', display: 'grid', gap: 16 }}>
+    <div style={{ margin: '16px 0', display: 'grid', gap: 16, width: '100%', minWidth: 0 }}>
       {/* ── Armature ── */}
       <div style={{ background: '#151515', border: '1px solid #2a2a2a', borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px' }}>
@@ -124,13 +124,13 @@ export default function BoneLayout() {
 
       {/* ── Timeline Lanes ── */}
       <div style={{ background: '#151515', border: '1px solid #2a2a2a', borderRadius: 8, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', flexWrap: 'wrap', gap: 4 }}>
           <span style={{ font: `11px ${mono}`, color: '#f3c46c', letterSpacing: '.1em', textTransform: 'uppercase' }}>Timeline Lanes</span>
           <span style={{ font: `11px ${mono}`, color: '#928374' }}>per-bone keyframe markers</span>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', overflowX: 'auto' }}>
           <div style={{
-            position: 'absolute', left: 132, top: 0, bottom: 0, width: 2,
+            position: 'absolute', left: 'clamp(80px, 18%, 130px)', top: 0, bottom: 0, width: 2,
             background: '#f3c46c', zIndex: 2, pointerEvents: 'none',
             boxShadow: '0 0 6px #f3c46c80',
             transform: `translateX(${(time / duration) * 100}%)`,
@@ -140,7 +140,7 @@ export default function BoneLayout() {
             return (
               <div key={lane.name} style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #2a2a2a' }}>
                 <div style={{
-                  width: 130, flexShrink: 0, padding: '8px 10px',
+                  width: 'clamp(80px, 18%, 130px)', flexShrink: 0, padding: '8px 10px',
                   font: `11px ${mono}`, color: c,
                 }}>{lane.name}</div>
                 <div style={{ flex: 1, height: 28, position: 'relative' }}>

@@ -495,6 +495,8 @@ code {
   }
 }
 
+/* ─── Responsive breakpoints ───────────────────────────────────────────── */
+
 @media (max-width: 996px) {
   :root {
     --atlas-pad-x: 16px;
@@ -511,6 +513,39 @@ code {
 
   .navbar__brand {
     margin-right: 0;
+  }
+
+  .ragbaz-hero {
+    padding-top: var(--s-9);
+  }
+
+  .ragbaz-section {
+    padding: var(--s-8) 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: var(--s-5);
+    padding-right: var(--s-5);
+  }
+
+  .ragbaz-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ragbaz-grid-tight {
+    grid-template-columns: 1fr;
+  }
+
+  .theme-doc-sidebar-container {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
   }
 
   .navbar__title {
@@ -552,4 +587,51 @@ code {
   .pagination-nav__item {
     max-width: 100%;
   }
+
+  /* Prevent wide tables from breaking layout */
+  .markdown table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tighter hero on mobile */
+  .ragbaz-hero {
+    padding: var(--s-8) 0 var(--s-7);
+  }
+
+  .ragbaz-title {
+    font-size: clamp(32px, 8vw, 56px);
+  }
+
+  /* Section header max-width */
+  .ragbaz-section-header {
+    margin-bottom: var(--s-6);
+  }
+}
+
+/* ─── Tables — always horizontally scrollable ───────────────────────────── */
+.markdown table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: max-content;
+  max-width: 100%;
+}
+
+/* ─── Code blocks — constrained to container ───────────────────────────── */
+.theme-code-block {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.theme-code-block pre {
+  overflow-x: auto;
+}
+
+/* ─── Inline images / SVG — never overflow ─────────────────────────────── */
+.markdown img,
+.markdown svg {
+  max-width: 100%;
+  height: auto;
 }

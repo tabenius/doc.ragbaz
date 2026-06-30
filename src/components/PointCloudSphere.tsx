@@ -246,7 +246,7 @@ export default function PointCloudSphere({
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) 220px', gap: 14, margin: '16px 0' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, margin: '16px 0' }}>
       <div
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -256,7 +256,7 @@ export default function PointCloudSphere({
           position: 'relative', cursor: 'grab', userSelect: 'none',
           background: 'radial-gradient(circle at 50% 50%, #1a1308 0%, #0a0807 70%, #050403 100%)',
           border: '1px solid #2a2a2a', borderRadius: 8, overflow: 'hidden',
-          aspectRatio: '1 / 1',
+          aspectRatio: '1 / 1', flex: '1 0 min(100%, 240px)',
         }}
       >
         <canvas ref={canvasRef} width={width} height={height}
@@ -269,7 +269,7 @@ export default function PointCloudSphere({
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: '0 0 200px', minWidth: 0 }}>
         <div style={{ background: '#151515', border: '1px solid #2a2a2a', borderRadius: 8, padding: '10px 12px' }}>
           <div style={{ font: `10px ${mono}`, color: G, letterSpacing: '.1em', textTransform: 'uppercase' }}>readout</div>
           <div style={{ display: 'flex', gap: 18, marginTop: 4 }}>

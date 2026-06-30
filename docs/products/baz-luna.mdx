@@ -1,0 +1,220 @@
+---
+title: BAZ.Luna
+sidebar_position: 16
+description: Periodic pattern detection and cycle-aware monitoring for the RAGBAZ signal stack.
+---
+
+import { BAZLunaPhasePanel, BAZHFTOscillatorBar } from '../../src/components/BAZHFTIndicators';
+
+<Hero
+  marque="BAZ.LUNA"
+  tagline="// cycle-aware monitoring"
+  title="BAZ.Luna"
+  subtitle="products/baz-luna · periodic pattern & phase detection"
+  lede="Cycle-aware signal monitoring and periodic pattern detection. BAZ.Luna tracks recurring rhythms in data streams — market microstructure cycles, system load patterns, and multi-scale temporal oscillations — and surfaces them as typed phase signals composable with BAZ.HFT rules."
+  axes={['CYCLES', 'PHASE', 'PERIODICITY', 'MONITORING', 'DSL', 'OSCILLATORS']}
+/>
+
+<Lead>
+BAZ.Luna treats time not as a uniform ruler but as a superposition of recurring cycles —
+market sessions, funding periods, seasonal rhythms, and emergent microstructure patterns.
+It detects, names, and exposes these cycles as first-class signals in the RAGBAZ membrane graph.
+</Lead>
+
+---
+
+## Cycle Phase Panel
+
+The panel below visualizes a 28-day oscillation cycle — representative of the kind of
+periodic signal BAZ.Luna tracks, names, and exposes to downstream consumers.
+
+<BAZLunaPhasePanel seed={3} />
+
+---
+
+## Architecture
+
+```
+Observation Stream  (price ticks, system metrics, any scalar series)
+      │
+      ▼
+BAZ.Luna Decomposer
+      │   detrend · segment · FFT / autocorrelation
+      ▼
+Cycle Catalog       (named, typed, versioned cycles)
+      │
+      ├── Phase Estimator   (current phase ∈ [0, 2π], confidence)
+      ├── Amplitude Tracker (cycle strength, fade / amplify)
+      └── Harmonic Detector (sub-cycles, overtones)
+             │
+             ▼
+Phase Signal Bus  (membrane-typed phase events)
+      │
+      ├── BAZ.HFT  (phase as filter condition in signal rules)
+      ├── BAZ.Palantir  (cycle dashboard)
+      └── Glither `glither.flow`  (data-flow redaction on cycle boundaries)
+```
+
+---
+
+## Core Concepts
+
+<Plate section="A" title="Cycles" sub="named, typed, periodic patterns" num="1">
+
+A **cycle** in BAZ.Luna is a named recurring pattern in an observation stream with:
+- a **period** (estimated, with uncertainty bounds)
+- a **phase** (current position in the cycle)
+- an **amplitude** (current strength)
+- a **confidence** score (how well the cycle fits recent data)
+
+<KeyVal rows={[
+  ['market.intraday', '24h session cycle — open/close, lunch lull, power hour. Phase resets at midnight UTC.'],
+  ['market.weekly', '5-day trading week cycle. Monday gap risk, Friday close skew.'],
+  ['market.funding', '8h perpetual funding cycle (crypto). Phase drives carry and squeeze signals.'],
+  ['market.lunar28', '28-day sidereal cycle. Historically correlated with volatility regimes in some asset classes.'],
+  ['system.load', 'Server / pipeline load cycle. Useful for adaptive throttling and capacity scheduling.'],
+  ['custom.*', 'User-defined cycles registered via the BAZ.Luna cycle registry.'],
+]} />
+
+</Plate>
+
+<Plate section="B" title="Oscillators" sub="cycle-relative bounded signals" num="2">
+
+BAZ.Luna exposes cycle-relative oscillators — the same family as BAZ.HFT oscillators
+but anchored to a specific named cycle rather than a fixed bar count:
+
+<KeyVal rows={[
+  ['CycleRSI(cycle)', 'RSI recomputed over one full cycle period. Resets at each cycle boundary.'],
+  ['PhaseOscillator', 'Sine-phase position of current bar within the detected cycle. Range [-1, 1].'],
+  ['CycleMomentum', 'First derivative of the phase signal. Positive = accelerating into peak.'],
+  ['CycleAmplitude', 'Current cycle strength relative to 90-day mean. >1 = amplified, <1 = fading.'],
+  ['CycleRegime', 'Categorical: TRENDING | CYCLIC | NOISE — based on cycle confidence threshold.'],
+]} />
+
+<div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '16px 0', padding: '12px 14px', background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6 }}>
+  <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace', fontSize: 10, color: '#d3869b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Cycle Oscillators · market.intraday</div>
+  <BAZHFTOscillatorBar label="PhaseOscillator" value={63} min={0} max={100} overdone={{ low: 25, high: 75 }} />
+  <BAZHFTOscillatorBar label="CycleMomentum" value={71} min={0} max={100} overdone={{ low: 30, high: 70 }} />
+  <BAZHFTOscillatorBar label="CycleAmplitude" value={82} min={0} max={100} overdone={{ low: 40, high: 80 }} />
+  <BAZHFTOscillatorBar label="Confidence" value={88} min={0} max={100} overdone={{ low: 50, high: 90 }} />
+</div>
+
+</Plate>
+
+---
+
+## DSL Syntax
+
+BAZ.Luna adds a `baz.luna` dialect to the Glither comprehension language. Cycle phases
+are first-class predicates:
+
+```glither
+#pragma dialect baz.luna ; fold accumulate
+
+cycle intraday = market.intraday
+cycle funding  = market.funding(period=8h, anchor=utc_midnight)
+
+rule avoid_power_hour =
+  bar
+  | intraday.phase in [0.85, 1.0]              // last 15% of session
+  | intraday.amplitude > 1.2                   // amplified cycle
+  => signal PAUSE into holding
+     on cycle intraday.reset into ready
+
+rule funding_squeeze_alert =
+  tick
+  | funding.phase in [0.9, 1.0]               // near funding settlement
+  | CycleRSI(funding) > 72                    // cycle-overbought
+  | CycleMomentum > 0.4                       // still accelerating
+  => signal WARNING into alerted
+     after 30m into cleared (reason = funding_settled)
+```
+
+### Phase predicates
+
+| Predicate | Semantics |
+|---|---|
+| `phase in [a, b]` | Current phase fraction within [a, b] (0=start, 1=end of cycle) |
+| `cycle.reset` | Trigger: a new cycle period has begun |
+| `cycle.peak` | Trigger: phase crossed the amplitude peak (phase ≈ 0.25 by default) |
+| `CycleRSI(cycle) > x` | Cycle-relative RSI above threshold |
+| `amplitude > x` | Current cycle amplitude above x (relative to 90d mean) |
+| `confidence > x` | Cycle detection confidence above x (0–1) |
+
+---
+
+## Detection Methods
+
+<Tabs defaultValue="autocorr">
+<TabItem value="autocorr" label="Autocorrelation">
+
+The primary detection method. For each candidate period T:
+
+1. Compute the autocorrelation coefficient of the detrended series at lag T
+2. Accept T as a cycle candidate if autocorrelation > threshold (default 0.6)
+3. Rank candidates by coefficient magnitude — highest = primary cycle
+4. Track phase by fitting a sine wave to the windowed series at period T
+
+Efficient via the **Wiener–Khinchin theorem**: FFT → magnitude spectrum → peaks → lag.
+Runs in O(N log N) per update window.
+
+</TabItem>
+<TabItem value="fft" label="FFT Spectrum">
+
+For broad-spectrum cycle discovery (no prior on period):
+
+1. FFT of the detrended, windowed observation series
+2. Identify dominant frequency components (peaks in power spectrum)
+3. Convert frequency → period; filter to [min_period, max_period] bounds
+4. Each peak becomes a candidate cycle registered in the catalog
+
+Best for discovering **unknown periods** in a new data stream. Runs once on
+registration, then maintained incrementally.
+
+</TabItem>
+<TabItem value="hilbert" label="Hilbert Transform">
+
+The Hilbert Transform produces an **analytic signal** — a complex representation
+of the real input where the imaginary part is the 90°-shifted version. Phase is
+then derived as `atan2(imag, real)`.
+
+Used when the cycle is known (no discovery needed) and continuous phase tracking
+is required. Zero-lag phase estimation with excellent noise rejection via the
+Butterworth bandpass pre-filter centered on the known cycle frequency.
+
+</TabItem>
+</Tabs>
+
+---
+
+## Integration with BAZ.HFT
+
+BAZ.Luna and BAZ.HFT communicate via a `glither.world` membrane link. A `baz.luna`
+component exports phase signals; a `baz.hft` component imports them as ligands:
+
+```glither
+#pragma dialect glither.world ; fold accumulate
+
+rule link_luna_to_hft =
+  edge | donor.dialect == baz.luna
+       | pour.export ~ /phase/
+       | pier.dialect == baz.hft
+       | guarantee.offer >= transport
+  => link pour to pier into linked
+```
+
+Once linked, BAZ.HFT rules can reference `intraday.phase` directly in predicates —
+no shared memory, only typed membrane exports.
+
+---
+
+## Future Expansions
+
+| Item | Description |
+|---|---|
+| **Multi-scale decomposition** | Wavelet-based decomposition across octaves (hourly, daily, weekly, seasonal) simultaneously |
+| **Adaptive period tracking** | Phase-locked loop (PLL) model for tracking drifting periods (e.g. macro cycles) |
+| **Cross-asset cycle correlation** | Detect synchronized cycles across multiple assets for pair and basket signals |
+| **Calendar effect overlay** | Named calendar effects (earnings seasons, FOMC windows, options expiry) as virtual cycles |
+| **Anomaly detection** | Deviation from expected cycle shape as a signal — cycle breaks, phase jumps |
+| **BAZ.Palantir cycle map** | Visual cycle taxonomy dashboard in BAZ.Palantir |
