@@ -1,74 +1,226 @@
 .page {
-  padding: clamp(4rem, 8vw, 7rem) 0 clamp(5rem, 10vw, 9rem);
+  background: var(--bg-1);
 }
 
-.statement {
-  max-width: 68ch;
+.intro {
+  padding: 48px 0 40px;
+  border-bottom: 1px solid var(--border-3);
+  background: var(--bg-0);
 }
 
-/* ── Wordmark ─────────────────────────────────────────────── */
-.wordmark {
-  margin: 0 0 clamp(3rem, 6vw, 5rem);
-  font-family: var(--font-mono);
-  font-size: clamp(11px, 1.1vw, 13px);
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--orange-3);
-}
-
-/* ── Paragraph block ──────────────────────────────────────── */
-.para {
-  margin-bottom: clamp(2.5rem, 5vw, 4rem);
-}
-
-.label {
+.logo {
   display: block;
-  margin-bottom: 0.75rem;
+  width: 190px;
+  height: 44px;
+  margin-bottom: 32px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--orange-3);
   font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--orange-1);
-  opacity: 0.7;
 }
 
-.body {
+.intro h1 {
+  max-width: 720px;
   margin: 0;
+  color: var(--blue-1);
   font-family: var(--font-sans);
-  font-size: clamp(16px, 1.6vw, 19px);
-  line-height: 1.72;
+  font-size: 46px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.lede {
+  max-width: 660px;
+  margin: 16px 0 0;
   color: var(--fg-2);
+  font-size: 17px;
+  line-height: 1.65;
 }
 
-/* Farsi inline — right-to-left, slightly larger for optical balance */
-.farsi {
-  font-family: var(--font-sans);
-  font-size: 1.1em;
-  direction: rtl;
-  unicode-bidi: embed;
-  color: var(--fg-1);
-}
-
-/* ── Coda ─────────────────────────────────────────────────── */
-.coda {
-  margin-top: clamp(3rem, 6vw, 5rem);
-  padding-top: 2rem;
-  border-top: 1px solid var(--border-3);
-}
-
-.atlasLink {
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin-top: 28px;
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--blue-1);
-  text-decoration: none;
-  transition: color 150ms ease;
 }
 
-.atlasLink:hover {
-  color: var(--orange-1);
+.actions a {
+  color: var(--blue-1);
   text-decoration: none;
+}
+
+.actions a:hover {
+  color: var(--orange-1);
+}
+
+.actions .primaryAction {
+  min-height: 36px;
+  padding: 7px 12px;
+  color: var(--fg-on-warm);
+  background: var(--orange-3);
+  border: 2px solid var(--orange-3);
+  border-radius: var(--r-2);
+}
+
+.actions .primaryAction:hover {
+  color: var(--fg-on-warm);
+  background: var(--orange-1);
+  border-color: var(--orange-1);
+}
+
+.section {
+  padding: 38px 0 44px;
+  border-bottom: 1px solid var(--border-3);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  color: var(--fg-1);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.sectionHeading > a {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.pathList {
+  border-top: 1px solid var(--border-2);
+}
+
+.pathRow {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.7fr) minmax(280px, 2fr) minmax(130px, 0.6fr);
+  gap: 20px;
+  align-items: center;
+  min-height: 62px;
+  padding: 12px 0;
+  color: inherit;
+  border-bottom: 1px solid var(--border-2);
+  text-decoration: none;
+}
+
+.pathRow:hover {
+  color: inherit;
+  background: var(--bg-2);
+  text-decoration: none;
+}
+
+.pathTitle {
+  color: var(--orange-1);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pathDescription {
+  color: var(--fg-2);
+  font-size: 14px;
+}
+
+.pathStatus {
+  color: var(--fg-4);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.namespaceGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--border-2);
+  border-left: 1px solid var(--border-2);
+}
+
+.namespaceGrid a {
+  display: flex;
+  min-height: 116px;
+  padding: 18px;
+  flex-direction: column;
+  gap: 8px;
+  color: inherit;
+  background: var(--bg-2);
+  border-right: 1px solid var(--border-2);
+  border-bottom: 1px solid var(--border-2);
+  text-decoration: none;
+}
+
+.namespaceGrid a:hover {
+  background: var(--bg-3);
+  text-decoration: none;
+}
+
+.namespaceGrid strong {
+  color: var(--blue-1);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+.namespaceGrid span {
+  color: var(--fg-4);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media (max-width: 760px) {
+  .intro {
+    padding: 32px 0;
+  }
+
+  .logo {
+    width: 160px;
+    height: 38px;
+    margin-bottom: 24px;
+  }
+
+  .intro h1 {
+    font-size: 34px;
+  }
+
+  .lede {
+    font-size: 16px;
+  }
+
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pathRow {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 16px 0;
+  }
+
+  .pathStatus {
+    text-align: left;
+  }
+
+  .namespaceGrid {
+    grid-template-columns: 1fr;
+  }
 }

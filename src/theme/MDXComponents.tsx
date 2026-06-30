@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, type ReactNode } from 'react';
 import MDXComponents from '@theme-original/MDXComponents';
 import ComposeSystemView from '@site/src/components/ComposeSystemView';
 import ColorPalette from '@site/src/components/ColorPalette';
@@ -19,10 +19,6 @@ const btnFocus = {
   outline: 'none',
   transition: 'box-shadow .15s, color .15s, border-color .15s',
 };
-const btnFocusVisible = {
-  boxShadow: '0 0 0 2px #d3869b',
-};
-
 const Hero = ({ marque, tagline, title, subtitle, lede, axes = [] }: any) => (
   <header style={{ borderTop: '3px solid #fe8019', padding: '20px 0 14px', margin: '0 0 24px' }}>
     {marque && <div style={{ fontFamily: mono, fontSize: 11, letterSpacing: '.28em', color: '#fe8019' }}>{marque}</div>}
@@ -35,7 +31,7 @@ const Hero = ({ marque, tagline, title, subtitle, lede, axes = [] }: any) => (
 );
 
 const Lead = ({ children, size }: any) => (
-  <p style={{ fontSize: size === 2 ? 17 : 20, lineHeight: 1.5, color: '#d5c4a1' }}>{children}</p>
+  <div style={{ fontSize: size === 2 ? 17 : 20, lineHeight: 1.5, color: '#d5c4a1' }}>{children}</div>
 );
 
 const Plate = ({ section, title, sub, num, children }: any) => (
@@ -107,16 +103,25 @@ const KeyVal = ({ rows = [] }: any) => (
   </div>
 );
 
-const TabItem = ({ children }: any) => <>{children}</>;
+type TabItemProps = {
+  value: string;
+  label?: ReactNode;
+  children?: ReactNode;
+};
 
-const Tabs = ({ children, defaultValue }: any) => {
-  const items = React.Children.toArray(children) as React.ReactElement[];
+const TabItem = ({ children }: TabItemProps) => <>{children}</>;
+
+const Tabs = ({ children, defaultValue }: {children: ReactNode; defaultValue?: string}) => {
+  const items = React.Children.toArray(children).filter(
+    (child): child is React.ReactElement<TabItemProps> =>
+      React.isValidElement<TabItemProps>(child),
+  );
   const [active, setActive] = useState(defaultValue ?? items[0]?.props.value);
   const indicatorRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const P = '#f3c46c';
   useEffect(() => {
-    const idx = items.findIndex((it: any) => it.props.value === active);
+    const idx = items.findIndex((item) => item.props.value === active);
     const el = tabRefs.current[idx];
     if (el && indicatorRef.current) {
       indicatorRef.current.style.width = `${el.offsetWidth}px`;
@@ -148,7 +153,7 @@ const Tabs = ({ children, defaultValue }: any) => {
         }} />
       </div>
       <div style={{ borderTop: '1px solid #3c3836', paddingTop: 14 }}>
-        {items.find((it: any) => it.props.value === active)}
+        {items.find((item) => item.props.value === active)}
       </div>
     </div>
   );
@@ -197,8 +202,8 @@ const Reveal = ({ label = 'reveal', hiddenLabel = 'hide', children }: any) => {
           fontFamily: mono, fontSize: 12, color: '#d3869b', background: '#282828',
           border: '1px solid #d3869b', padding: '7px 14px 7px 12px', borderRadius: 6,
           cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6,
-          transition: 'background .12s, box-shadow .12s',
           ...btnFocus,
+          transition: 'background .12s, box-shadow .12s',
         }}>
         <span style={{
           display: 'inline-block', width: 8, height: 8, borderRadius: '50%',

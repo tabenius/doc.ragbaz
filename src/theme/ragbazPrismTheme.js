@@ -1,3 +1,4 @@
+/** @type {import('prism-react-renderer').PrismTheme} */
 const ragbazPrismTheme = {
   plain: {
     color: '#d8c29d',
@@ -18,7 +19,7 @@ const ragbazPrismTheme = {
     },
     {
       types: ['comment'].filter(Boolean),
-      language: 'glither',
+      languages: ['glither'],
       style: {
         fontStyle: 'normal',
       },
@@ -60,7 +61,7 @@ const ragbazPrismTheme = {
     },
     {
       types: ['keyword'],
-      language: 'glither',
+      languages: ['glither'],
       style: {
         color: '#7ab8ff',
         fontWeight: '600',
@@ -68,7 +69,7 @@ const ragbazPrismTheme = {
     },
     {
       types: ['box', 'builtin'],
-      language: 'glither',
+      languages: ['glither'],
       style: {
         color: '#f2a77a',
         fontWeight: '600',
@@ -76,7 +77,7 @@ const ragbazPrismTheme = {
     },
     {
       types: ['ladder', 'class-name'],
-      language: 'glither',
+      languages: ['glither'],
       style: {
         color: '#fabd2f',
       },
