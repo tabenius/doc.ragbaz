@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DetCordon — Prospectus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;600;700&family=Noto+Sans:ital,wght@0,300..900;1,300..900&family=Noto+Serif:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+<style>
+/* ── RAGBAZ Design Tokens (dark) ───────────────────────────── */
+:root {
+  --bg-0: #0a0908;
+  --bg-1: #0f0f10;
+  --bg-2: #121212;
+  --bg-3: #151515;
+  --bg-elev: #1d1812;
+  --border-1: #222;
+  --border-2: #2a2a2a;
+  --border-3: #2d2d2d;
+  --fg-1: #f6d7a7;
+  --fg-2: #d8c29d;
+  --fg-3: #d4c19a;
+  --fg-4: #9f9f9f;
+  --fg-5: #737373;
+  --fg-on-warm: #1a1208;
+  --orange-1: #f3c46c;
+  --orange-2: #f2a77a;
+  --orange-3: #ff9900;
+  --orange-4: #d97742;
+  --blue-1: #7ab8ff;
+  --blue-2: #4fb3c7;
+  --blue-3: #2a8d9e;
+  --green-1: #b8bb26;
+  --red-1: #fb4934;
+  --font-mono: "Intel One Mono", ui-monospace, monospace;
+  --font-sans: "Noto Sans", system-ui, sans-serif;
+  --font-serif: "Noto Serif", Georgia, serif;
+}
+
+/* ── Baseline ───────────────────────────────────────────────── */
+html { font-size: 15px; }
+body {
+  font-family: var(--font-serif);
+  background: var(--bg-1);
+  color: var(--fg-2);
+  max-width: 1400px;
+  line-height: 1.6;
+  margin: 0 auto;
+  padding: 0 2rem;
+  counter-reset: sidenote-counter;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Layout: main column + margin ──────────────────────────── */
+article {
+  position: relative;
+  padding: 2rem 0;
+  max-width: 55%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 900px) {
+  article { max-width: 100%; margin: 0 1rem; }
+}
+
+/* ── Headings ───────────────────────────────────────────────── */
+h1, h2, h3 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 2.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+  color: var(--blue-1);
+}
+h1 { font-size: 2.4rem; font-weight: 700; border-bottom: 1px solid var(--border-3); padding-bottom: 0.5rem; }
+h2 { font-size: 1.7rem; color: var(--orange-1); }
+h3 { font-size: 1.2rem; font-style: normal; font-weight: 400; color: var(--orange-2); }
+h4 { font-family: var(--font-mono); font-size: 0.9rem; color: var(--fg-4); text-transform: uppercase; letter-spacing: 0.12em; }
+
+/* ── Subtitle ───────────────────────────────────────────────── */
+.subtitle {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  color: var(--fg-4);
+  margin-top: -0.5rem;
+  margin-bottom: 2rem;
+}
+
+/* ── Body text ──────────────────────────────────────────────── */
+p, li {
+  max-width: 42rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+p { font-family: var(--font-serif); }
+li { font-family: var(--font-serif); }
+
+/* ── Sidenotes & Marginnotes ────────────────────────────────── */
+.sidenote, .marginnote {
+  float: right;
+  clear: right;
+  margin-right: -55%;
+  width: 48%;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  font-family: var(--font-sans);
+  color: var(--fg-4);
+  border-left: 2px solid var(--border-2);
+  padding-left: 1rem;
+  position: relative;
+}
+.sidenote-number { counter-increment: sidenote-counter; }
+.sidenote-number:after {
+  content: counter(sidenote-counter);
+  font-size: 0.7rem;
+  position: relative;
+  top: -0.5rem;
+  left: 0.1rem;
+  color: var(--orange-3);
+}
+.sidenote:before {
+  content: counter(sidenote-counter) " ";
+  font-size: 0.7rem;
+  position: relative;
+  top: -0.5rem;
+}
+input.margin-toggle { display: none; }
+label.sidenote-number { display: inline; }
+label.margin-toggle:not(.sidenote-number) { display: none; }
+
+@media (max-width: 900px) {
+  label.margin-toggle:not(.sidenote-number) { display: inline; cursor: pointer; color: var(--orange-3); }
+  .sidenote, .marginnote { display: none; }
+  .margin-toggle:checked + .sidenote, .margin-toggle:checked + .marginnote {
+    display: block; float: left; left: 1rem; clear: both;
+    width: 95%; margin: 1rem 2.5%; position: relative;
+  }
+}
+
+/* ── Tables ─────────────────────────────────────────────────── */
+table {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  max-width: 42rem;
+  width: 100%;
+  margin: 1.5rem 0;
+  font-family: var(--font-sans);
+}
+th {
+  border-top: 2px solid var(--orange-1);
+  border-bottom: 1px solid var(--border-2);
+  padding: 0.4rem 0.8rem 0.4rem 0;
+  font-weight: 600;
+  text-align: left;
+  color: var(--orange-1);
+}
+td {
+  padding: 0.3rem 0.8rem 0.3rem 0;
+  border-bottom: 0;
+}
+table tbody:last-child tr:last-child td { border-bottom: 2px solid var(--border-3); }
+tr:nth-child(even) td { background: var(--bg-2); }
+
+/* ── Code ───────────────────────────────────────────────────── */
+pre, code {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+pre {
+  padding: 1rem;
+  background: var(--bg-0);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  overflow-x: auto;
+  max-width: 42rem;
+}
+code { color: var(--orange-2); }
+pre code { color: var(--fg-3); }
+
+/* ── Links ──────────────────────────────────────────────────── */
+a { color: var(--blue-1); text-decoration-color: rgba(122,184,255,0.35); text-underline-offset: 2px; }
+a:hover { color: var(--orange-1); }
+
+/* ── Callouts ───────────────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--orange-4);
+  background: var(--bg-elev);
+  padding: 1rem 1.2rem;
+  margin: 1.5rem 0;
+  font-size: 0.92rem;
+  max-width: 42rem;
+  border-radius: 0 6px 6px 0;
+  font-family: var(--font-sans);
+}
+.callout strong { color: var(--orange-1); }
+
+/* ── Full-width ─────────────────────────────────────────────── */
+.fullwidth { max-width: 90%; }
+
+/* ── Hero section ───────────────────────────────────────────── */
+.hero {
+  padding: 4rem 0 2rem;
+  border-bottom: 1px solid var(--border-3);
+  margin-bottom: 2rem;
+}
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  font-style: normal;
+  margin-bottom: 0.5rem;
+  border: none;
+  color: var(--fg-1);
+}
+.hero h1 span { color: var(--orange-3); }
+.hero .tagline {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  color: var(--fg-4);
+  max-width: 36rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Value box ──────────────────────────────────────────────── */
+.value-box {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--orange-4);
+  border-radius: 4px;
+  color: var(--orange-1);
+  background: rgba(255,153,0,0.06);
+  margin: 0.5rem 0;
+}
+
+/* ── Rule list ──────────────────────────────────────────────── */
+.rule-list { list-style: none; padding: 0; }
+.rule-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-1);
+  font-size: 0.95rem;
+}
+.rule-list li strong { color: var(--orange-3); font-family: var(--font-mono); }
+.rule-num {
+  display: inline-block;
+  width: 1.8rem;
+  font-family: var(--font-mono);
+  color: var(--fg-5);
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.footer {
+  margin-top: 4rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-3);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-5);
+  max-width: 42rem;
+}
+
+/* ── Crate table ────────────────────────────────────────────── */
+.crate-table td:first-child { font-family: var(--font-mono); color: var(--orange-2); }
+.crate-table td:nth-child(2) { font-family: var(--font-sans); color: var(--fg-4); font-size: 0.82rem; }
+
+/* ── Print ──────────────────────────────────────────────────── */
+@media print {
+  body { background: white; color: #111; font-size: 12pt; }
+  .sidenote, .marginnote { margin-right: -40%; width: 35%; font-size: 9pt; color: #555; }
+  a[href]:after { content: none; }
+  .hero h1 span { color: #c90; }
+}
+
+@media (max-width: 900px) {
+  body { padding: 0 1rem; }
+  p, li, table, pre, .callout { max-width: 100%; }
+  table { display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+
+<article>
+
+<section class="hero">
+  <h1><span>DetCordon</span></h1>
+  <div class="tagline">Containment-first malware observation for web threats.</div>
+  <p class="subtitle">A deliberately isolated detonation sandbox that watches hostile web malware, captures evidence, and stores it encrypted — without ever blocking, without ever allowing C2 back in, and without ever trusting the attacker.</p>
+</section>
+
+<section>
+  <h2>The Problem</h2>
+
+  <p>Web malware changes faster than signatures can ship. PHP webshells, scanner-driven RCE payloads, and zero-day exploit kits all have one thing in common: by the time you have a detection rule, the sample set has already moved.<span class="sidenote">According to the 2025 Verizon DBIR, web application exploits remain the #1 vector for breaches, with 75% of attackers using commodity tools that mutate daily.</span></p>
+
+  <p>Today's options are either <em>inline blocking</em> (WAFs that must be right every time) or <em>static analysis</em> (sandboxes designed for PE files, not HTTP). Neither works well for server-side web malware that only activates in the context of a specific application stack.</p>
+
+  <p>DetCordon takes a third approach: <strong>containment-first observation</strong>. Let the malware execute in a purpose-built, disposable environment where every syscall, file write, and network connection is recorded. Preserve the samples. Ship them to a separate, hardened sink. Then decide what to block.</p>
+</section>
+
+<section>
+  <h2>The Architecture</h2>
+
+  <p>Two hosts. One direction of travel. Zero bytes flowing back.</p>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Component</th><th>Role</th></tr>
+    </thead>
+    <tbody class="crate-table">
+      <tr><td>Sandbox VM</td><td>waf</td><td>Detection-only ModSecurity tap; forwards traffic upstream, emits UDP JSON events</td></tr>
+      <tr><td>Sandbox VM</td><td>waf-extractor</td><td>Watches victim tmpfs, ships sample bodies over TCP (write-only)</td></tr>
+      <tr><td>Sandbox VM</td><td>eBPF sidecar</td><td>cgroup-scoped execve, vfs_write, tcp_connect observation</td></tr>
+      <tr><td>Sink host</td><td>waf-sink</td><td>UDP event receiver + TCP sample receiver; age-encrypts; sha256-path storage</td></tr>
+      <tr><td>Sink host</td><td>waf-sink-guard</td><td>fanotify + sha256 allowlist; alerts on unknown writes</td></tr>
+      <tr><td>Operator</td><td>waf-deploy</td><td>ratatui TUI + CLI that generates all deployment artifacts</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Key design choice:</strong> Events travel over <strong>UDP</strong> (loss is acceptable for telemetry). Samples travel over <strong>TCP</strong> (integrity matters). These paths are never crossed, never reversed, and never shared. This is not a configurable option — it is a containment invariant.
+  </div>
+</section>
+
+<section>
+  <h2>Ten Containment Rules</h2>
+  <p>These are <strong>non-negotiable</strong>. Every deployment, every backend (Docker or Firecracker), every mode (analysis or honeypot) enforces all ten:</p>
+
+  <ul class="rule-list">
+    <li><strong><span class="rule-num">01</span> No host bind-mounts</strong> — Victim writes to tmpfs only. Reset means destroy and recreate, not rm -rf. &nbsp;<span class="marginnote">This prevents sample bytes from ever touching the sandbox host's real filesystem. If the attacker compromises the victim, they still can't pivot to the host.</span></li>
+    <li><strong><span class="rule-num">02</span> Internal + default-drop egress</strong> — Victim has no outbound access except to the sink's two ports. No DNS, no package repos, no exfiltration. &nbsp;<span class="marginnote">The default-drop egress rule is generated as an nftables set in the deployment artifacts, not left to operator judgment.</span></li>
+    <li><strong><span class="rule-num">03</span> WAF in DetectionOnly</strong> — Malware must succeed to be observed. The ModSecurity tap never blocks, never rate-limits, never modifies the request. &nbsp;<span class="marginnote">DetectionOnly means we capture what the attacker intended, not what survived a block rule. This is critical for zero-day observation.</span></li>
+    <li><strong><span class="rule-num">04</span> Write-only samples, UDP events</strong> — The sandbox VM has no inbound channel. No reverse shell can establish C2 because nothing listens. &nbsp;<span class="marginnote">Samples go out over TCP (reliable). Events go out over UDP (lossy but fast). Nothing comes in. Ever.</span></li>
+    <li><strong><span class="rule-num">05</span> sha256-path, mode 0400, no extension</strong> — Stored as <code>samples/&lt;sha256&gt;</code> with no file extension and read-only for owner. Nothing to double-click. &nbsp;<span class="marginnote">The absence of a file extension means even a misconfigured browser or file manager won't accidentally execute the sample.</span></li>
+    <li><strong><span class="rule-num">06</span> Sink-guard always-on</strong> — Every close-write on the sink is fanotify-monitored and hashed against an allowlist. Unknown write = incident alert. &nbsp;<span class="marginnote">The guard runs as a separate process with its own systemd unit. It cannot be stopped without alerting.</span></li>
+    <li><strong><span class="rule-num">07</span> eBPF host-pid is opt-in</strong> — Default cgroup-scoped bounds the eBPF sidecar's blast radius. Host-level pid visibility requires explicit operator override. &nbsp;<span class="marginnote">A misconfigured eBPF program with host-pid scope can observe all host processes. Cgroup-scoping prevents this by default.</span></li>
+    <li><strong><span class="rule-num">08</span> Time-boxed (30 min default)</strong> — Hard kill after 30 minutes. Configurable per deployment, but never disabled. &nbsp;<span class="marginnote">If something goes wrong — a fork bomb, a slow exploit, an operator who forgot to tear down — the system self-destructs within the time limit.</span></li>
+    <li><strong><span class="rule-num">09</span> No sample bytes over UDP</strong> — Sample bodies are never sent over the loss-tolerant channel. UDP is for metadata only. &nbsp;<span class="marginnote">Sample integrity is critical for forensic admissibility. TCP with sha256 verification on the sink side guarantees we have what the attacker dropped.</span></li>
+    <li><strong><span class="rule-num">10</span> Sink host ≠ sandbox host</strong> — Different physical or virtual machine. Kernel isolation between what's being attacked and what stores the evidence. &nbsp;<span class="marginnote">If the attacker compromises the sandbox VM (which is the expected outcome), the sink host — with its evidence and decryption key — must remain unreachable from that VMs network position.</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Target Market</h2>
+
+  <p>DetCordon addresses three distinct buyer personas with overlapping needs:</p>
+
+  <table>
+    <thead>
+      <tr><th>Persona</th><th>Primary Need</th><th>Buying Signal</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Security Research Lab</strong></td><td>Capture novel web malware for analysis, signature development, and threat intel</td><td>"We need a repeatable way to observe what attackers drop without risking our production network"</td></tr>
+      <tr><td><strong>Blue Team / SOC</strong></td><td>Validate WAF rules and detection logic against real attacker payloads in a safe environment</td><td>"Our WAF blocks 95% of requests but we don't know what we're missing in the 5%"</td></tr>
+      <tr><td><strong>Managed Security Provider</strong></td><td>Offer contained observation as a service for client web applications</td><td>"We need an appliance that lets us offer malware analysis without building a sandbox team"</td></tr>
+    </tbody>
+  </table>
+
+  <p>The addressable market is the intersection of <strong>web security</strong> and <strong>malware analysis</strong> — a niche that today's PE-file-focused sandboxes and signature-based WAFs both underserve.</p>
+</section>
+
+<section>
+  <h2>Business Model</h2>
+
+  <table>
+    <thead>
+      <tr><th>Tier</th><th>Includes</th><th>Target Price</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Appliance (self-hosted)</strong></td><td>DetCordon software + deployment artifacts + 1 year updates</td><td>$12,000–$25,000 / year</td></tr>
+      <tr><td><strong>Managed Lab</strong></td><td>Hosted sink + quarterly sample analysis reports + analyst access</td><td>$25,000–$60,000 / year</td></tr>
+      <tr><td><strong>Enterprise</strong></td><td>Multi-tenant sandbox cluster + custom rule integration + SLA</td><td>$60,000–$150,000 / year</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Estimated total value:</strong> <span class="value-box">$0.80M – $2.50M</span> &nbsp;(medium confidence). This positions DetCordon below incumbent sandbox vendors but above open-source tooling, targeting the "managed appliance" mid-market gap.
+  </div>
+</section>
+
+<section>
+  <h2>Competitive Position</h2>
+
+  <p>DetCordon's differentiation is <strong>narrow and deep</strong>: it is the only open-architecture malware observation platform purpose-built for <em>web-server-side payloads</em> rather than user-downloaded PE files.</p>
+
+  <table>
+    <thead>
+      <tr><th>Dimension</th><th>DetCordon</th><th>Cuckoo / Capev2</th><th>VxStream / Joe Sandbox</th><th>ModSecurity (standalone)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Target payload type</td><td>Web malware (PHP, ASP, JSP)</td><td>PE files, documents</td><td>PE files, documents, URLs</td><td>HTTP traffic only</td></tr>
+      <tr><td>Detection mode</td><td>DetectionOnly (never blocks)</td><td>N/A (analysis only)</td><td>N/A (analysis only)</td><td>Blocking or DetectionOnly</td></tr>
+      <tr><td>Evidence retention</td><td>Age-encrypted, immutable</td><td>Plaintext, mutable</td><td>Vendor managed</td><td>None</td></tr>
+      <tr><td>Sink isolation</td><td>Separate host, one-way, fanotify-guarded</td><td>Same host</td><td>Vendor managed</td><td>N/A</td></tr>
+      <tr><td>Deployment model</td><td>Generation TUI → appliances</td><td>Manual setup</td><td>SaaS / appliance</td><td>Package install</td></tr>
+      <tr><td>Pricing</td><td>$12K–$150K / year</td><td>Free (OSS)</td><td>$5K–$50K / year</td><td>Free (OSS)</td></tr>
+    </tbody>
+  </table>
+
+  <p><span class="sidenote">While Cuckoo/CAPE has a larger malware-analysis community, neither supports server-side web payloads natively. A PHP webshell in Cuckoo runs under Windows detonation — the wrong environment entirely.</span></p>
+
+  <p>DetCordon's moat is not in detection logic (ModSecurity + OWASP CRS are standard) but in the <strong>containment topology</strong>: two-host, one-way, age-encrypted, fanotify-guarded. No other open product combines all five properties.</p>
+</section>
+
+<section>
+  <h2>Backends</h2>
+
+  <p>Two sandbox backends, one operator workflow:</p>
+
+  <table>
+    <thead>
+      <tr><th>Backend</th><th>Isolation Level</th><th>Best For</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Docker</strong></td><td>AppArmor + seccomp + tmpfs + internal net</td><td>Quick analysis, CI/CD integration, laptop demos</td><td>✅ Production-ready</td></tr>
+      <tr><td><strong>Firecracker</strong></td><td>Micro-VM + jailer + nftables + snapshot/reset</td><td>High-confidence isolation, repeatable analysis, hardware-level containment</td><td>✅ Complete</td></tr>
+    </tbody>
+  </table>
+
+  <p><span class="marginnote">The Firecracker backend supports three boot modes: cold-boot (fresh kernel + rootfs each time), rootfs-reset (recreate writable layer from a clean snapshot), and native-snapshot (restore memory + disk from a known state for sub-second boot). Boot policy is configurable through the TUI or CLI.</span></p>
+</section>
+
+<section>
+  <h2>Roadmap</h2>
+
+  <table>
+    <thead>
+      <tr><th>Milestone</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Docker backend (compose + AppArmor + bpftrace)</td><td>✅ Complete</td></tr>
+      <tr><td>waf-extractor sample shipper</td><td>✅ Complete</td></tr>
+      <tr><td>waf-sink-guard (fanotify + allowlist)</td><td>✅ Complete</td></tr>
+      <tr><td>waf-deploy ratatui TUI</td><td>✅ Complete</td></tr>
+      <tr><td>Firecracker backend (VM lifecycle + snapshot/reset)</td><td>✅ Complete</td></tr>
+      <tr><td>Honeypot mode (brokered public ingress)</td><td>⬜ Not started</td></tr>
+      <tr><td>aya eBPF (Rust-native bpftrace replacement)</td><td>⬜ Planned</td></tr>
+      <tr><td>gVisor runtime option</td><td>⬜ Planned</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Next: Honeypot mode.</strong> A brokered ingress path with rate limiting, guest rotation, and noise separation. This is the highest-leverage feature for converting the analysis-capable product into a continuous threat-intel pipeline.
+  </div>
+</section>
+
+<section>
+  <h2>Build & Deploy</h2>
+
+  <pre><code># Build all crates
+cargo build --release --workspace
+
+# Run tests
+cargo test --workspace
+
+# Generate deployment artifacts (TUI)
+cargo run -p waf-deploy
+
+# Headless generation (Firecracker, dry-run)
+cargo run -p waf-deploy -- \
+  --backend firecracker \
+  --mode analysis \
+  --dry-run
+
+# Run the sink with age encryption
+cargo run -p waf-sink -- \
+  --udp 0.0.0.0:5514 \
+  --tcp 0.0.0.0:5515 \
+  --out /var/lib/waf-sink \
+  --recipient age1...</code></pre>
+
+  <p>Prerequisites: Rust edition 2021, <code>libmodsecurity3</code>, <code>pkg-config</code>.</p>
+</section>
+
+<section>
+  <h2>Why Not a Kernel Module?</h2>
+
+  <p>Every capability the sandbox needs is already in-kernel behind safer interfaces. An out-of-tree kernel module would add ring-0 attack surface — the opposite of what a containment project should do.</p>
+
+  <table>
+    <thead>
+      <tr><th>Capability</th><th>Mechanism</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Observe syscalls</td><td>eBPF tracepoints / fentry</td></tr>
+      <tr><td>Observe file writes</td><td>eBPF vfs_write / fanotify</td></tr>
+      <tr><td>Observe executed processes</td><td>eBPF sched_process_exec</td></tr>
+      <tr><td>Block specific syscalls</td><td>BPF LSM (kernel ≥5.7) or seccomp</td></tr>
+      <tr><td>Capability stripping</td><td>cap_drop: [ALL] + seccomp default-deny</td></tr>
+      <tr><td>Network containment</td><td>netns + nftables default-drop</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Further Reading</h2>
+
+  <ul>
+    <li><strong>Architecture doc</strong> — <code>products/detcordon/doc/architecture.md</code> (mermaid topology + dataflow + sequence diagrams)</li>
+    <li><strong>AGENTS.md</strong> — full developer documentation, environment variables, wire formats, coordination protocol</li>
+    <li><strong>Firecracker plan</strong> — <code>doc/firecracker-plan.md</code>: VM lifecycle, snapshot/reset, boot policy</li>
+    <li><strong>Slide deck</strong> — <code>doc/presentation.html</code>: impress.js narrated walkthrough (12 slides)</li>
+    <li><strong>RAGBAZ Atlas</strong> — <a href="https://doc.ragbaz.cc/docs/products/detcordon">doc.ragbaz.cc/docs/products/detcordon</a></li>
+  </ul>
+</section>
+
+<div class="footer">
+  DetCordon · <code>products/detcordon</code> · RAGBAZ · Snapshot 2026-06-29
+</div>
+
+</article>
+</body>
+</html>

@@ -3,7 +3,7 @@
 The documentation atlas for everything under `/data/src`: products, experiments,
 infrastructure, private research, archives, and vendored code. Built with
 [Docusaurus](https://docusaurus.io/) and published at
-**https://doc.ragbaz.cc**.
+**[doc.ragbaz.cc](https://doc.ragbaz.cc)**.
 
 Source of truth lives in `docs/` as Markdown; the rendered site is generated at
 build time, following the RAGBAZ design system and docs policy in

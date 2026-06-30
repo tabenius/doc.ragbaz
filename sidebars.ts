@@ -73,6 +73,7 @@ const sidebars: SidebarsConfig = {
         'experiments/glither-mailguard-example',
         'experiments/glither-world-sketch',
         'experiments/dana-no-retrograde-sketch',
+        'experiments/glither-governance',
         'experiments/glither-ast-visualization',
         'experiments/comet-trail',
         'experiments/omniland/overview',
