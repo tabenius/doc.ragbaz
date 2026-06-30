@@ -5,7 +5,10 @@ description: The BAZ platform architecture — BAZ.CX (exchange connector), BAZ.
 
 # BAZ platform architecture & `glither.hft` dialect specification
 
-**Status:** all three services built and committed — BAZ.CX (Python exchange connector, 8/8 tests passing), BAZ.Palantir (Rust axum server, zero warnings), BAZ.Luna (Vite frontend with CodeMirror + marked + hljs, lazy-loaded). BAZ.HFT compiler complete (parse, check, Rust codegen, WIT codegen, 20 tests).
+**Status:** active multi-repository embryo. BAZ.CX, BAZ.Palantir, and BAZ.Luna
+have working implementation slices. Shared Glither provides HFT parsing, checks,
+and initial code generation; BAZ.HFT provides strategy fixtures, host scaffolding,
+and signed monetary receipt primitives. Live execution guarantees are not complete.
 **Scope:** the BAZ real-time trading platform: exchange connectivity, strategy orchestration, rule compilation and audit, frontend visualization.
 **Predecessor:** [Glither → WASM/WIT compiler spec](./glither-wasm-wit-compiler-spec) (the base Glither compiler upon which `glither.hft` is built).
 **Author:** RAGBAZ · Tobias Abenius · 2026-06-16.
@@ -51,8 +54,9 @@ The BAZ platform is split into three subsystems that communicate over WebSocket 
 - **Language:** Rust (standalone web server, extracted from the Tauri backend)
 - **Role:** Rule lifecycle management — compilation, staging, audit, integration, deployment. Streams processed data to BAZ.Luna. Receives raw data from BAZ.CX.
 - **Streaming:** WebSocket endpoint for real-time chart data + annotation side-channel (opt-in end-to-end)
-- **Database:** SQLite (backlog, ticks, candles, rule versions, audit trail, deployment ledger)
-- **Compiler:** Shells out to `baz-hft` CLI (the `glither.hft` roux compiler) for check + compile
+- **Database:** SQLite (backlog, candles, rules, and operational audit)
+- **Compiler:** Validates in process through the `baz-hft-roux` compatibility facade
+- **Security:** Bearer authentication on every control/data endpoint; loopback bind by default
 - **API:** REST for CRUD (rules, config, audit), WebSocket for streaming
 
 ### 1.3 BAZ.Luna — frontend
@@ -78,9 +82,11 @@ The BAZ platform is split into three subsystems that communicate over WebSocket 
 
 ### 2.1 Dialect overview
 
-`glither.hft` is a domain-specific language for expressing **deterministic, zero-allocation HFT trading strategies**. It extends the base Glither compiler with:
+`glither.hft` is a domain-specific language for expressing deterministic HFT
+policy. Zero-allocation and sub-millisecond execution are design targets, not
+current production guarantees. The dialect extends Glither with:
 
-- **State definitions** — typed ring buffers with fixed capacity (no heap allocation)
+- **State definitions** — bounded market-data window declarations
 - **Inline math macros** — single-pass RSI, Bollinger Bands, mean, stddev, volume
 - **Transact dispositions** — market/limit orders with lifecycle management (fill handler + timeout)
 - **Market-close-all** — emergency exit disposition
@@ -88,7 +94,9 @@ The BAZ platform is split into three subsystems that communicate over WebSocket 
 
 ### 2.2 Grammar (PEG, condensed)
 
-The grammar is defined in `packages/roux/src/hft.pest` and extends the base Glither grammar with HFT-specific constructs.
+The canonical grammar is integrated into
+`experiments/glither/packages/roux/src/roux.pest`; BAZ.HFT does not carry a
+second parser.
 
 ```
 // --- Pragma ---
@@ -243,7 +251,9 @@ Each predicate is a triple `(operand, optional_op, optional_value)`:
 - **Match operator:** comparison (`>`, `>=`, `<`, `<=`, `==`, `!=`), pattern match (`~`), or set membership (`in`)
 - **Value:** a literal, number, regex, math macro, or field reference
 
-All math macros are **deterministic, single-pass, zero-allocation** — they operate on fixed-capacity ring buffers (`heapless::Vec<f32, N>`) and use only local stack variables.
+Math macros have deterministic compiler semantics. The generated production
+runtime still needs allocation and latency verification before the fixed-capacity
+design target can be treated as a guarantee.
 
 #### 2.5.3 Transact lifecycle
 

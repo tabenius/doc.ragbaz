@@ -64,6 +64,7 @@ const sidebars: SidebarsConfig = {
           label: 'BAZ Platform',
           items: [
             'experiments/baz-architecture',
+            'experiments/baz-hft',
             'experiments/baz-luna',
             'experiments/baz-palantir',
             'experiments/baz-cx',

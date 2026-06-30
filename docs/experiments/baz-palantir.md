@@ -1,153 +1,120 @@
 ---
 sidebar_label: BAZ.Palantir orchestration
-description: BAZ.Palantir — Rust axum server for rule lifecycle, CX integration, enrichment, and WebSocket broadcast.
+description: Authenticated Rust orchestration boundary for BAZ.HFT rules and BAZ.CX market data.
 ---
 
-# BAZ.Palantir — orchestration server
+# BAZ.Palantir orchestration
 
 **Location:** `/data/src/experiments/BAZ.Palantir/`
 
-## Overview
+**Status:** working embryo; 38 tests; not a live-trading service
 
-BAZ.Palantir is the central orchestration server for the BAZ platform. It receives raw exchange data from BAZ.CX over WebSocket, enriches it with technical indicators, manages strategy rule lifecycle, and broadcasts processed data + signals to BAZ.Luna.
+BAZ.Palantir stores and validates `glither.hft` rules, derives their market-data
+requirements, maintains BAZ.CX subscriptions across reconnects, enriches incoming
+ticks and candles, and exposes REST, WebSocket, and GraphQL interfaces.
 
+```text
+BAZ.CX -- ticks/candles --> BAZ.Palantir -- enriched events --> BAZ.Luna
+                               |
+                               +-- SQLite rules and operational audit
+                               +-- in-process baz-hft-roux validation
+                               +-- authenticated control APIs
 ```
-BAZ.CX ── WS (ticks/candles) ──▶ BAZ.Palantir ── WS/SSE ──▶ BAZ.Luna
-                                      │
-                                      ├── SQLite (backlog, rules, audit)
-                                      ├── baz-hft CLI (compile)
-                                      └── REST API (CRUD)
-```
 
-## Stack
+## Security boundary
 
-| Layer | Library | Purpose |
-|-------|---------|---------|
-| HTTP | axum 0.8 | Routing, middleware, WebSocket upgrade |
-| GraphQL | async-graphql 8.0.0-rc.5 | Subscription/mutation schema |
-| Database | rusqlite + SQLite | Backlog, candles, rules, audit trail |
-| WebSocket | tokio-tungstenite 0.24 | Outbound CX client, inbound Luna broadcast |
-| Async | tokio | Broadcast channel, background tasks |
-| CORS | tower-http | Cross-origin for Luna dev server |
-| Compiler | `baz-hft` CLI (shell) | Compile `.glith` → WASM |
+`PALANTIR_API_TOKEN` is required and must be non-empty. Every data-returning or
+state-changing endpoint uses bearer authentication with constant-time token
+comparison. `GET /api/health` is the only public endpoint.
 
-## REST endpoints
+Palantir binds to `127.0.0.1:8080` unless `PALANTIR_BIND` is set explicitly. It
+does not enable permissive CORS. Binding to `0.0.0.0` is appropriate only behind
+an authenticating proxy or private network boundary.
+
+## Runtime responsibilities
+
+### Rule lifecycle
+
+- stores rule source transactionally in SQLite;
+- accepts only bounded ASCII rule names, preventing path traversal;
+- parses and checks rules in process through `baz-hft-roux`;
+- returns a structured compilation summary rather than invoking a shell process;
+- derives symbols, resolutions, windows, and indicators from validated source.
+
+### BAZ.CX subscriptions
+
+- maintains a desired-subscription registry outside individual socket sessions;
+- replays subscriptions after reconnect;
+- sends heartbeat pings and detects stale sessions;
+- reconnects with bounded exponential backoff;
+- emits connection, subscription, tick, and candle events to the host pipeline.
+
+### Enrichment
+
+The enricher uses bounded ring buffers and computes only subscribed signals. The
+current implementation covers SMA, EMA, RSI, Bollinger-derived values, volume
+ratios, candle range, price-to-SMA, and bid/ask spread percentage.
+
+## HTTP surfaces
 
 | Method | Path | Purpose |
-|--------|------|---------|
-| `GET` | `/api/health` | Health check |
-| `GET` | `/api/rules/:name` | Fetch a compiled rule |
-| `PUT` | `/api/rules/:name` | Create or update a rule |
-| `DELETE` | `/api/rules/:name` | Delete a rule |
-| `POST` | `/api/rules/:name/compile` | Compile Glith source |
-| `GET` | `/api/backlog` | Event log entries |
-| `GET` | `/api/candles` | Historical candle data |
-| `GET` | `/api/daemon/status` | Strategy daemon status |
-| `POST` | `/api/daemon/:action` | Start/stop/restart daemon |
-| `WS` | `/ws` | Real-time streaming |
-| `POST` | `/graphql` | GraphQL endpoint |
+| --- | --- | --- |
+| `GET` | `/api/health` | Public liveness check |
+| `GET` | `/api/rules` | List stored rules |
+| `GET` | `/api/rules/{name}` | Read rule source |
+| `PUT` | `/api/rules/{name}` | Validate and store a rule |
+| `DELETE` | `/api/rules/{name}` | Remove a rule |
+| `POST` | `/api/rules/{name}/compile` | Parse, check, and summarize a rule |
+| `POST` | `/api/subscribe` | Resolve validated source requirements |
+| `GET` | `/api/backlog` | Read operational backlog entries |
+| `GET` | `/api/candles` | Read bounded candle history |
+| `GET` | `/api/daemon/status` | Read daemon state |
+| `POST` | `/api/daemon/{action}` | Start, stop, attach, or detach |
+| `WS` | `/ws` | Stream enriched events |
+| `GET`, `POST` | `/graphql` | GraphQL query and mutation surface |
 
-## WebSocket protocol
-
-The `/ws` endpoint broadcasts JSON messages to all connected clients (BAZ.Luna instances):
-
-```json
-{"type": "tick",      "symbol": "BTC/USDT", "price": 69420.0, "volume": 1.5,  "timestamp": 1719000000}
-{"type": "candle",    "symbol": "BTC/USDT", "open": 69000, "high": 69500, "low": 68800, "close": 69420, "volume": 1200, "timestamp": 1719000000}
-{"type": "indicator", "symbol": "BTC/USDT", "rsi": 58.2, "sma9": 69100, "sma21": 68500, "bb_upper": 71000, "bb_lower": 67000}
-{"type": "signal",    "rule": "rsi_oversold", "action": "market_buy", "reason": "RSI<25 + touch BB lower", "price": 67200}
-{"type": "annotation","rule": "rsi_oversold", "note": "take-profit target hit", "severity": "info"}
-{"type": "backlog",   "entries": [{"timestamp": "...", "event": "market_buy", "rule": "rsi_oversold", "payload": {}}]}
-```
-
-## Integration modules
-
-### `cx_client.rs` — WS client to BAZ.CX
-
-- Connects to BAZ.CX WebSocket at `ws://baz-cx:8000/ws`
-- Auto-reconnect with exponential backoff (1s, 2s, 4s, … 60s cap)
-- Command channel (tx/rx) for subscribing/unsubscribing streams
-- Event channel for receiving ticks, candles, positions
-- Heartbeat ping/pong every 30s
-
-### `enricher.rs` — ring-buffer indicator engine
-
-Computes technical indicators over sliding windows:
-
-| Indicator | Window | Method |
-|-----------|--------|--------|
-| SMA(9) | 9 ticks/prices | Arithmetic mean |
-| SMA(21) | 21 ticks/prices | Arithmetic mean |
-| EMA(12) | 12 ticks/prices | Exponential weighted |
-| RSI(14) | 14 ticks/prices | Wilder's smoothed RSI |
-| BB(20,2) | 20 ticks/prices | Mean ± 2σ with linear stddev |
-
-All indicators use fixed-capacity ring buffers (`VecDeque<f64>`) — no dynamic allocation per tick.
-
-### `requirements.rs` — .glith dependency parser
-
-Parses a `.glith` strategy file line-by-line to extract the data dependencies (state definitions, collections referenced, predicates) that BAZ.Palantir must subscribe to on BAZ.CX. Two unit tests verify round-trip parsing.
-
-### `graphql.rs` — async-graphql schema
-
-| Mutation | Purpose |
-|----------|---------|
-| `subscribe(symbol, kinds)` | Subscribe to exchange streams |
-| `unsubscribe(symbol, kinds)` | Unsubscribe from exchange streams |
-| `deploy_rule(name, glith_source)` | Compile & deploy a rule |
-| `resolve_and_subscribe(name)` | Resolve deps & subscribe to required streams |
-
-## Database schema (`palantir.db`)
-
-```sql
-CREATE TABLE backlog (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  timestamp TEXT NOT NULL DEFAULT (datetime('now')),
-  event TEXT NOT NULL,
-  rule TEXT,
-  payload TEXT
-);
-
-CREATE TABLE ticks (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  symbol TEXT NOT NULL,
-  price REAL NOT NULL,
-  volume REAL,
-  timestamp INTEGER NOT NULL
-);
-
-CREATE TABLE candles (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  symbol TEXT NOT NULL,
-  timeframe TEXT NOT NULL,
-  open REAL, high REAL, low REAL, close REAL, volume REAL,
-  timestamp INTEGER NOT NULL
-);
-
-CREATE TABLE rules (
-  name TEXT PRIMARY KEY,
-  glith_source TEXT NOT NULL,
-  compiled_wasm BLOB,
-  status TEXT DEFAULT 'draft',
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE audit (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  rule_name TEXT,
-  action TEXT NOT NULL,
-  payload TEXT,
-  timestamp TEXT DEFAULT (datetime('now'))
-);
-```
-
-## Build & run
+Authenticated request example:
 
 ```bash
-cargo check                              # Verify compilation (zero warnings)
-cargo build --release                    # Production binary
-./target/release/baz-palantir            # Starts on :8080
+curl -H "Authorization: Bearer $PALANTIR_API_TOKEN" \
+  http://127.0.0.1:8080/api/rules
 ```
 
-Optional: `RUST_LOG=info` for structured logging (uses `env_logger`).
+## Storage and audit boundary
+
+SQLite currently stores rules, candles, backlog entries, and an operational rule
+audit. That table is not the canonical monetary audit store. Signed monetary
+receipts, parent evidence, and tamper verification live in the BAZ.HFT host crate
+and still need durable integration before order execution can be enabled.
+
+## Run and verify
+
+Palantir uses sibling path dependencies on `../baz.hft` and `../glither`.
+
+```bash
+cp .env.example .env
+# Set PALANTIR_API_TOKEN, then load .env without printing it.
+set -a
+. ./.env
+set +a
+cargo run
+```
+
+```bash
+cargo fmt --all -- --check
+cargo clippy --all-targets -- -D warnings
+cargo test --all-targets
+```
+
+The container build context is the parent `experiments/` directory so the image
+can include both sibling compiler crates.
+
+## Current limitations
+
+- no venue order submission or settlement integration;
+- no durable signed-receipt store;
+- no key-management or key-rotation service;
+- daemon controls are an orchestration boundary, not a production supervisor;
+- deployment and latency guarantees remain unmeasured.
+
+See [BAZ.HFT](./baz-hft) for dialect ownership and the monetary receipt model.
