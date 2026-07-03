@@ -10,7 +10,7 @@ The `experiments/` tree contains code that is useful for learning, design discov
 
 ## Main clusters
 
-- **BAZ Platform**: algorithmic trading suite with three services — [BAZ.CX](baz-cx) (exchange connector), [BAZ.Palantir](baz-palantir) (orchestration server), [BAZ.Luna](baz-luna) (frontend notebook), and the [glither.hft compiler](baz-architecture) dialect.
+- **BAZ Platform**: algorithmic trading suite with three services — [BAZ.CX](baz-cx) (exchange connector), [BAZ.Palantir](baz-palantir) (orchestration server), [BAZ.Luna](baz-luna) (frontend notebook), and the [glither.hft compiler dialect](baz-architecture).
 - `omniland/`: editor, UI, and content-oriented experiments.
 - `tanstack-*`: framework starter and integration examples.
 - `phpvm/`: PHP runtime exploration.
