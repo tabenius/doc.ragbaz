@@ -99,3 +99,6 @@ npm run build        # Production build → dist/
 ```
 
 Production build: ~1.8 MB total across 16 chunks (gzip ~570 kB), builds in ~3s.
+
+See [BAZ.Palantir](./baz-palantir) for the orchestration server, [BAZ architecture](./baz-architecture)
+for the full platform overview, and [BAZ.Luna](../products/baz-luna) for the product-level documentation.

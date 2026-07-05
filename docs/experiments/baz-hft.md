@@ -115,5 +115,7 @@ behavior. It does not constitute exchange certification or a live-trading test.
 5. Add replay tooling and redacted operator/regulator projections.
 6. Measure component latency and allocation behavior under a paper feed.
 
-See [BAZ.Palantir](./baz-palantir) for the orchestration consumer and
-[`glither.governance`](./glither-governance) for general AI-action governance.
+See [BAZ.Palantir](./baz-palantir) for the orchestration consumer,
+[`glither.governance`](./glither-governance) for general AI-action governance,
+and [BAZ architecture](./baz-architecture) for the full platform overview.
+The product-level documentation for this component is at [BAZ.HFT](../products/baz-hft).

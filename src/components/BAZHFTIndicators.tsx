@@ -585,10 +585,10 @@ export function BAZLunaPhasePanel({ seed = 3 }: { seed?: number }) {
 export function BAZPalantirStreamPanel({ seed = 11 }: { seed?: number }) {
   const rand = lcg(seed);
   const streams = [
-    { label: 'market.tick', color: '#7ab8ff', values: Array.from({ length: 40 }, () => rand() * 100) },
-    { label: 'order.flow', color: '#f3c46c', values: Array.from({ length: 40 }, () => rand() * 100) },
-    { label: 'sentiment.nlp', color: '#b8bb26', values: Array.from({ length: 40 }, () => rand() * 100) },
-    { label: 'risk.exposure', color: '#fb4934', values: Array.from({ length: 40 }, () => rand() * 100) },
+    { label: 'candle.enriched', color: '#7ab8ff', values: Array.from({ length: 40 }, () => rand() * 100) },
+    { label: 'indicator.batch', color: '#f3c46c', values: Array.from({ length: 40 }, () => rand() * 100) },
+    { label: 'backlog.entry', color: '#b8bb26', values: Array.from({ length: 40 }, () => rand() * 100) },
+    { label: 'signal.fired', color: '#fb4934', values: Array.from({ length: 40 }, () => rand() * 100) },
   ];
 
   return (

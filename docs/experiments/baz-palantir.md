@@ -117,4 +117,6 @@ can include both sibling compiler crates.
 - daemon controls are an orchestration boundary, not a production supervisor;
 - deployment and latency guarantees remain unmeasured.
 
-See [BAZ.HFT](./baz-hft) for dialect ownership and the monetary receipt model.
+See [BAZ.HFT](./baz-hft) for dialect ownership and the monetary receipt model,
+[BAZ architecture](./baz-architecture) for the full platform overview,
+and [BAZ.Palantir](../products/baz-palantir) for the product-level documentation.

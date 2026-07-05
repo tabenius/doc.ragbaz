@@ -493,3 +493,9 @@ The compiler emits diagnostics before codegen. HFT-specific checks:
     ├── packages/host/ # WASM host runtime stub
     └── packages/strategies/ # .glith strategy files
 ```
+
+---
+
+See the product-level documentation for each subsystem: [BAZ.HFT](../products/baz-hft),
+[BAZ.Palantir](../products/baz-palantir), [BAZ.Luna](../products/baz-luna).
+See also [BAZ.CX](./baz-cx) for the exchange connector implementation notes.
