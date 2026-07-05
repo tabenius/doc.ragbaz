@@ -16,6 +16,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 - **Articulate** is the main product family (commerce, WordPress runtime, mail).
 - **DetCordon** is the strongest standalone security product candidate.
 - **Typesetr** is a print-ready PDF typesetting pipeline.
+- **BAZ Signal Stack** is a three-tier algorithmic trading suite: [BAZ.HFT](baz-hft) owns the `glither.hft` compiler dialect and signed audit receipts, [BAZ.Palantir](baz-palantir) is the Rust orchestration server (rule lifecycle, enrichment, WebSocket streaming), and [BAZ.Luna](baz-luna) is the browser frontend (CodeMirror 6 notebook editor, lightweight-charts, backlog viewer).
 - **AIED** is a scholarly review article on AI in education.
 - **Slint-to-TSX** is a planned Rust transpiler for Slint UI files.
 - **MailRoute/MailGuard** provides email security with Proton Bridge.

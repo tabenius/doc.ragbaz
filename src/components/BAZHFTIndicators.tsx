@@ -549,8 +549,8 @@ export function BAZLunaPhasePanel({ seed = 3 }: { seed?: number }) {
   return (
     <div style={{ background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6, overflow: 'hidden', margin: '12px 0' }}>
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #1a1a1a', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: mono, fontSize: 10, color: '#d3869b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Lunar Cycle · 28D</span>
-        <span style={{ fontFamily: mono, fontSize: 9, color: '#737373' }}>signal oscillation vs phase</span>
+        <span style={{ fontFamily: mono, fontSize: 10, color: '#d3869b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Signal timeline · 28-bar</span>
+        <span style={{ fontFamily: mono, fontSize: 9, color: '#737373' }}>enriched oscillation · WS stream</span>
       </div>
       <div style={{ width: '100%', overflow: 'hidden' }}>
         <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', display: 'block' }} preserveAspectRatio="none">
@@ -573,7 +573,7 @@ export function BAZLunaPhasePanel({ seed = 3 }: { seed?: number }) {
         </svg>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 12px', borderTop: '1px solid #1a1a1a', flexWrap: 'wrap', gap: 4 }}>
-        {['New Moon', 'Waxing', 'Full Moon', 'Waning'].map((l, i) => (
+        {['T-28', 'T-21', 'T-14', 'T-7'].map((l) => (
           <span key={l} style={{ fontFamily: mono, fontSize: 9, color: '#4a4744' }}>{l}</span>
         ))}
       </div>

@@ -4,7 +4,7 @@ sidebar_position: 16
 description: Browser-based trading frontend with candlestick charts, glith.hft rule editor, live signals, and backlog viewer.
 ---
 
-import { BAZHFTIndicatorSuite, BAZHFTOscillatorBar } from '../../src/components/BAZHFTIndicators';
+import { BAZHFTIndicatorSuite, BAZHFTOscillatorBar, BAZLunaPhasePanel } from '../../src/components/BAZHFTIndicators';
 
 <Hero
   marque="BAZ.LUNA"
@@ -101,6 +101,8 @@ math macros (`rsi`, `μ`, `σ`, `bbands_*`), transact lifecycle, and `then_log b
   <BAZHFTOscillatorBar label="Stoch %K" value={22} min={0} max={100} overdone={{ low: 20, high: 80 }} />
   <BAZHFTOscillatorBar label="Confidence" value={76} min={0} max={100} />
 </div>
+
+<BAZLunaPhasePanel seed={4} />
 
 </Plate>
 

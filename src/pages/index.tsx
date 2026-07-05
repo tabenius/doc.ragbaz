@@ -57,6 +57,12 @@ const currentPaths = [
     to: '/docs/experiments/glither-governance',
   },
   {
+    title: 'BAZ.Luna',
+    status: 'active embryo',
+    description: 'Vite trading frontend — candlestick charts, glither.hft notebook, backlog viewer.',
+    to: '/docs/products/baz-luna',
+  },
+  {
     title: 'DetCordon',
     status: 'active prototype',
     description: 'Containment-first web-malware observation environment.',
