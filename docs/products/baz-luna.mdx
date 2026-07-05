@@ -1,220 +1,166 @@
 ---
 title: BAZ.Luna
 sidebar_position: 16
-description: Periodic pattern detection and cycle-aware monitoring for the RAGBAZ signal stack.
+description: Browser-based trading frontend with candlestick charts, glith.hft rule editor, live signals, and backlog viewer.
 ---
 
-import { BAZLunaPhasePanel, BAZHFTOscillatorBar } from '../../src/components/BAZHFTIndicators';
+import { BAZHFTIndicatorSuite, BAZHFTOscillatorBar } from '../../src/components/BAZHFTIndicators';
 
 <Hero
   marque="BAZ.LUNA"
-  tagline="// cycle-aware monitoring"
+  tagline="// trading frontend · Vite + lightweight-charts"
   title="BAZ.Luna"
-  subtitle="products/baz-luna · periodic pattern & phase detection"
-  lede="Cycle-aware signal monitoring and periodic pattern detection. BAZ.Luna tracks recurring rhythms in data streams — market microstructure cycles, system load patterns, and multi-scale temporal oscillations — and surfaces them as typed phase signals composable with BAZ.HFT rules."
-  axes={['CYCLES', 'PHASE', 'PERIODICITY', 'MONITORING', 'DSL', 'OSCILLATORS']}
+  subtitle="products/baz-luna · notebook editor · real-time charts · signal visualization"
+  lede="The browser-based frontend for the BAZ trading platform. Real-time candlestick charts, a CodeMirror-powered glith.hft rule notebook, live signal markers, and a scrollable backlog — all communicating with BAZ.Palantir over WebSocket and REST."
+  axes={['CHARTS', 'EDITOR', 'SIGNALS', 'WEBSOCKET', 'VITE', 'TAURI']}
 />
 
 <Lead>
-BAZ.Luna treats time not as a uniform ruler but as a superposition of recurring cycles —
-market sessions, funding periods, seasonal rhythms, and emergent microstructure patterns.
-It detects, names, and exposes these cycles as first-class signals in the RAGBAZ membrane graph.
+BAZ.Luna is what the trader sees. It connects to BAZ.Palantir on `:8080`, receives
+enriched candle and indicator events over WebSocket, and renders them as an interactive
+candlestick chart with RSI sub-pane, Bollinger overlays, and signal markers. The
+notebook editor lets you write, compile, and deploy `glither.hft` strategies without
+leaving the browser.
 </Lead>
 
 ---
 
-## Cycle Phase Panel
+## Live indicator view
 
-The panel below visualizes a 28-day oscillation cycle — representative of the kind of
-periodic signal BAZ.Luna tracks, names, and exposes to downstream consumers.
+The panels below represent the kind of indicator data BAZ.Luna displays — sourced
+from BAZ.Palantir's enriched WebSocket stream:
 
-<BAZLunaPhasePanel seed={3} />
+<BAZHFTIndicatorSuite seed={5} />
 
 ---
 
 ## Architecture
 
 ```
-Observation Stream  (price ticks, system metrics, any scalar series)
-      │
-      ▼
-BAZ.Luna Decomposer
-      │   detrend · segment · FFT / autocorrelation
-      ▼
-Cycle Catalog       (named, typed, versioned cycles)
-      │
-      ├── Phase Estimator   (current phase ∈ [0, 2π], confidence)
-      ├── Amplitude Tracker (cycle strength, fade / amplify)
-      └── Harmonic Detector (sub-cycles, overtones)
-             │
-             ▼
-Phase Signal Bus  (membrane-typed phase events)
-      │
-      ├── BAZ.HFT  (phase as filter condition in signal rules)
-      ├── BAZ.Palantir  (cycle dashboard)
-      └── Glither `glither.flow`  (data-flow redaction on cycle boundaries)
+Browser (:5173 dev / dist/ prod)
+  │
+  ├── src/app.js          charts, WS, signals, backlog
+  ├── src/notebook.js     CodeMirror 6 + marked + hljs + compile
+  ├── src/examples.js     3 notebooks (lazy)
+  ├── src/glith-lang.js   hljs language def (lazy)
+  └── src/styles.css      RAGBAZ-themed
+  │
+  │   Vite dev proxy
+  ├── /api  ──REST──▶  BAZ.Palantir :8080
+  └── /ws   ──WS──▶   BAZ.Palantir :8080 ──WS──▶ BAZ.CX :8000
 ```
+
+<Admonition type="tip" title="LEAN INITIAL LOAD">
+All heavy libraries (CodeMirror 6, marked, highlight.js) are deferred via
+`requestIdleCallback` — the chart and UI render before any editor code loads.
+Initial entry: ~2.7 kB app + 8 kB CSS.
+</Admonition>
 
 ---
 
-## Core Concepts
+## Notebook editor
 
-<Plate section="A" title="Cycles" sub="named, typed, periodic patterns" num="1">
+<Plate section="A" title="Notebook editor" sub="CodeMirror 6 · glith syntax highlighting · inline compile" num="1">
 
-A **cycle** in BAZ.Luna is a named recurring pattern in an observation stream with:
-- a **period** (estimated, with uncertainty bounds)
-- a **phase** (current position in the cycle)
-- an **amplitude** (current strength)
-- a **confidence** score (how well the cycle fits recent data)
+Side-by-side layout: CodeMirror 6 editor on the left, rendered Markdown preview on
+the right. Three example notebooks are available from the toolbar:
 
 <KeyVal rows={[
-  ['market.intraday', '24h session cycle — open/close, lunch lull, power hour. Phase resets at midnight UTC.'],
-  ['market.weekly', '5-day trading week cycle. Monday gap risk, Friday close skew.'],
-  ['market.funding', '8h perpetual funding cycle (crypto). Phase drives carry and squeeze signals.'],
-  ['market.lunar28', '28-day sidereal cycle. Historically correlated with volatility regimes in some asset classes.'],
-  ['system.load', 'Server / pipeline load cycle. Useful for adaptive throttling and capacity scheduling.'],
-  ['custom.*', 'User-defined cycles registered via the BAZ.Luna cycle registry.'],
+  ['Mean Reversion', 'RSI oversold + lower Bollinger band + volume confirmation → market_buy'],
+  ['Trend Following', 'SMA(9) > SMA(21) golden cross + RSI confirmation → market_buy'],
+  ['Blank Template', 'Empty notebook with pragma, state, and rule scaffolding'],
 ]} />
+
+Every fenced ` ```glith ` block gets a **Compile** button. Clicking it POSTs the
+block to `POST /api/rules/{name}/compile` on BAZ.Palantir and shows the compilation
+summary inline — symbols, windows, indicators derived, any check errors. A **Compile
+All** button processes all blocks sequentially.
+
+A cheat sheet panel (Ctrl+H) documents all `glither.hft` constructs: state syntax,
+math macros (`rsi`, `μ`, `σ`, `bbands_*`), transact lifecycle, and `then_log backlog`.
 
 </Plate>
 
-<Plate section="B" title="Oscillators" sub="cycle-relative bounded signals" num="2">
+---
 
-BAZ.Luna exposes cycle-relative oscillators — the same family as BAZ.HFT oscillators
-but anchored to a specific named cycle rather than a fixed bar count:
+## Candlestick charts and indicators
+
+<Plate section="B" title="Charts and indicators" sub="lightweight-charts · RSI sub-pane · signal markers" num="2">
 
 <KeyVal rows={[
-  ['CycleRSI(cycle)', 'RSI recomputed over one full cycle period. Resets at each cycle boundary.'],
-  ['PhaseOscillator', 'Sine-phase position of current bar within the detected cycle. Range [-1, 1].'],
-  ['CycleMomentum', 'First derivative of the phase signal. Positive = accelerating into peak.'],
-  ['CycleAmplitude', 'Current cycle strength relative to 90-day mean. >1 = amplified, <1 = fading.'],
-  ['CycleRegime', 'Categorical: TRENDING | CYCLIC | NOISE — based on cycle confidence threshold.'],
+  ['Main pane', 'Candlestick chart (lightweight-charts) with optional Bollinger Band overlays and SMA/EMA line series.'],
+  ['RSI sub-pane', 'RSI(14) oscillator line series below the main chart. Overbought/oversold bands drawn at 70/30.'],
+  ['Signal markers', 'Buy (green ▲), Sell (red ▼), Close (yellow ●) markers on the candlestick chart from rule fires.'],
+  ['Backlog viewer', 'Scrollable SQLite backlog — each entry shows timestamp, rule name, action, and JSON payload.'],
+  ['Annotations', 'Free-form text annotations via the WebSocket annotation side-channel (opt-in end-to-end).'],
 ]} />
 
 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '16px 0', padding: '12px 14px', background: '#0f0f10', border: '1px solid #2a2a2a', borderRadius: 6 }}>
-  <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace', fontSize: 10, color: '#d3869b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Cycle Oscillators · market.intraday</div>
-  <BAZHFTOscillatorBar label="PhaseOscillator" value={63} min={0} max={100} overdone={{ low: 25, high: 75 }} />
-  <BAZHFTOscillatorBar label="CycleMomentum" value={71} min={0} max={100} overdone={{ low: 30, high: 70 }} />
-  <BAZHFTOscillatorBar label="CycleAmplitude" value={82} min={0} max={100} overdone={{ low: 40, high: 80 }} />
-  <BAZHFTOscillatorBar label="Confidence" value={88} min={0} max={100} overdone={{ low: 50, high: 90 }} />
+  <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace', fontSize: 10, color: '#7ab8ff', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>RSI sub-pane · BTC/USDT · 1m</div>
+  <BAZHFTOscillatorBar label="RSI(14)" value={34} min={0} max={100} overdone={{ low: 30, high: 70 }} />
+  <BAZHFTOscillatorBar label="Stoch %K" value={22} min={0} max={100} overdone={{ low: 20, high: 80 }} />
+  <BAZHFTOscillatorBar label="Confidence" value={76} min={0} max={100} />
 </div>
 
 </Plate>
 
 ---
 
-## DSL Syntax
+## Lazy loading
 
-BAZ.Luna adds a `baz.luna` dialect to the Glither comprehension language. Cycle phases
-are first-class predicates:
+BAZ.Luna keeps the initial paint lean. All heavy resources are deferred:
 
-```glither
-#pragma dialect baz.luna ; fold accumulate
+| Resource | Size | Load strategy |
+|----------|------|---------------|
+| Initial entry | 79 B + 2.7 kB app + 8 kB CSS | Synchronous (instant) |
+| CodeMirror 6 | 969 kB | `requestIdleCallback` |
+| marked | 43 kB | On first viewer render |
+| highlight.js | varied | On first code block render |
+| Examples | 6.2 kB | On toolbar click |
+| Glith language def | 1.1 kB | With highlight.js |
 
-cycle intraday = market.intraday
-cycle funding  = market.funding(period=8h, anchor=utc_midnight)
+---
 
-rule avoid_power_hour =
-  bar
-  | intraday.phase in [0.85, 1.0]              // last 15% of session
-  | intraday.amplitude > 1.2                   // amplified cycle
-  => signal PAUSE into holding
-     on cycle intraday.reset into ready
+## API contract
 
-rule funding_squeeze_alert =
-  tick
-  | funding.phase in [0.9, 1.0]               // near funding settlement
-  | CycleRSI(funding) > 72                    // cycle-overbought
-  | CycleMomentum > 0.4                       // still accelerating
-  => signal WARNING into alerted
-     after 30m into cleared (reason = funding_settled)
+<Plate section="C" title="BAZ.Palantir API" sub="all proxied through Vite dev server" num="3">
+
+<SpecTable rows={[
+  ['GET /api/health', '—', 'Health check'],
+  ['GET /api/candles', '?symbol=&timeframe=', 'Historical candle snapshot'],
+  ['GET /api/backlog', '—', 'SQLite event log entries'],
+  ['GET /api/daemon/status', '—', 'Strategy daemon state'],
+  ['POST /api/rules/:name/compile', 'rule source body', 'Compile glith source, return summary'],
+  ['WS /ws', '—', 'Real-time ticks, candles, signals, annotations'],
+]} />
+
+</Plate>
+
+---
+
+## Tauri mode
+
+BAZ.Luna can be packaged as a native application via Tauri v2 for Windows and Android.
+Tauri mode adds:
+
+<KeyVal rows={[
+  ['File system access', 'Load and save `.glith` rule files directly from the local filesystem.'],
+  ['Embedded server', 'Optional embedded BAZ.Palantir process for a fully standalone installation.'],
+  ['Native packaging', 'Single-binary distribution — no separate server setup required.'],
+]} />
+
+---
+
+## Build
+
+```bash
+npm install
+npm run dev          # Dev server with HMR at :5173
+npm run build        # Production build → dist/
 ```
 
-### Phase predicates
+Production build: ~1.8 MB across 16 chunks (gzip ~570 kB), builds in ~3s.
 
-| Predicate | Semantics |
-|---|---|
-| `phase in [a, b]` | Current phase fraction within [a, b] (0=start, 1=end of cycle) |
-| `cycle.reset` | Trigger: a new cycle period has begun |
-| `cycle.peak` | Trigger: phase crossed the amplitude peak (phase ≈ 0.25 by default) |
-| `CycleRSI(cycle) > x` | Cycle-relative RSI above threshold |
-| `amplitude > x` | Current cycle amplitude above x (relative to 90d mean) |
-| `confidence > x` | Cycle detection confidence above x (0–1) |
-
----
-
-## Detection Methods
-
-<Tabs defaultValue="autocorr">
-<TabItem value="autocorr" label="Autocorrelation">
-
-The primary detection method. For each candidate period T:
-
-1. Compute the autocorrelation coefficient of the detrended series at lag T
-2. Accept T as a cycle candidate if autocorrelation > threshold (default 0.6)
-3. Rank candidates by coefficient magnitude — highest = primary cycle
-4. Track phase by fitting a sine wave to the windowed series at period T
-
-Efficient via the **Wiener–Khinchin theorem**: FFT → magnitude spectrum → peaks → lag.
-Runs in O(N log N) per update window.
-
-</TabItem>
-<TabItem value="fft" label="FFT Spectrum">
-
-For broad-spectrum cycle discovery (no prior on period):
-
-1. FFT of the detrended, windowed observation series
-2. Identify dominant frequency components (peaks in power spectrum)
-3. Convert frequency → period; filter to [min_period, max_period] bounds
-4. Each peak becomes a candidate cycle registered in the catalog
-
-Best for discovering **unknown periods** in a new data stream. Runs once on
-registration, then maintained incrementally.
-
-</TabItem>
-<TabItem value="hilbert" label="Hilbert Transform">
-
-The Hilbert Transform produces an **analytic signal** — a complex representation
-of the real input where the imaginary part is the 90°-shifted version. Phase is
-then derived as `atan2(imag, real)`.
-
-Used when the cycle is known (no discovery needed) and continuous phase tracking
-is required. Zero-lag phase estimation with excellent noise rejection via the
-Butterworth bandpass pre-filter centered on the known cycle frequency.
-
-</TabItem>
-</Tabs>
-
----
-
-## Integration with BAZ.HFT
-
-BAZ.Luna and BAZ.HFT communicate via a `glither.world` membrane link. A `baz.luna`
-component exports phase signals; a `baz.hft` component imports them as ligands:
-
-```glither
-#pragma dialect glither.world ; fold accumulate
-
-rule link_luna_to_hft =
-  edge | donor.dialect == baz.luna
-       | pour.export ~ /phase/
-       | pier.dialect == baz.hft
-       | guarantee.offer >= transport
-  => link pour to pier into linked
-```
-
-Once linked, BAZ.HFT rules can reference `intraday.phase` directly in predicates —
-no shared memory, only typed membrane exports.
-
----
-
-## Future Expansions
-
-| Item | Description |
-|---|---|
-| **Multi-scale decomposition** | Wavelet-based decomposition across octaves (hourly, daily, weekly, seasonal) simultaneously |
-| **Adaptive period tracking** | Phase-locked loop (PLL) model for tracking drifting periods (e.g. macro cycles) |
-| **Cross-asset cycle correlation** | Detect synchronized cycles across multiple assets for pair and basket signals |
-| **Calendar effect overlay** | Named calendar effects (earnings seasons, FOMC windows, options expiry) as virtual cycles |
-| **Anomaly detection** | Deviation from expected cycle shape as a signal — cycle breaks, phase jumps |
-| **BAZ.Palantir cycle map** | Visual cycle taxonomy dashboard in BAZ.Palantir |
+See [BAZ.Palantir](./baz-palantir) for the orchestration layer that powers the
+data stream, and the [BAZ architecture experiment page](../experiments/baz-architecture)
+for the full platform overview.

@@ -10,15 +10,15 @@ import { BAZHFTIndicatorSuite, BAZHFTRSIGauge, BAZHFTOscillatorBar, BAZHFTPriceC
   marque="BAZ.HFT"
   tagline="// systematic signal processing"
   title="BAZ.HFT"
-  subtitle="products/baz-hft · indicator & signal toolkit"
-  lede="A high-frequency signal processing and technical indicator suite for systematic trading strategies. Deterministic computation, typed signal graphs, and composable indicator pipelines built on the RAGBAZ stack."
-  axes={['INDICATORS', 'OSCILLATORS', 'SIGNALS', 'DSL', 'STREAMING', 'WASM']}
+  subtitle="products/baz-hft · glither.hft dialect · host runtime · audit receipts"
+  lede="The glither.hft dialect and host embryo for deterministic market-policy evaluation. BAZ.HFT owns strategy fixtures, host integration, execution controls, and signed monetary audit receipts built on the RAGBAZ stack."
+  axes={['GLITHER.HFT', 'INDICATORS', 'OSCILLATORS', 'AUDIT', 'WASM', 'RECEIPTS']}
 />
 
 <Lead>
-BAZ.HFT is the RAGBAZ systematic trading toolkit — a composable pipeline of technical
-indicators, oscillators, and signal generators compiled to deterministic, sandboxed WASM
-components and wired through the RAGBAZ membrane graph.
+BAZ.HFT is the Glither dialect and host embryo for deterministic market-policy evaluation.
+The compiler is shared with Glither; BAZ.HFT owns the HFT-specific strategy fixtures,
+transact lifecycle model, signed monetary receipt chain, and host integration boundary.
 </Lead>
 
 ---
@@ -35,30 +35,31 @@ Stochastic, MACD, and moving average signals update across the chart.
 ## Architecture
 
 ```
-Market Data Feed  (tick / bar / trade)
+.glith strategy source
       │
       ▼
-BAZ.HFT Ingestion Pipeline
-      │   normalize · validate · timestamp
+baz-hft-roux (Glither compiler facade)
+      │   pest PEG parse · IR lower · structural checks
       ▼
-Indicator Compute Graph  (deterministic, typed)
-      │   SMA / EMA / VWAP / Bollinger / ATR / RSI / MACD / Stoch / CCI / WR
-      ▼
-Signal Generator  (rule-based, composable)
-      │   crossing · threshold · divergence · regime
-      ▼
-Signal Bus  (membrane-typed event stream)
+Codegen  →  no_std Rust WASM component · WIT contract
       │
-      ├── Execution Layer  (order management, risk checks)
-      ├── BAZ.Luna         (cycle phase detection)
-      └── BAZ.Palantir     (intelligence dashboard)
+      ├── State structs — heapless ring buffers per state definition
+      ├── Math macros   — rsi(), μ(), σ(), bbands_*()  single-pass, no heap
+      └── Dispose fns   — dispose_tick(ctx) → Receipt
+                          dispose_position(ctx) → Receipt
+      │
+      ▼
+BAZ.Palantir  (rule storage · enrichment · subscriptions · streaming)
+      │
+      ▼
+BAZ.Luna  (candlestick charts · backlog viewer · notebook editor)
 ```
 
-<Admonition type="tip" title="DETERMINISM GUARANTEE">
-Every indicator in BAZ.HFT produces identical output given identical input — no
-floating-point non-determinism, no clock dependency. Pipelines compile to WASM
-components and are verified against a Gleam reference oracle (same approach as
-Glither's conformance suite).
+<Admonition type="tip" title="OWNERSHIP SPLIT">
+BAZ.HFT does not carry its own compiler fork. The parser, IR, checks, and
+Rust/WIT codegen live in Glither `packages/roux`. BAZ.HFT adds the HFT
+compatibility facade (`baz-hft-roux`), strategy fixtures, host runtime stub,
+and the signed monetary receipt chain.
 </Admonition>
 
 ---
@@ -113,50 +114,68 @@ to identify overbought / oversold conditions and divergences.
 
 ## DSL Syntax
 
-BAZ.HFT uses a declarative signal DSL built on the Glither comprehension syntax. A signal
-rule is a typed comprehension over a bar stream:
+BAZ.HFT uses the `glither.hft` dialect. Rules declare bounded ring-buffer state,
+apply inline math macros, and emit typed transact dispositions with two-stage
+fill/timeout lifecycle arms:
 
-```glither
-#pragma dialect baz.hft ; fold accumulate
+```glith
+#pragma dialect glither.hft ; fold first-match
+#pragma version 2.0-beta
 
-indicator rsi14 = RSI(close, period=14)
-indicator macd  = MACD(close, fast=12, slow=26, signal=9)
-indicator bb20  = Bollinger(close, period=20, sigma=2.0)
+state noise_rsi = bars | window = 14 | timeframe = 1m | tracks = [ close ]
+state noise_bb  = bars | window = 20 | timeframe = 1m | tracks = [ close, volume ]
 
-group trending = bars
-  | EMA(close, 20) > EMA(close, 50)
-
-rule long_entry =
-  bar
-  | bar in trending                              // trend filter
-  | rsi14 < 35                                   // oversold
-  | macd.histogram crosses_above 0              // momentum confirms
-  | close > bb20.lower                          // not below band
-  => signal BUY into open_position
-     on fill         into filled
-     after 4 bars    into expired
-
-rule long_exit =
-  bar in open_position
-  | rsi14 > 70                                  // overbought
-  => signal SELL into closed_position
+rule rsi_oversold_reversal =
+  tick | rsi(noise_rsi.close) < 25.0
+       | tick.close < bbands_lower(noise_bb.close, dev = 2.5)
+       | volume(noise_bb.volume) > μ(noise_bb.volume)
+  => transact market_buy
+       on    fill  into position(target = bbands_mid(noise_bb.close))
+       after 30s   market_close_all (reason = mean_reversion_timeout)
+  then_log backlog
 ```
 
-### Semantic rules
+### State definitions
 
-| Predicate | Semantics |
-|---|---|
-| `crosses_above <val>` | Previous bar below, current bar above `val` |
-| `crosses_below <val>` | Previous bar above, current bar below `val` |
-| `diverges_from <indicator>` | Price direction and indicator direction disagree over last n bars |
-| `bar in <group>` | Bar satisfies the group's selector predicates |
-| `after <n> bars` | Liveness deadline — signal expires after n bars without fill |
+`state` declares a named ring buffer. BAZ.Palantir's enricher populates it from
+the BAZ.CX market-data stream for each subscribed symbol.
 
-<Admonition type="note" title="TYPED SIGNALS">
-Every signal is typed by its terminal state (`open_position`, `filled`, `expired`,
-`closed_position`). The BAZ.HFT runtime enforces that every `BUY` is eventually
-settled — an un-filled open position is a liveness violation surfaced as a lint
-at compile time.
+| Field | Purpose |
+|-------|---------|
+| `window = N` | Ring buffer capacity (bars kept) |
+| `timeframe = 1m` | Bar resolution fed into the ring |
+| `tracks = [close]` | Fields populated per bar |
+
+### Math macros
+
+| Macro | Description |
+|-------|-------------|
+| `rsi(path)` | RSI(14) over the ring buffer |
+| `μ(path)` | Arithmetic mean |
+| `σ(path, m)` | Standard deviation (takes pre-computed mean) |
+| `volume(path)` | Sum over window |
+| `bbands_upper(path, dev)` | Upper Bollinger Band (mean + dev·σ) |
+| `bbands_lower(path, dev)` | Lower Bollinger Band (mean − dev·σ) |
+| `bbands_mid(path)` | Middle Bollinger Band (= mean) |
+
+### Transact lifecycle
+
+```
+transact <order_type>
+  on    <event> into <lifecycle_action>   -- on fill
+  after <duration> <lifecycle_action>    -- on timeout
+then_log backlog                         -- timestamp signal to SQLite
+```
+
+Every `transact` disposition embeds a two-stage lifecycle so the host (BAZ.Palantir)
+knows how to handle fill and timeout cases without any shell process or external
+scheduler.
+
+<Admonition type="note" title="AUDIT BOUNDARY">
+`then_log backlog` is a lossy diagnostic directive — it timestamps signals to the
+SQLite backlog. It is not the canonical monetary audit store. Signed receipts
+(Ed25519, content-addressed, append-only chain) live in the BAZ.HFT host crate
+and require durable integration before order execution is enabled.
 </Admonition>
 
 ---
@@ -191,23 +210,18 @@ indicators in < 40ms on a single core.
 
 ---
 
-## Future Expansions
+## Next steps
 
-<Callout accent="blue">
-  Roadmap items are tracked in the RAGBAZ monorepo under `products/baz-hft/ROADMAP.md`.
-  The items below are explicitly **not yet implemented**.
-</Callout>
+Current status: compiler and audit primitives implemented; live execution not enabled.
 
-| Item | Description | Target dialect |
-|---|---|---|
-| **Order Book Indicators** | Bid/ask imbalance, spread, depth heatmap | `baz.hft.orderbook` |
-| **Regime Detection** | HMM-based regime filter (trending / ranging / volatile) | `baz.hft.regime` |
-| **Pattern Recognition** | Head & shoulders, double top/bottom, triangle | `baz.hft.pattern` |
-| **Ichimoku Cloud** | Full Ichimoku Kinko Hyo with Tenkan/Kijun/Span A&B/Chikou | `baz.hft.trend` |
-| **Options Greeks** | Delta, Gamma, Theta, Vega computed from BAZ.HFT price feeds | `baz.hft.options` |
-| **BAZ.Luna integration** | Cycle phase as a filter condition in signal rules | `glither.world` link |
-| **BAZ.Palantir export** | Live indicator stream as a Palantir data source | `glither.world` link |
-| **Multi-asset correlation** | Cross-asset RSI divergence, pair trading signals | `baz.hft.multi` |
+| Item | Description |
+|---|---|
+| **Durable receipts** | Append and synchronize signed receipts before any venue side effect |
+| **Event emission** | Emit policy compilation and activation receipts |
+| **Lifecycle events** | Connect plan, review, submit, fill, cancel, and settlement events |
+| **Durable storage** | Append-only storage, key rotation, retention policy |
+| **Replay tooling** | Replay tooling and redacted operator/regulator projections |
+| **Latency benchmark** | Measure component latency and allocation under a paper feed |
 
 ---
 
@@ -215,9 +229,13 @@ indicators in < 40ms on a single core.
 
 | Layer | Technology |
 |---|---|
-| Signal DSL | Glither (`baz.hft` dialect) |
-| Compiler | Roux parser → typed IR → Rust/Gleam codegen |
-| Runtime | Wasmtime/WASI component with per-indicator WIT imports |
-| Data feed | WebSocket tick stream → BAZ.HFT ingestion pipeline |
-| Backtesting | WASM SIMD batch evaluation |
-| Visualization | React + SVG (doc.ragbaz.cc / BAZ.Palantir) |
+| Dialect | `glither.hft` (extends Glither `packages/roux`) |
+| Compiler facade | `baz-hft-roux` re-exports shared Glither compiler API |
+| Runtime codegen | `#![no_std]` Rust WASM component, `heapless::Vec` ring buffers |
+| WIT contract | `world hft-executor` — `dispose-tick`, `dispose-position` |
+| Audit receipts | Ed25519 · content-addressed IDs · SHA-256 chain · append-only |
+| Orchestration | BAZ.Palantir (rule storage, subscriptions, enrichment, streaming) |
+| Frontend | BAZ.Luna (candlestick charts, CodeMirror editor, backlog viewer) |
+
+See the [BAZ architecture experiment page](../experiments/baz-architecture) for the
+full compiler pipeline, IR types, WIT world definition, and example strategies.
