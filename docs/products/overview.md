@@ -38,6 +38,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 
 ### Niche or exploratory products
 
+- **BAZ Signal Stack**: compiler and audit primitives implemented; live order execution not yet enabled. The technical surface is real but the product gate (durable receipts + venue integration) is open. Best treated as an advanced spike with a clear promotion path.
 - `shipwrecks.se`: vertical data and community application.
 - `esp32tolk`: hardware-assisted live translation device concept.
 - `discord-bot`: operational companion, more platform add-on than standalone business.
