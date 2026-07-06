@@ -457,3 +457,7 @@ Rust production + WIT contract) are complete and verified. Next: WASM component 
 (C2b), conformance harness (C3), and registry publishing (C4). `glither.mail` remains the
 buildable first slice; `glither.decision`, `glither.segment`, and `glither.articles` are also
 proven across all three codegen targets.*
+
+The `glither.hft` dialect extends this compiler substrate for systematic trading strategies.
+See [BAZ platform architecture](./baz-architecture) for the HFT-specific grammar, IR adaptations,
+and host integration, and [BAZ.HFT](../products/baz-hft) for the product-level documentation.
