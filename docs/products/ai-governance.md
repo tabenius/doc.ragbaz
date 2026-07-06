@@ -107,3 +107,7 @@ analysis and gap table.
 
 *This page tracks live status; see the [readiness plan](../experiments/eu-ai-act-compliance-plan.md)
 and the project repo for the authoritative task board.*
+
+See also the [_Tractatus Custodicus_](https://ragbaz.cc/tractatus) — a formal account of the platform
+structured as numbered propositions in the style of Wittgenstein, detailing the policy dialect,
+audit chain, and compliance crosswalk against the EU AI Act.
