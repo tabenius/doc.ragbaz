@@ -170,3 +170,5 @@ artifacts. Dana is the edge-guarantee that the multi-tenant fleet story (§11.4)
 *Design sketch — the document that turns "trust me, it's one-way" into "here is the signed world;
 check it yourself." The diode is provable because the WIT world is derived, signed, and
 structurally inspectable.*
+
+See [glither WASM/WIT compiler spec](./glither-wasm-wit-compiler-spec.md) for the compiler substrate, [glither.world sketch](./glither-world-sketch.md) for membrane-graph composition, and [glither.governance](./glither-governance.md) for how the Dana attestation model is applied in the AI governance platform.
