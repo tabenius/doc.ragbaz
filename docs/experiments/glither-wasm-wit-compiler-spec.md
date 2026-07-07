@@ -464,3 +464,7 @@ The `glither.hft` dialect extends this compiler substrate for systematic trading
 See the [Glither WASM component pilot](./glither-wasm-component-pilot) for the reviewer handoff
 path, [BAZ platform architecture](./baz-architecture) for the HFT-specific grammar, IR adaptations,
 and host integration, and [BAZ.HFT](../products/baz-hft) for the product-level documentation.
+
+The `glither.governance` dialect applies the same substrate to AI governance policy —
+see [glither.governance](./glither-governance.md) for the dialect and
+[AI Governance (KAGP)](../products/ai-governance.md) for the product using it.

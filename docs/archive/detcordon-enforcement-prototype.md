@@ -20,3 +20,5 @@ It contains an early blocking reverse-proxy sketch built around ModSecurity.
 - design-pivot evidence,
 - possible source of small implementation ideas,
 - not the active architecture.
+
+See [DetCordon](../products/detcordon.md) for the current observation-mode product.
