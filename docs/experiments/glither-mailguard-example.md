@@ -331,3 +331,7 @@ The Glither compiler's test suite for mailguard coverage:
 | **CLI integration** | 17 | `tangle check/gleam/wit/rust/snapshot` for all fixtures |
 
 **51 tests total, zero clippy warnings.**
+
+---
+
+See [MailRoute / MailGuard](../products/mailroute.md) for the product-level documentation, and [glither WASM/WIT compiler spec](./glither-wasm-wit-compiler-spec.md) for the full compiler architecture.
