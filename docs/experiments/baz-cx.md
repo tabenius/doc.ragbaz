@@ -142,3 +142,5 @@ src/wit/hft_types.py  — Python mapping of WIT records (tick, candle, position,
 ```
 
 These mirror the WIT world defined by the `glither.hft` compiler (`package glither:hft`) so that BAZ.CX can act as the WASM host runtime when strategies are deployed.
+
+See [BAZ architecture](./baz-architecture) for the full platform data-flow and the [BAZ.Palantir](../products/baz-palantir) product page for the orchestration server that BAZ.CX feeds into.
