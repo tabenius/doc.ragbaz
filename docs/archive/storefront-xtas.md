@@ -15,3 +15,5 @@ Former active path: `products/articulate/storefront-xtas`
 ## Preservation note
 
 The archived tree remains available for reference, especially for older UX, design-plan, WordPress, and Stripe integration ideas. New storefront work should happen in `products/articulate/universe/storefront`.
+
+See [Articulate Overview](../products/articulate/overview) for the active commerce platform.
