@@ -162,3 +162,7 @@ Frog supports cross-box federation through box identity, peer joining, and event
 ## Current Status
 
 Active and well-tested (62+ tests). The CLI has gone through a major redesign (Phase I: strict grammar, Phase II: TUI/board parity, federation, MCP standards). 85+ completed tasks. Used as the coordination backbone for all multi-agent work under `/data/src`.
+
+---
+
+See [Products Overview](./overview) for the full portfolio and [Infrastructure Overview](../infra/overview) for how Frog fits alongside Traefik, Infisical, and other host services.

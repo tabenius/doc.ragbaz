@@ -96,3 +96,7 @@ flowchart TB
 The wildcard cert `ragbaz.cc.pem` terminates TLS for every `*.ragbaz.cc`
 subdomain, and the `ragbaz.cc` certificate covers the `.cc` public hosts. DNS
 is Cloudflare-proxied to the konsonans origin.
+
+---
+
+See [HAProxy](./haproxy) and [Traefik](./traefik) for the routing layer configuration, and [Articulate Overview](../products/articulate/overview) for the WordPress/commerce stack this topology serves.

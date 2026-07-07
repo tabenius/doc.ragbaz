@@ -23,6 +23,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 - **MailRoute/MailGuard** provides email security with Proton Bridge.
 - **Chatwoot** is a self-hosted customer support platform.
 - **Shipwrecks.se** is the strongest niche vertical application.
+- **BAZaar** is the RAGBAZ marketplace concept — a draft spec for publishing, trading, deploying, and teaching RAGBAZ software components.
 - **Discord bot**, **ESP32Tolk**, **Portfolio**, and **SciPub** are smaller or earlier-stage bets.
 
 ## Current interpretation
