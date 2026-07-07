@@ -53,6 +53,7 @@ job is to be the control plane through which deployers discharge the articles th
 - **[Art 12](https://artificialintelligenceact.eu/article/12/)** — logging & traceability (tamper-evident audit chain, ≥6-month retention)
 - **[Art 13](https://artificialintelligenceact.eu/article/13/)** — transparency (queryable audit)
 - **[Art 14](https://artificialintelligenceact.eu/article/14/)** — human oversight (hold-for-approval, safe-default timeouts)
+- **[Art 47](https://artificialintelligenceact.eu/article/47/)** — declaration of conformity (Annex V template, freeze-gated until signed)
 - **[Art 72](https://artificialintelligenceact.eu/article/72/)** — post-market monitoring
 
 See the [EU AI Act Readiness Plan](../experiments/eu-ai-act-compliance-plan.md) for the deadline
@@ -65,17 +66,20 @@ analysis and gap table.
 | `glither.governance` dialect | 🟢 complete | Risk-tiered policy (`fold first-match`), HITL lifecycle (hold/approve/after), compiled to a WASM component. | [Art 9](https://artificialintelligenceact.eu/article/9/) / [Art 14](https://artificialintelligenceact.eu/article/14/) |
 | Live policy gate | 🟢 complete | Synchronous pre-evaluation: allow / hold / deny on every tool-call; fail-closed on missing evidence. | [Art 9](https://artificialintelligenceact.eu/article/9/) |
 | Append-only audit chain | 🟢 complete | PostgreSQL event store + SHA-256 hash chain + `verify-chain`; mutation-rejection triggers. | [Art 12](https://artificialintelligenceact.eu/article/12/) |
-| MCP agent ingress | 🔵 near finish | Model-Context-Protocol gateway intercepting `tools/call`; routes through the gate before the upstream tool. *(hold→approve callback pending)* | [Art 9](https://artificialintelligenceact.eu/article/9/) |
+| MCP agent ingress | 🔵 near finish | Model-Context-Protocol gateway intercepting `tools/call`; routes through the gate before the upstream tool; held calls await the oversight gateway. | [Art 9](https://artificialintelligenceact.eu/article/9/) |
 | Identity + RBAC | 🔵 near finish | Role→permission authz (agent/reviewer/approver/admin) enforced at ingress. *(OIDC/SAML signature verification pending)* | — |
 | Audit egress (syslog) | 🔵 near finish | RFC 5424 export of every decision over UDP. *(event-store subscription + TCP/TLS pending)* | [Art 12](https://artificialintelligenceact.eu/article/12/) |
-| HITL approvals (Discord / email) | 🟡 in progress | Discord approval notifications on hold. *(email channel + approve/deny callback pending)* | [Art 14](https://artificialintelligenceact.eu/article/14/) |
-| Manifest signing (Ed25519 / PKCS#11) | 🟡 in progress | Tamper-evident replica-manifest signing; software signer landed. *(cryptoki + SoftHSM2 [planned](https://github.com/tabenius/BAZ.AI-Governance/blob/main/docs/superpowers/plans/2026-06-30-pkcs11-cryptoki-softhsm.md))* | [Art 12](https://artificialintelligenceact.eu/article/12/) |
-| Human oversight gateway + SLA-deny | 🟡 in progress | Hold → human decision, with safe-default timeout-to-deny at runtime. | [Art 14](https://artificialintelligenceact.eu/article/14/) §4 |
-| PII runtime guard | ⚪ planned | Runtime argument scrubbing for detected PII. | [Art 10](https://artificialintelligenceact.eu/article/10/) |
-| OpenTelemetry | ⚪ planned | OTLP traces + metrics (decision latency, hold/deny counts). | — |
-| Retention WORM (Cloudflare R2 / MinIO) | ⚪ planned | Immutable ≥6-month archive of event-store segments via S3 object-lock. | [Art 12](https://artificialintelligenceact.eu/article/12/) §2 |
-| ComplianceReporter | ⚪ planned | JSON + PDF technical-documentation / evidence export. | [Art 11](https://artificialintelligenceact.eu/article/11/) |
-| Post-market monitoring | ⚪ planned | Replica-divergence / incident monitor. | [Art 72](https://artificialintelligenceact.eu/article/72/) |
+| Human oversight gateway + SLA-deny | 🔵 near finish | Authenticated loopback review endpoint: hold → human approve/deny; expired holds denied by monotonic deadline (safe default). | [Art 14](https://artificialintelligenceact.eu/article/14/) §4 |
+| PII runtime guard | 🔵 near finish | Email + card (Luhn) scrubbing on the capture path; redactions flagged in the audit record. | [Art 10](https://artificialintelligenceact.eu/article/10/) |
+| Transparency queries | 🔵 near finish | Paginated, queryable audit surface over the event store. | [Art 13](https://artificialintelligenceact.eu/article/13/) |
+| Retention WORM (MinIO / S3) | 🔵 near finish | Immutable ≥184-day archive via S3 Object Lock (COMPLIANCE mode), proven against real MinIO incl. deletion-refusal; R2 lacks per-object lock → geo-copy only. | [Art 12](https://artificialintelligenceact.eu/article/12/) §2 |
+| Post-market monitoring | 🔵 near finish | Replica-divergence monitor with persisted incidents. | [Art 72](https://artificialintelligenceact.eu/article/72/) |
+| HITL approvals (Discord / email) | 🟡 in progress | Discord approval notifications on hold landed. *(email channel in flight)* | [Art 14](https://artificialintelligenceact.eu/article/14/) |
+| Manifest signing (Ed25519 / PKCS#11) | 🟡 in progress | Tamper-evident replica-manifest signing; software signer landed. *(cryptoki + SoftHSM2 wiring [under way](https://github.com/tabenius/BAZ.AI-Governance/blob/main/docs/superpowers/plans/2026-06-30-pkcs11-cryptoki-softhsm.md))* | [Art 12](https://artificialintelligenceact.eu/article/12/) |
+| OpenTelemetry | 🟡 in progress | OTLP traces + metrics export of governance telemetry landed. | — |
+| ComplianceReporter | 🟡 in progress | JSON + Markdown technical-documentation export; 17-control evidence model. *(PDF pending)* | [Art 11](https://artificialintelligenceact.eu/article/11/) |
+| Declaration of Conformity | 🟡 in progress | Annex V template with machine-detectable `[TBD]` placeholders; freeze-gated until signed. | [Art 47](https://artificialintelligenceact.eu/article/47/) |
+| Evidence-pack freeze | 🟡 in progress | One-command auditor bundle: report + DoC + gap sign-off + readiness verdict, sealed with a `sha256sum`-verifiable manifest. | [Art 11](https://artificialintelligenceact.eu/article/11/) |
 
 ## Technologies used
 
