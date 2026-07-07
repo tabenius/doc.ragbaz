@@ -1,137 +1,140 @@
 ---
 title: EU AI Act Readiness Plan (KAGP)
-description: Deadline-anchored compliance plan for the Konsonans AI Governance Platform / BAZ.AI-governance, targeting the 2 August 2026 EU AI Act high-risk applicability date.
+description: Deadline-anchored compliance state for the Konsonans AI Governance Platform / BAZ.AI-governance, targeting the 2 August 2026 EU AI Act high-risk applicability baseline.
 ---
 
 # EU AI Act Readiness Plan — KAGP / BAZ.AI-governance
 
-**Status:** active plan · **Authored:** 30 June 2026 · **Target date:** 2 August 2026
-**Project:** [`experiments/BAZ.AI-governance`](./glither-governance.md) (Konsonans AI Governance Platform, "KAGP") · policy dialect [`glither.governance`](./glither-governance.md)
+**Status:** compliance core complete and freeze-gated
+**Updated:** 7 July 2026
+**Working legal baseline:** 2 August 2026
+**Project:** [BAZ.AI-governance](./glither-governance.md) · policy dialect
+[glither.governance](./glither-governance.md)
 
-This is an engineering readiness plan, not legal advice or a conformity
-assessment. KAGP's role, AI-system classification, and obligations must be
-confirmed for each deployment with qualified legal and conformity specialists.
+This is an engineering readiness document, not legal advice or a conformity
+assessment. KAGP's role, AI-system classification, and obligations still need a
+deployment-specific legal and conformity review.
 
-> This plan supersedes the relative-time "Pilot Implementation Plan" (§13 of the project SPEC),
-> which is a 16-week build schedule that, started now, finishes ~mid-October — past the deadline.
-> Here the work is re-anchored to the binding **2 August 2026** date and ruthlessly prioritised.
+## 1. The deadline
 
-## 1. The deadline — what is actually binding
+| Date | Obligation | How KAGP treats it |
+| --- | --- | --- |
+| 2 Feb 2025 | Prohibited practices, definitions, AI literacy | Already in force |
+| 2 Aug 2025 | Governance and GPAI-model obligations | Relevant only if KAGP ships a model |
+| **2 Aug 2026** | **Current AI Act baseline for high-risk obligations** | **Binding engineering target** |
+| 2 Dec 2027 | Stand-alone high-risk AI systems, if the Digital Omnibus amendment enters into force | Runway, not current legal relief |
+| 2 Aug 2028 | High-risk AI systems embedded in regulated products, if the amendment enters into force | Runway, not current legal relief |
 
-| Date | Obligation | Applies to us? |
-|---|---|---|
-| 2 Feb 2025 | Prohibited practices (Art 5); AI literacy (Art 4) | Yes — already in force |
-| 2 Aug 2025 | GPAI model obligations; governance; penalties | Only if we ship a model (we do not) |
-| **2 Aug 2026** | **High-risk systems: Art 9–17 (providers), Art 26 (deployers), Art 50 transparency** | **Working deadline** |
-| 2 Aug 2027 | High-risk AI embedded in Annex I regulated products | Later |
+The legal posture remains conservative. The European Parliament approved the
+Digital Omnibus AI amendment on **16 June 2026**, including delayed application
+dates, but Parliament's press release says the text **still requires formal
+Council adoption before it enters into force**. Until that happens, KAGP plans
+to the current AI Act baseline of **2 August 2026**.
 
-**The Digital Omnibus caveat (important, do not bet on it).** Council and
-Parliament negotiators reached a provisional agreement on 7 May 2026. Parliament
-approved the agreed text on 16 June 2026, including delayed application dates of
-**2 December 2027** for stand-alone high-risk systems and **2 August 2028** for
-high-risk systems embedded in products. Formal Council adoption and entry into
-force remain pending as of 30 June 2026. Until the amendment enters into force,
-the current AI Act timetable remains the legal baseline.
+## 2. What "meeting the deadline" means
 
-**Decision:** plan conservatively to **2 Aug 2026**. Treat any adopted deferral as *runway for the
-deeper conformity track*, never as relief on the core. This is the only defensible posture 33 days
-out with the amendment still un-adopted.
+KAGP is aimed at the runtime articles that matter for governing AI agents:
 
-## 2. What "meeting the deadline" means for KAGP
+- **Art 9** risk management through a typed policy gate
+- **Art 10** data-governance controls through runtime PII scrubbing
+- **Art 11** technical documentation through generated evidence exports
+- **Art 12** traceability through an append-only audit chain and retention
+- **Art 13** transparency through queryable audit entries
+- **Art 14** human oversight through hold, review, and timeout-deny paths
+- **Art 47** declaration support through a freeze-gated Annex V template
+- **Art 72** post-market monitoring through replica divergence detection
 
-KAGP has a **dual relationship** to the Act, and conflating them is the main risk to a clear plan:
+The 2 August 2026 deliverable is therefore a **runtime-enforced compliance core
+plus evidence pack**, not a claim that every deployment-specific conformity
+assessment has been completed.
 
-1. **Working engineering hypothesis: KAGP's deterministic policy engine may sit
-   outside high-risk Annex III classification when used only as governance
-   middleware.** That conclusion does not follow from determinism alone. It
-   depends on whether the deployed product meets the AI-system definition, its
-   intended purpose, its value-chain role, and the use case it controls.
+## 3. Completed path to the deadline
 
-2. **KAGP's purpose is to be the control plane through which *its users* discharge *their* high-risk
-   obligations** — Art 9 (risk management), Art 10 (data governance), Art 11 (technical
-   documentation), Art 12 (logging/traceability), Art 13 (transparency), Art 14 (human oversight),
-   Art 26 (deployer duties), Art 72 (post-market monitoring).
+- [x] **Jun 30 - Jul 6 — Traceability core (Art 12, 9):** event store +
+      SHA-256 hash chain + `verify-chain`; `glither.governance` gate wired to
+      live events.
+  - [x] PostgreSQL mutation-rejection triggers and canonical
+        `kagp-audit-v1` hashing.
+  - [x] Synchronous pre-evaluation: only allowed calls reach the upstream MCP
+        process; hold, deny, missing audit evidence, and missing upstream
+        configuration fail closed.
+- [x] **Jul 7 - Jul 13 — Human oversight (Art 14, 14(4), 10):** authenticated
+      review queue, SLA-timeout deny, and PII guard.
+  - [x] Reviewer identity and rationale recorded before execution.
+  - [x] Expired holds are atomically denied and audit-recorded.
+  - [x] Email and payment-card data are scrubbed from durable audit copies.
+- [x] **Jul 14 - Jul 20 — Documentation, retention, transparency
+      (Art 11, 12(2), 13):** technical-documentation export, retention/WORM,
+      and queryable audit entries.
+  - [x] JSON and Markdown evidence exports map controls to real events and
+        hashes.
+  - [x] Daily deterministic event segments and manifests upload to Object Lock
+        storage with verification.
+  - [x] Bounded, filterable audit-entry pages reject invalid ranges, cursors,
+        and page sizes.
+- [x] **Jul 21 - Jul 27 — Monitoring and conformity scaffold (Art 72, 47):**
+      divergence monitor and Declaration-of-Conformity scaffold.
+  - [x] Replica manifests are compared for signature, validity, count, base,
+        and head divergence.
+  - [x] Annex V declaration template exports and enumerates required fields.
+- [x] **Jul 28 - Aug 1 — Evidence pack and freeze:** final bundle assembly,
+      gap sign-off, readiness statement, and manifest sealing.
+  - [x] `compliance-reporter --freeze <dir>` assembles the JSON report,
+        Markdown report, Declaration of Conformity, gap sign-off sheet,
+        readiness statement, and SHA-256 manifest.
+  - [x] The freeze gate refuses to claim readiness unless all controls are
+        complete and required declaration fields are supplied.
 
-**Therefore the deadline target is:** by 2 Aug 2026, KAGP's compliance-enabling **core is
-production-ready and demonstrable**, with an **evidence pack**, so that a customer running a
-high-risk AI system *behind* KAGP can show conformity for the articles KAGP covers.
+## 4. Current compliance state (7 July 2026)
 
-## 3. The honest scope truth
+**Controls:** 17/17 complete
+**Declaration of Conformity:** template complete; operator-supplied entity,
+signatory, place-of-issue, and standards fields are required at freeze time
+before a Ready verdict can be emitted.
+**Evidence freeze:** produces a Ready verdict only when all controls are
+complete and the declaration contains no placeholders.
+**Verification:** crate test suites pass for `agent-proxy`,
+`compliance-reporter`, and `replica-node`, including the SoftHSM2 PKCS#11
+integration test.
 
-A high-risk **conformity assessment** (Art 43), any applicable third-party
-assessment, and conformance strategy under **harmonised standards** (Art 40)
-cannot be scoped until KAGP's role and each deployment use case are classified.
-Delayed standards are one reason for the amended timetable, but they do not
-remove the need for a deployment-specific assessment.
+## 5. Shipped hardening after the core freeze
 
-So the deliverable for 2 Aug 2026 is a **"compliance core + evidence pack"**: the runtime-enforced,
-auditable governance pipeline for Art 9 / 12 / 14 plus Art 11 technical-documentation export —
-positioning KAGP as *AI-Act-ready tooling* — with deployment-specific classification
-and conformity work sequenced into the proposed Dec 2027 runway.
+- **PKCS#11 / HSM signing backend** in `replica-node`:
+  `cryptoki`-backed Ed25519 signing validated end to end against SoftHSM2.
+- **Email HITL channel** in `agent-proxy`:
+  SMTP approval requests complement the existing Discord webhook path.
+- **Per-request OIDC JWT verification** in `agent-proxy`:
+  JWKS-backed bearer-token verification extracts subject and roles for every
+  MCP HTTP request.
+- **Observability and operations stack** in `agent-proxy`:
+  Prometheus metrics, JSON logs, conditional OTLP export, NATS audit fan-out,
+  and SLA/divergence alert webhooks are implemented.
 
-## 4. Gap analysis (article → capability → status → action by 2 Aug)
+The remaining post-freeze integrations are tracked separately in the
+[KAGP Integration Backlog](./kagp-integration-plan.md).
 
-| Article | Required capability | KAGP component | Status (Jun 2026) | Action to deadline |
-|---|---|---|---|---|
-| Art 9 — risk management | risk-tiered policy enforcement | `glither.governance` dialect → WASM; `PolicyEngine` | dialect compiles (green in roux); engine prototype | wire engine to **live** events; confirm risk tiers (minimal/limited/high/unacceptable) |
-| Art 10 — data governance | PII minimisation / scrubbing | `PIIMinimisationGuard` (POL-002) | rule exists in dialect | implement runtime argument scrubbing |
-| Art 11 — technical documentation | exportable tech-doc / DoC | `ComplianceReport` (JSON+PDF) | spec only (MVP #11, P1) | **build `ComplianceReporter`**; map each control → evidence |
-| Art 12 §1 — logging | append-only event store + hash chain | `schema.sql`, `governance-node` (356-line Rust prototype) | schema + node prototype | deploy; implement `verify-chain` |
-| Art 26(6) — deployer log retention floor | deployer-controlled retention for at least six months when logs are under deployer control, unless other law provides otherwise | PostgreSQL + object-lock archive | not built | define role-aware retention and legal hold policy |
-| Art 13 — transparency | queryable audit entries | WIT `query-entries` audit iface | iface defined | implement endpoint |
-| Art 14 — human oversight | HITL approval w/ SLA | `HumanOversightGateway`; `hold … on approve … after SLA` rules | dialect rules done; Pharo UI spec only | **build approval path** (transport → queue → decision) |
-| Art 14 §4 — safe default | timeout ⇒ deny | `after <SLA> into blocked` in every hold rule | encoded in policy | verify enforced at runtime, not just declared |
-| Art 26 — deployer duties | oversight assignment, log keeping | KAGP deployment config | partial | document + ship default config |
-| Art 47 / 43 — declaration and conformity route | role-appropriate declaration and assessment evidence | `ConformityReport` | unclassified | ship a draft evidence template; obtain deployment-specific legal/conformity review |
-| Art 72 — post-market monitoring | divergence / incident monitor | replica divergence monitor | spec only | minimal monitor + incident log |
+## 6. Deferred to the post-deadline track
 
-**One-line status:** specified and partially prototyped (dialect green, governance-node + schema
-exist), **not yet production-deployed end-to-end**. The gap is integration + the Art 11 evidence
-exporter, not net-new architecture.
+- full Pharo IDE polish
+- WASM/OCI packaging and deployment ergonomics
+- wider replica-fleet operations
+- notified-body and harmonised-standards work
+- EU AI Office integration details
+- deployment-specific provider/deployer classification work
 
-## 5. Date-anchored schedule (33 days)
+## 7. Open decisions
 
-Re-anchoring SPEC §13 to the deadline by taking only the **P0 compliance-critical slice** and
-deferring the rest. Each sprint ends with a runtime-demonstrable capability + its evidence artefact.
+These items do not block the shipped compliance core, but they do matter for
+the deeper conformity track:
 
-- [ ] **Jun 30 – Jul 6 — Traceability core (Art 12, Art 9).** Deploy event store + SHA-256 hash
-      chain + `verify-chain`; wire `glither.governance` policy gate to live agent events (pre-eval
-      synchronous block). *Evidence: tamper-evident log + a replayable blocked decision.*
-- [ ] **Jul 7 – Jul 13 — Human oversight (Art 14, 14§4, 10).** `HumanOversightGateway` + HITL
-      approval path over one transport; SLA-timeout-⇒-deny enforced at runtime; PII guard runtime.
-      *Evidence: a held action approved by a human and one auto-denied on SLA.*
-- [ ] **Jul 14 – Jul 20 — Documentation & transparency (Art 11, 13, 26(6)).** `ComplianceReporter`
-      JSON+PDF; retention/WORM config; `query-entries` transparency endpoint. *Evidence: a generated
-      technical-documentation pack.*
-- [ ] **Jul 21 – Jul 27 — Monitoring & conformity scaffold (Art 72, 47).** Minimal post-market
-      divergence/incident monitor; Declaration-of-Conformity template + placeholder conformity
-      export. *Evidence: DoC draft + incident-log demo.*
-- [ ] **Jul 28 – Aug 1 — Evidence pack & freeze.** Assemble the article-by-article evidence pack,
-      gap sign-off, code freeze, publish the readiness statement.
-
-**Deferred to the post-deadline track (the proposed Dec 2027 runway):** full
-Pharo IDE polish, WASM/OCI packaging of governance-node, multi-node replica
-fleet, role-specific conformity work, and harmonised-standards conformance.
-
-## 6. Open decisions (owners needed — none block the Aug-2 core)
-
-1. **Classification owner** — assign qualified legal/conformity ownership for
-   each intended-purpose and value-chain role assessment.
-2. **Conformity route** — determine provider/deployer role, applicable assessment
-   route, declaration form, registration, and competent authority per use case.
-3. **`wasi:sql` stability** — fallback to `wasi:http` → PostgREST shim if not stable by Q3 2026.
-4. **Key management** — HSM for replica manifest signing (`wasi:crypto` not standardised).
-
-## 7. Success criteria for 2 Aug 2026
-
-1. Runtime-enforced Art 9 / 12 / 14 pipeline with a tamper-evident audit trail.
-2. An Art 11 technical-documentation pack generated from real events.
-3. A published readiness statement + DoC template.
-4. A written, dated post-deadline conformity roadmap (this document's §5 deferred list).
+1. Classification owner for each intended-purpose and value-chain role review.
+2. Conformity route and declaration process per deployment.
+3. Long-term HSM key-management model.
+4. `wasi:sql` versus HTTP/PostgREST boundary for longer-term component hosting.
 
 ## Sources
 
-- [Regulation (EU) 2024/1689 — official text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
-- [European Parliament — approval of Digital Omnibus AI amendments, 16 June 2026](https://www.europarl.europa.eu/news/en/press-room/20260611IPR45207/ai-act-ep-approves-simplification-measures-and-nudifier-app-ban)
-- [Council of the EU — provisional agreement, 7 May 2026](https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/)
-- [European Commission — navigating the AI Act](https://digital-strategy.ec.europa.eu/en/faqs/navigating-ai-act)
+- [Regulation (EU) 2024/1689 - official text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
+- [European Parliament - AI Act: EP approves simplification measures and "nudifier" app ban, 16 June 2026](https://www.europarl.europa.eu/news/en/press-room/20260611IPR45207/ai-act-ep-approves-simplification-measures-and-nudifier-app-ban)
+- [Council of the EU - Council and Parliament agree to simplify and streamline rules, 7 May 2026](https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/)
+- [European Commission FAQ - Navigating the AI Act](https://digital-strategy.ec.europa.eu/en/faqs/navigating-ai-act)

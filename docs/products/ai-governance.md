@@ -5,13 +5,17 @@ description: Konsonans AI Governance Platform (KAGP) — a policy-as-code contro
 
 # AI Governance Platform (KAGP)
 
-**Konsonans AI Governance Platform** — a policy-as-code control plane that governs AI agents for
-**EU AI Act** compliance. Every agent action passes a typed policy gate, lands in a tamper-evident
-audit chain, and can be held for human approval.
+**Konsonans AI Governance Platform** is a policy-as-code control plane that
+governs AI agents for **EU AI Act** compliance. Every agent action passes a
+typed policy gate, lands in a tamper-evident audit chain, and can be held for
+human approval.
 
-Repo: [`tabenius/BAZ.AI-Governance`](https://github.com/tabenius/BAZ.AI-Governance) ·
-policy dialect: [`glither.governance`](../experiments/glither-governance.md) ·
-readiness plan: [EU AI Act Readiness Plan](../experiments/eu-ai-act-compliance-plan.md)
+Repo: [`tabenius/BAZ.AI-Governance`](https://github.com/tabenius/BAZ.AI-Governance)
+· policy dialect:
+[`glither.governance`](../experiments/glither-governance.md) · readiness plan:
+[EU AI Act Readiness Plan](../experiments/eu-ai-act-compliance-plan.md) ·
+post-freeze backlog:
+[KAGP Integration Backlog](../experiments/kagp-integration-plan.md)
 
 ## Status legend
 
@@ -20,8 +24,6 @@ Each component below is tagged with its current state:
 | Symbol | Meaning |
 |---|---|
 | 🟢 | **complete** — implemented, tested, on `main` |
-| 🔵 | **near finish** — core landed; a follow-up remains |
-| 🟡 | **in progress** — actively being built |
 | ⚪ | **planned** — designed, not yet started |
 
 ---
@@ -39,6 +41,20 @@ The decision flow:
 ```
 agent → mcp-ingress → policy-gate → audit-chain → human-oversight → replica-signer
 ```
+
+## Current core state (7 July 2026)
+
+- **17/17 deadline controls complete.**
+- **Evidence freeze is shipped** and assembles the JSON report, Markdown
+  report, Declaration of Conformity, gap sign-off sheet, readiness statement,
+  and SHA-256 manifest into one bundle.
+- **Declaration export is complete but operator-supplied.** Provider,
+  signatory, place-of-issue, and standards fields are supplied at freeze time;
+  the gate refuses to issue a Ready verdict with placeholders.
+- **Legal posture remains conservative.** Parliament approved the AI Act
+  simplification amendment on 16 June 2026, but Parliament's own press release
+  says formal Council adoption is still pending, so KAGP continues to plan to
+  the current 2 August 2026 baseline.
 
 ## Why
 
@@ -64,22 +80,22 @@ analysis and gap table.
 | Component | Status | What it does | Article |
 |---|---|---|---|
 | `glither.governance` dialect | 🟢 complete | Risk-tiered policy (`fold first-match`), HITL lifecycle (hold/approve/after), compiled to a WASM component. | [Art 9](https://artificialintelligenceact.eu/article/9/) / [Art 14](https://artificialintelligenceact.eu/article/14/) |
-| Live policy gate | 🟢 complete | Synchronous pre-evaluation: allow / hold / deny on every tool-call; fail-closed on missing evidence. | [Art 9](https://artificialintelligenceact.eu/article/9/) |
+| Live policy gate | 🟢 complete | Synchronous pre-evaluation: allow / hold / deny on every tool-call; fail closed on missing evidence. | [Art 9](https://artificialintelligenceact.eu/article/9/) |
 | Append-only audit chain | 🟢 complete | PostgreSQL event store + SHA-256 hash chain + `verify-chain`; mutation-rejection triggers. | [Art 12](https://artificialintelligenceact.eu/article/12/) |
-| MCP agent ingress | 🔵 near finish | Model-Context-Protocol gateway intercepting `tools/call`; routes through the gate before the upstream tool; held calls await the oversight gateway. | [Art 9](https://artificialintelligenceact.eu/article/9/) |
-| Identity + RBAC | 🔵 near finish | Role→permission authz (agent/reviewer/approver/admin) enforced at ingress. *(OIDC/SAML signature verification pending)* | — |
-| Audit egress (syslog) | 🔵 near finish | RFC 5424 export of every decision over UDP. *(event-store subscription + TCP/TLS pending)* | [Art 12](https://artificialintelligenceact.eu/article/12/) |
-| Human oversight gateway + SLA-deny | 🔵 near finish | Authenticated loopback review endpoint: hold → human approve/deny; expired holds denied by monotonic deadline (safe default). | [Art 14](https://artificialintelligenceact.eu/article/14/) §4 |
-| PII runtime guard | 🔵 near finish | Email + card (Luhn) scrubbing on the capture path; redactions flagged in the audit record. | [Art 10](https://artificialintelligenceact.eu/article/10/) |
-| Transparency queries | 🔵 near finish | Paginated, queryable audit surface over the event store. | [Art 13](https://artificialintelligenceact.eu/article/13/) |
-| Retention WORM (MinIO / S3) | 🔵 near finish | Immutable ≥184-day archive via S3 Object Lock (COMPLIANCE mode), proven against real MinIO incl. deletion-refusal; R2 lacks per-object lock → geo-copy only. | [Art 12](https://artificialintelligenceact.eu/article/12/) §2 |
-| Post-market monitoring | 🔵 near finish | Replica-divergence monitor with persisted incidents. | [Art 72](https://artificialintelligenceact.eu/article/72/) |
-| HITL approvals (Discord / email) | 🟡 in progress | Discord approval notifications on hold landed. *(email channel in flight)* | [Art 14](https://artificialintelligenceact.eu/article/14/) |
-| Manifest signing (Ed25519 / PKCS#11) | 🟡 in progress | Tamper-evident replica-manifest signing; software signer landed. *(cryptoki + SoftHSM2 wiring [under way](https://github.com/tabenius/BAZ.AI-Governance/blob/main/docs/superpowers/plans/2026-06-30-pkcs11-cryptoki-softhsm.md))* | [Art 12](https://artificialintelligenceact.eu/article/12/) |
-| OpenTelemetry | 🟡 in progress | OTLP traces + metrics export of governance telemetry landed. | — |
-| ComplianceReporter | 🟡 in progress | JSON + Markdown technical-documentation export; 17-control evidence model. *(PDF pending)* | [Art 11](https://artificialintelligenceact.eu/article/11/) |
-| Declaration of Conformity | 🟡 in progress | Annex V template with machine-detectable `[TBD]` placeholders; freeze-gated until signed. | [Art 47](https://artificialintelligenceact.eu/article/47/) |
-| Evidence-pack freeze | 🟡 in progress | One-command auditor bundle: report + DoC + gap sign-off + readiness verdict, sealed with a `sha256sum`-verifiable manifest. | [Art 11](https://artificialintelligenceact.eu/article/11/) |
+| MCP agent ingress | 🟢 complete | Streamable HTTP and stdio ingress route every call through the policy gate before any upstream tool is touched. | [Art 9](https://artificialintelligenceact.eu/article/9/) |
+| Identity + RBAC | 🟢 complete | Role-to-permission authz plus per-request OIDC JWT verification; static bearer-token auth remains available for bounded local deployments. | — |
+| Audit egress and observability | 🟢 complete | RFC 5424 syslog, Prometheus metrics, JSON logs, OTLP export, NATS fan-out, and alert webhooks. | [Art 12](https://artificialintelligenceact.eu/article/12/) / [Art 72](https://artificialintelligenceact.eu/article/72/) |
+| Human oversight gateway + SLA-deny | 🟢 complete | Authenticated review endpoint: hold to approve/deny; expired holds are denied by monotonic deadline. | [Art 14](https://artificialintelligenceact.eu/article/14/) §4 |
+| PII runtime guard | 🟢 complete | Email and card scrubbing on the capture path; redactions are preserved in the audit record while the upstream request stays intact. | [Art 10](https://artificialintelligenceact.eu/article/10/) |
+| Transparency queries | 🟢 complete | Paginated, bounded, queryable audit-entry surface over the event store. | [Art 13](https://artificialintelligenceact.eu/article/13/) |
+| Retention WORM (MinIO / S3) | 🟢 complete | Immutable >=184-day archive via S3 Object Lock (COMPLIANCE mode), with verification after upload. | [Art 12](https://artificialintelligenceact.eu/article/12/) §2 |
+| Post-market monitoring | 🟢 complete | Replica-divergence monitor with replayable persisted incidents. | [Art 72](https://artificialintelligenceact.eu/article/72/) |
+| HITL approvals (Discord / email) | 🟢 complete | Discord webhook and SMTP approval notifications for held actions. | [Art 14](https://artificialintelligenceact.eu/article/14/) |
+| Manifest signing (Ed25519 / PKCS#11) | 🟢 complete | Software signer plus PKCS#11/SoftHSM2-backed signing for tamper-evident replica manifests. | [Art 12](https://artificialintelligenceact.eu/article/12/) |
+| ComplianceReporter + DoC + freeze | 🟢 complete | JSON and Markdown reports, Annex V declaration export, readiness statement, and a `sha256sum`-verifiable freeze bundle. | [Art 11](https://artificialintelligenceact.eu/article/11/) / [Art 47](https://artificialintelligenceact.eu/article/47/) |
+| Unix-socket agent ingress | ⚪ planned | Local co-resident agent transport without a TCP hop. | — |
+| TLS termination / SSE proxy reference | ⚪ planned | Documented production edge pattern for HTTPS and browser-facing streams. | — |
+| Pharo-WASM bridge | ⚪ planned | Direct bridge from the Pharo orchestration layer to the Rust governance component. | — |
 
 ## Technologies used
 
@@ -90,6 +106,13 @@ analysis and gap table.
 - **Ed25519 / PKCS#11 (SoftHSM2)** — manifest integrity signing.
 - **OIDC / SAML, syslog (RFC 5424), OpenTelemetry, Discord/SMTP, Cloudflare R2 / MinIO (S3)** — the integration surfaces.
 - **Pharo/Smalltalk** — a research/oversight console (optional; not on the customer-facing path — see implementation choices).
+
+## What continues after the deadline core
+
+The next slices are operational rather than architectural: Unix-socket ingress
+for co-located agents, a documented TLS edge pattern, and the longer-term
+Pharo-WASM bridge. Those are tracked on the
+[KAGP Integration Backlog](../experiments/kagp-integration-plan.md).
 
 ## Implementation choices
 
@@ -109,5 +132,7 @@ analysis and gap table.
 
 ---
 
-*This page tracks live status; see the [readiness plan](../experiments/eu-ai-act-compliance-plan.md)
-and the project repo for the authoritative task board.*
+*This page tracks the public product status. See the
+[readiness plan](../experiments/eu-ai-act-compliance-plan.md), the
+[integration backlog](../experiments/kagp-integration-plan.md), and the project
+repo for the current implementation detail.*

@@ -6,8 +6,8 @@ description: Live component, port, and protocol map of the konsonans host.
 
 # Konsonans Topology
 
-A map of what runs on the **konsonans** host (Oslo, `91.190.155.197`), the ports
-each component listens on, the protocols in use, and how requests are routed.
+A map of what runs on the **konsonans** host, the ports each component listens
+on, the protocols in use, and how requests are routed.
 
 - **Solid arrows** are confirmed routes (from the HAProxy config and the
   Compose files).
@@ -19,7 +19,7 @@ flowchart TB
     NET(["Internet"]) -->|"HTTPS 443"| CF{{"Cloudflare proxy<br/>*.ragbaz.cc · ragbaz.cc"}}
     CF -->|"HTTPS 443 → origin"| HAP
 
-    subgraph konsonans["konsonans · 91.190.155.197"]
+    subgraph konsonans["konsonans"]
         HAP[["HAProxy frontend<br/>:80 / :443 (TLS ragbaz.cc.pem + ragbaz.cc cert)"]]
 
         subgraph web["Web / docs backends"]
