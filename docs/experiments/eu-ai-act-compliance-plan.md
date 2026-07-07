@@ -132,6 +132,8 @@ the deeper conformity track:
 3. Long-term HSM key-management model.
 4. `wasi:sql` versus HTTP/PostgREST boundary for longer-term component hosting.
 
+See the [AI Governance (KAGP) product page](../products/ai-governance.md) for the live component status table and technology overview.
+
 ## Sources
 
 - [Regulation (EU) 2024/1689 - official text](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
