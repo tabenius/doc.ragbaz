@@ -8,7 +8,7 @@ description: Email security policy engine powered by the Glither compiler. Rules
 
 Path: `products/mailroute/`
 
-Email security and management tooling. The MailRoute project spans mail relay infrastructure and **MailGuard** — a policy engine whose rules are authored in the **Glither** DSL (`glither.mail` dialect) and compiled by the [`tangle` compiler](/docs/experiments/glither-wasm-wit-compiler-spec).
+Email security and management tooling. The MailRoute project spans mail relay infrastructure and **MailGuard** — a policy engine whose rules are authored in the **Glither** DSL (`glither.mail` dialect) and compiled by the [`tangle` compiler](/experiments/glither-wasm-wit-compiler-spec).
 
 ## Glither-Powered MailGuard
 
@@ -20,7 +20,7 @@ MailGuard rulesets are written in the `glither.mail` dialect (flat-verdict, `fol
 | **Rust** | Struct + `dispose()` function | Production deployment; verified with `cargo check` |
 | **WIT** | Component-model interface | Membrane contract / capability sandbox boundary |
 
-The [`mailguard.glith`](/docs/experiments/glither-mailguard-example) ruleset (6 rules — DMARC reject, spoof quarantine, executable quarantine, external tagging, newsletter routing, allowlisted delivery) compiles through the entire pipeline: parse, lower, infer crossing phases, check, and codegen. Rust output is verified via `cargo check` in the test suite.
+The [`mailguard.glith`](/experiments/glither-mailguard-example) ruleset (6 rules — DMARC reject, spoof quarantine, executable quarantine, external tagging, newsletter routing, allowlisted delivery) compiles through the entire pipeline: parse, lower, infer crossing phases, check, and codegen. Rust output is verified via `cargo check` in the test suite.
 
 ### Compiler Pipeline
 

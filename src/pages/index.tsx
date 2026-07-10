@@ -8,12 +8,12 @@ const namespaces = [
   {
     title: 'Products',
     description: 'Active offers, operator tooling, and product families.',
-    to: '/docs/products/overview',
+    to: '/products/overview',
   },
   {
     title: 'Experiments',
     description: 'Compiler, interface, runtime, and architecture embryos.',
-    to: '/docs/experiments/overview',
+    to: '/experiments/overview',
   },
 ];
 
@@ -22,31 +22,31 @@ const currentPaths = [
     title: 'BAZ.HFT',
     status: 'active embryo',
     description: 'Glither HFT dialect, host boundary, and signed monetary receipts.',
-    to: '/docs/experiments/baz-hft',
+    to: '/experiments/baz-hft',
   },
   {
     title: 'BAZ.Palantir',
     status: 'working service',
     description: 'Authenticated rule orchestration and BAZ.CX enrichment.',
-    to: '/docs/experiments/baz-palantir',
+    to: '/experiments/baz-palantir',
   },
   {
     title: 'Glither governance',
     status: 'implemented dialect',
     description: 'Human-review lifecycle and KAGP policy export.',
-    to: '/docs/experiments/glither-governance',
+    to: '/experiments/glither-governance',
   },
   {
     title: 'BAZ.Luna',
     status: 'active embryo',
     description: 'Vite trading frontend — candlestick charts, glither.hft notebook, backlog viewer.',
-    to: '/docs/products/baz-luna',
+    to: '/products/baz-luna',
   },
   {
     title: 'DetCordon',
     status: 'active prototype',
     description: 'Containment-first web-malware observation environment.',
-    to: '/docs/products/detcordon',
+    to: '/products/detcordon',
   },
 ];
 
@@ -68,11 +68,11 @@ export default function Home(): ReactNode {
               project status across the RAGBAZ workspace.
             </p>
             <nav className={styles.actions} aria-label="Primary Atlas paths">
-              <Link className={styles.primaryAction} to="/docs/intro">
+              <Link className={styles.primaryAction} to="/intro">
                 Open Atlas
               </Link>
-              <Link to="/docs/experiments/baz-hft">BAZ.HFT</Link>
-              <Link to="/docs/products/overview">Products</Link>
+              <Link to="/experiments/baz-hft">BAZ.HFT</Link>
+              <Link to="/products/overview">Products</Link>
             </nav>
           </div>
         </header>
@@ -84,7 +84,7 @@ export default function Home(): ReactNode {
                 <p className={styles.eyebrow}>current paths</p>
                 <h2 id="current-paths">Active technical narratives</h2>
               </div>
-              <Link to="/docs/experiments/overview">All experiments</Link>
+              <Link to="/experiments/overview">All experiments</Link>
             </div>
             <div className={styles.pathList}>
               {currentPaths.map((path) => (

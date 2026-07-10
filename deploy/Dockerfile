@@ -5,4 +5,6 @@
 FROM nginx:1.29-alpine
 
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
-COPY build/ /usr/share/nginx/html/
+# The site is published under ragbaz.cc/doc/ (baseUrl /doc/), so the export
+# lives under html/doc/ and nginx serves it at that prefix.
+COPY build/ /usr/share/nginx/html/doc/

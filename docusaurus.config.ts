@@ -39,8 +39,10 @@ const config: Config = {
   future: {
     v4: true,
   },
-  url: 'https://doc.ragbaz.cc',
-  baseUrl: '/',
+  // Docs are published under ragbaz.cc/doc/ (proxied by the ragbaz.cc worker);
+  // the doc.ragbaz.cc origin only serves that prefix and redirects the rest.
+  url: 'https://ragbaz.cc',
+  baseUrl: '/doc/',
   organizationName: 'ragbaz',
   projectName: 'atlas',
   onBrokenLinks: 'throw',
@@ -88,7 +90,9 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          routeBasePath: 'docs',
+          // Docs live directly under the /doc/ baseUrl (ragbaz.cc/doc/<page>);
+          // the ragbaz.cc worker 301s legacy /doc/docs/<page> URLs here.
+          routeBasePath: '/',
           // Restricted or non-public trees are not published on the docs
           // surface — no routes, no sidebar entries, no links.
           exclude: ['private/**', 'infra/**', 'archive/**', 'vendor/**'],
@@ -121,7 +125,7 @@ const config: Config = {
           position: 'left',
           label: 'Projects',
         },
-        {to: '/docs/products/overview', label: 'Products', position: 'right'},
+        {to: '/products/overview', label: 'Products', position: 'right'},
         {
           type: 'dropdown',
           label: 'Drafts',
@@ -140,8 +144,8 @@ const config: Config = {
           label: 'UI',
           position: 'right',
           items: [
-            {to: '/docs/components/bazweave-kit/description', label: 'Bazweave Kit'},
-            {to: '/docs/components/bazweave-kit/widgets', label: 'Widgets Demo'},
+            {to: '/components/bazweave-kit/description', label: 'Bazweave Kit'},
+            {to: '/components/bazweave-kit/widgets', label: 'Widgets Demo'},
           ],
         },
       ],
@@ -153,14 +157,14 @@ const config: Config = {
           title: 'Docs',
           items: [
             {label: 'ragbaz.cc', href: 'https://ragbaz.cc'},
-            {label: 'Overview', to: '/docs/intro'},
-            {label: 'Products', to: '/docs/products/overview'},
+            {label: 'Overview', to: '/intro'},
+            {label: 'Products', to: '/products/overview'},
           ],
         },
         {
           title: 'Atlas',
           items: [
-            {label: 'Experiments', to: '/docs/experiments/overview'},
+            {label: 'Experiments', to: '/experiments/overview'},
           ],
         },
       ],

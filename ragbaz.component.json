@@ -15,7 +15,7 @@
     "supportTier": "managed",
     "salesStatus": "demo",
     "pricingTags": ["included-collateral"],
-    "demoUrl": "https://doc.ragbaz.cc"
+    "demoUrl": "https://ragbaz.cc/doc/"
   },
   "capabilities": {
     "provides": [
@@ -102,7 +102,7 @@
       {
         "name": "public-home",
         "type": "http",
-        "target": "https://doc.ragbaz.cc/",
+        "target": "https://ragbaz.cc/doc/",
         "intervalSeconds": 300,
         "timeoutSeconds": 10,
         "required": true
@@ -120,7 +120,7 @@
   },
   "docs": {
     "readme": "README.md",
-    "public": "https://doc.ragbaz.cc",
+    "public": "https://ragbaz.cc/doc/",
     "runbook": "deploy/README.md"
   },
   "metadata": {
