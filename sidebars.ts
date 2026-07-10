@@ -124,54 +124,6 @@ const sidebars: SidebarsConfig = {
         {type: 'link', label: 'WP GraphQL Bleep', href: '/drafts/spec-wp-graphql'},
       ],
     },
-    {
-      type: 'category',
-      label: 'Infrastructure',
-      items: [
-        'infra/overview',
-        'infra/architecture',
-        'infra/topology',
-        'infra/debian-updater',
-        'infra/dev-tooling',
-        'infra/migrate',
-        'infra/pub-pipe',
-        'infra/traefik',
-        'infra/haproxy',
-        'infra/infisical',
-        'infra/traefik-strapi',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Private',
-      items: [
-        'private/overview',
-        'private/kit-lkm-rootkit',
-        'private/kit-php-runkit',
-        'private/sec',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Archive',
-      items: [
-        'archive/overview',
-        'archive/detcordon-enforcement-prototype',
-        'archive/storefront-xtas',
-        'archive/portfolio',
-        'archive/scipub',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Vendor',
-      items: [
-        'vendor/overview',
-        'vendor/claude-code',
-        'vendor/yakpro-po',
-        'vendor/headless',
-      ],
-    },
   ],
 };
 

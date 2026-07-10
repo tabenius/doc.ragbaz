@@ -15,26 +15,6 @@ const namespaces = [
     description: 'Compiler, interface, runtime, and architecture embryos.',
     to: '/docs/experiments/overview',
   },
-  {
-    title: 'Infrastructure',
-    description: 'Deployment topology, host operations, and runbooks.',
-    to: '/docs/infra/overview',
-  },
-  {
-    title: 'Private',
-    description: 'Restricted research index and controlled internal notes.',
-    to: '/docs/private/overview',
-  },
-  {
-    title: 'Archive',
-    description: 'Superseded projects retained for provenance.',
-    to: '/docs/archive/overview',
-  },
-  {
-    title: 'Vendor',
-    description: 'Third-party tools, contracts, and integration notes.',
-    to: '/docs/vendor/overview',
-  },
 ];
 
 const currentPaths = [
@@ -93,7 +73,6 @@ export default function Home(): ReactNode {
               </Link>
               <Link to="/docs/experiments/baz-hft">BAZ.HFT</Link>
               <Link to="/docs/products/overview">Products</Link>
-              <Link to="/docs/infra/overview">Infrastructure</Link>
             </nav>
           </div>
         </header>

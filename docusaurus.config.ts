@@ -33,7 +33,7 @@ const bazweaveKitWidgetsEntry = firstExistingPath([
 const config: Config = {
   title: 'RAGBAZ Atlas',
   tagline:
-    'Documentation for the products, experiments, infrastructure, private research projects, archives, and vendored code under /data/src',
+    'Documentation for the products and experiments under /data/src',
   favicon: 'img/favicon.svg',
   staticDirectories: ['static', '../ragbaz-design-system/assets'],
   future: {
@@ -89,6 +89,9 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           routeBasePath: 'docs',
+          // Restricted or non-public trees are not published on the docs
+          // surface — no routes, no sidebar entries, no links.
+          exclude: ['private/**', 'infra/**', 'archive/**', 'vendor/**'],
         },
         blog: false,
         theme: {
@@ -141,7 +144,6 @@ const config: Config = {
             {to: '/docs/components/bazweave-kit/widgets', label: 'Widgets Demo'},
           ],
         },
-        {to: '/docs/infra/overview', label: 'Infra', position: 'right'},
       ],
     },
     footer: {
@@ -159,15 +161,6 @@ const config: Config = {
           title: 'Atlas',
           items: [
             {label: 'Experiments', to: '/docs/experiments/overview'},
-            {label: 'Infrastructure', to: '/docs/infra/overview'},
-            {label: 'Private', to: '/docs/private/overview'},
-          ],
-        },
-        {
-          title: 'More',
-          items: [
-            {label: 'Archive', to: '/docs/archive/overview'},
-            {label: 'Vendor', to: '/docs/vendor/overview'},
           ],
         },
       ],
