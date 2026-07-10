@@ -5,6 +5,17 @@ const sidebars: SidebarsConfig = {
     'intro',
     {
       type: 'category',
+      label: 'School',
+      items: [
+        {
+          type: 'category',
+          label: 'Cellular',
+          items: ['school/cellular/overview'],
+        },
+      ],
+    },
+    {
+      type: 'category',
       label: 'Products',
       items: [
         'products/overview',
