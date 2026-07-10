@@ -16,7 +16,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 - **Articulate** is the main product family (commerce, WordPress runtime, mail).
 - **DetCordon** is the strongest standalone security product candidate.
 - **Typesetr** is a print-ready PDF typesetting pipeline.
-- **BAZ Signal Stack** is a three-tier algorithmic trading suite: [BAZ.HFT](baz-hft) owns the `glither.hft` compiler dialect and signed audit receipts, [BAZ.Palantir](baz-palantir) is the Rust orchestration server (rule lifecycle, enrichment, WebSocket streaming), and [BAZ.Luna](baz-luna) is the browser frontend (CodeMirror 6 notebook editor, lightweight-charts, backlog viewer).
+- **BAZ Trade Signal Stack** is a three-tier algorithmic trading suite: [BAZ.HFT](baz-hft) owns the `glither.hft` compiler dialect and signed audit receipts, [BAZ.Palantir](baz-palantir) is the Rust orchestration server (rule lifecycle, enrichment, WebSocket streaming), and [BAZ.Luna](baz-luna) is the browser frontend (CodeMirror 6 notebook editor, lightweight-charts, backlog viewer).
 - **AIED** is a scholarly review article on AI in education.
 - **Slint-to-TSX** is a planned Rust transpiler for Slint UI files.
 - **MailRoute/MailGuard** provides email security with Proton Bridge.
@@ -38,7 +38,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 
 ### Niche or exploratory products
 
-- **BAZ Signal Stack**: compiler and audit primitives implemented; live order execution not yet enabled. The technical surface is real but the product gate (durable receipts + venue integration) is open. Best treated as an advanced spike with a clear promotion path.
+- **BAZ Trade Signal Stack**: compiler and audit primitives implemented; live order execution not yet enabled. The technical surface is real but the product gate (durable receipts + venue integration) is open. Best treated as an advanced spike with a clear promotion path.
 - `shipwrecks.se`: vertical data and community application.
 - `esp32tolk`: hardware-assisted live translation device concept.
 - `discord-bot`: operational companion, more platform add-on than standalone business.
