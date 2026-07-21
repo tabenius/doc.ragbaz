@@ -57,6 +57,8 @@ const sidebars: SidebarsConfig = {
           label: 'Active',
           items: [
             'products/detcordon',
+            'products/detcordon/containment-assurance',
+            'products/detcordon/buyer-demo-runbook',
             'products/detcordon-monetization-surface-design',
             'products/shipwrecks-se',
             'products/mailroute',

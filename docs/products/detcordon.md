@@ -204,11 +204,15 @@ Estimated total business value: **$0.80M–$2.50M** (medium confidence).
 
 Best capitalization: produce one pilot-ready story — "stand up a contained web-malware detonation lane in a day."
 
+**[Request a pilot →](mailto:sales@ragbaz.cc?subject=DetCordon%20pilot%20request)**
+
 ---
 
 ## Further reading
 
 - [DetCordon prospectus](pathname:///prospectus/detcordon.html) — buyer-facing positioning and packaging snapshot
+- [Containment assurance](/products/detcordon/containment-assurance) — reviewer checklist mapping every non-negotiable containment rule to implementation evidence
+- [Buyer demo runbook](/products/detcordon/buyer-demo-runbook) — the repeatable, synthetic-only demo path with expected output and failure triage
 
 - `AGENTS.md` — full architecture, environment variables, coordination protocol
 - `doc/architecture.md` — topology diagrams, dataflow, crate maps

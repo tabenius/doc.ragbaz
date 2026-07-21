@@ -294,6 +294,7 @@ a:hover { color: var(--orange-1); }
   <h1><span>DetCordon</span></h1>
   <div class="tagline">Containment-first malware observation for web threats.</div>
   <p class="subtitle">A deliberately isolated detonation sandbox that watches hostile web malware, captures evidence, and stores it encrypted — without ever blocking, without ever allowing C2 back in, and without ever trusting the attacker.</p>
+  <p><a href="mailto:sales@ragbaz.cc?subject=DetCordon%20pilot%20request" style="display:inline-block;padding:0.6rem 1.4rem;border-radius:6px;background:var(--orange-3);color:var(--bg-0);font-family:var(--font-mono);font-weight:600;text-decoration:none;">Request a pilot →</a></p>
 </section>
 
 <section>
@@ -504,6 +505,8 @@ cargo run -p waf-sink -- \
   <h2>Further Reading</h2>
 
   <ul>
+    <li><strong>Containment assurance</strong> — <a href="https://doc.ragbaz.cc/docs/products/detcordon/containment-assurance">reviewer checklist mapping every non-negotiable containment rule to implementation evidence</a></li>
+    <li><strong>Buyer demo runbook</strong> — <a href="https://doc.ragbaz.cc/docs/products/detcordon/buyer-demo-runbook">the repeatable, synthetic-only demo path with expected output and failure triage</a></li>
     <li><strong>Architecture doc</strong> — <code>products/detcordon/doc/architecture.md</code> (mermaid topology + dataflow + sequence diagrams)</li>
     <li><strong>AGENTS.md</strong> — full developer documentation, environment variables, wire formats, coordination protocol</li>
     <li><strong>Firecracker plan</strong> — <code>doc/firecracker-plan.md</code>: VM lifecycle, snapshot/reset, boot policy</li>
