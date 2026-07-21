@@ -57,6 +57,7 @@ const sidebars: SidebarsConfig = {
           label: 'Active',
           items: [
             'products/detcordon',
+            'products/detcordon-monetization-surface-design',
             'products/shipwrecks-se',
             'products/mailroute',
             'products/chatwoot',
