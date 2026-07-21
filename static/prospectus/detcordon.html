@@ -373,15 +373,18 @@ a:hover { color: var(--orange-1); }
 
   <table>
     <thead>
-      <tr><th>Tier</th><th>Includes</th><th>Target Price</th></tr>
+      <tr><th>Tier</th><th>Includes</th><th>Commercial shape</th></tr>
     </thead>
     <tbody>
-      <tr><td><strong>Appliance (self-hosted)</strong></td><td>DetCordon software + deployment artifacts + 1 year updates</td><td>$12,000–$25,000 / year</td></tr>
-      <tr><td><strong>Managed Lab</strong></td><td>Hosted sink + quarterly sample analysis reports + analyst access</td><td>$25,000–$60,000 / year</td></tr>
-      <tr><td><strong>Enterprise</strong></td><td>Multi-tenant sandbox cluster + custom rule integration + SLA</td><td>$60,000–$150,000 / year</td></tr>
+      <tr><td><strong>Self-Hosted Appliance License</strong></td><td>Release bundle (images, config, installer, host preflight checks), <code>waf-deploy</code> artifact generator, evidence-grade demo path, bearer-authenticated dashboard</td><td>Annual license</td></tr>
+      <tr><td><strong>Managed Pilot</strong></td><td>RAGBAZ operates one instance for one team over an authenticated remote channel; signed, offline-verifiable evidence bundles; defined pilot success gate</td><td>Fixed fee, fixed term</td></tr>
+      <tr><td><strong>Managed Production</strong></td><td>Multi-tenant isolation, SIEM/syslog egress, HA sink, published operator SLOs</td><td>Subscription + metered usage</td></tr>
     </tbody>
   </table>
 
+  <div class="callout">
+    <strong>Pricing:</strong> illustrative only — DetCordon is still at <code>prototype → demo</code> lifecycle stage (see <code>ragbaz.component.json</code>); no tier is sold ahead of the trust gate it depends on. Final rates are agreed per engagement — <a href="mailto:sales@ragbaz.cc?subject=DetCordon%20pilot%20request">request a pilot</a> for current terms.
+  </div>
   <div class="callout">
     <strong>Estimated total value:</strong> <span class="value-box">$0.80M – $2.50M</span> &nbsp;(medium confidence). This positions DetCordon below incumbent sandbox vendors but above open-source tooling, targeting the "managed appliance" mid-market gap.
   </div>
@@ -402,7 +405,7 @@ a:hover { color: var(--orange-1); }
       <tr><td>Evidence retention</td><td>Age-encrypted, immutable</td><td>Plaintext, mutable</td><td>Vendor managed</td><td>None</td></tr>
       <tr><td>Sink isolation</td><td>Separate host, one-way, fanotify-guarded</td><td>Same host</td><td>Vendor managed</td><td>N/A</td></tr>
       <tr><td>Deployment model</td><td>Generation TUI → appliances</td><td>Manual setup</td><td>SaaS / appliance</td><td>Package install</td></tr>
-      <tr><td>Pricing</td><td>$12K–$150K / year</td><td>Free (OSS)</td><td>$5K–$50K / year</td><td>Free (OSS)</td></tr>
+      <tr><td>Pricing</td><td>Tiered, illustrative — see Business Model above</td><td>Free (OSS)</td><td>$5K–$50K / year</td><td>Free (OSS)</td></tr>
     </tbody>
   </table>
 
