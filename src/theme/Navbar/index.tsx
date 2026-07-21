@@ -37,15 +37,22 @@ const navGroups: NavGroup[] = [
   },
   {
     label: 'learn',
-    active: (pathname) => pathname.startsWith('/doc') && !pathname.startsWith('/doc/products/ai-governance'),
+    active: (pathname) =>
+      (pathname.startsWith('/doc') && !pathname.startsWith('/doc/products/ai-governance')) ||
+      pathname.startsWith('/school'),
     links: [
-      {href: '/school', label: 'school'},
+      {
+        href: 'https://ragbaz.cc/school',
+        label: 'school',
+        active: (pathname) => pathname.startsWith('/school'),
+      },
       {href: '/doc/', label: 'docs', active: (pathname) => pathname === '/doc/' || pathname === '/doc'},
       {
-        href: '/school/vision/face-mesh-morphing-techniques',
+        href: 'https://ragbaz.cc/school/vision/face-mesh-morphing-techniques',
         label: 'face lesson',
         active: (pathname) => pathname.startsWith('/school/vision/face-mesh-morphing-techniques'),
       },
+      {href: 'https://ragbaz.cc/school/adversarial-search', label: 'game search'},
     ],
   },
   {

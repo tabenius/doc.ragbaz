@@ -2,7 +2,7 @@ import React from 'react';
 
 const footerLinks = [
   {href: '/pricing', label: 'pricing'},
-  {href: '/school', label: 'school'},
+  {href: 'https://ragbaz.cc/school', label: 'school'},
   {href: '/doc/', label: 'docs'},
   {href: 'https://face.ragbaz.cc', label: 'face demo'},
   {href: '/glither-wasm', label: 'glither wasm'},
