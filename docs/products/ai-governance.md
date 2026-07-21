@@ -1,12 +1,12 @@
 ---
 sidebar_label: AI Governance (EU AI Act)
-description: Konsonans AI Governance Platform (KAGP) — a policy-as-code control plane that governs AI agents for EU AI Act compliance. Full breakdown with what, why, how, technologies, implementation choices, and per-component status.
+description: Konsonans AI Governance Platform (KAGP) — a policy-as-code control plane that governs AI agents with runtime policy gates, human oversight, and verifiable evidence packets.
 ---
 
 # AI Governance Platform (KAGP)
 
 **Konsonans AI Governance Platform** is a policy-as-code control plane that
-governs AI agents for **EU AI Act** compliance. Every agent action passes a
+governs AI agents for **EU AI Act readiness**. Every agent action passes a
 typed policy gate, lands in a tamper-evident audit chain, and can be held for
 human approval.
 
@@ -14,6 +14,8 @@ Repo: [`tabenius/BAZ.AI-Governance`](https://github.com/tabenius/BAZ.AI-Governan
 · policy dialect:
 [`glither.governance`](../experiments/glither-governance.md) · readiness plan:
 [EU AI Act Readiness Plan](../experiments/eu-ai-act-compliance-plan.md) ·
+buyer pilot:
+[Konsonans buyer pilot](./ai-governance-pilot.md) ·
 post-freeze backlog:
 [KAGP Integration Backlog](../experiments/kagp-integration-plan.md)
 
@@ -32,9 +34,10 @@ Each component below is tagged with its current state:
 
 KAGP sits between AI agents and the tools/actions they invoke, and enforces governance on every
 call. It turns a high-level **policy** (the `glither.governance` dialect) into a runtime gate, records
-an immutable audit trail, and brings a human into the loop when the policy says so. The deliverable
-for the EU AI Act deadline is a runtime-enforced **"compliance core + evidence pack"** — not a
-checklist, but a working control plane a deployer can point at to demonstrate conformity.
+an immutable audit trail, and brings a human into the loop when the policy says so. The practical
+buyer deliverable is a runtime-enforced **governance core + evidence pack** — not a checklist, but a
+working control plane a deployer can map to its own risk classification, conformity route, and
+review obligations.
 
 The decision flow:
 
@@ -42,7 +45,7 @@ The decision flow:
 agent → mcp-ingress → policy-gate → audit-chain → human-oversight → replica-signer
 ```
 
-## Current core state (7 July 2026)
+## Current core state (17 July 2026)
 
 - **17/17 deadline controls complete.**
 - **Evidence freeze is shipped** and assembles the JSON report, Markdown
@@ -51,17 +54,19 @@ agent → mcp-ingress → policy-gate → audit-chain → human-oversight → re
 - **Declaration export is complete but operator-supplied.** Provider,
   signatory, place-of-issue, and standards fields are supplied at freeze time;
   the gate refuses to issue a Ready verdict with placeholders.
-- **Legal posture remains conservative.** Parliament approved the AI Act
-  simplification amendment on 16 June 2026, but Parliament's own press release
-  says formal Council adoption is still pending, so KAGP continues to plan to
-  the current 2 August 2026 baseline.
+- **Legal posture remains scoped.** The European Commission's current AI Act
+  implementation page describes staged application dates, including broad
+  applicability from 2 August 2026 with exceptions and later high-risk dates for
+  some system categories. KAGP is presented as an evidence and oversight layer,
+  not as a substitute for deployment-specific legal classification.
 
 ## Why
 
-The **EU AI Act** makes high-risk AI obligations binding from **2 August 2026** (Art 9–17 providers,
-Art 26 deployers) — unless the *Digital Omnibus* deferral (proposed: Annex III → 2 Dec 2027) enters
-into force first. KAGP plans conservatively to **2 Aug 2026** and treats any deferral as runway. Its
-job is to be the control plane through which deployers discharge the articles that matter at runtime:
+The **EU AI Act** creates governance, transparency, high-risk, and evidence obligations that apply
+on a staged timeline. The European Commission's current implementation page says the Act entered
+into force on 1 August 2024, broad applicability starts on 2 August 2026 with exceptions, and
+high-risk timelines vary by category and support measures. KAGP's job is to be a control plane that
+helps providers or deployers produce runtime records for the articles that matter during operation:
 
 - **[Art 9](https://artificialintelligenceact.eu/article/9/)** — risk management (risk-tiered policy enforcement)
 - **[Art 10](https://artificialintelligenceact.eu/article/10/)** — data governance (PII minimisation)
@@ -72,8 +77,9 @@ job is to be the control plane through which deployers discharge the articles th
 - **[Art 47](https://artificialintelligenceact.eu/article/47/)** — declaration of conformity (Annex V template, freeze-gated until signed)
 - **[Art 72](https://artificialintelligenceact.eu/article/72/)** — post-market monitoring
 
-See the [EU AI Act Readiness Plan](../experiments/eu-ai-act-compliance-plan.md) for the deadline
-analysis and gap table.
+See the [EU AI Act Readiness Plan](../experiments/eu-ai-act-compliance-plan.md) for the engineering
+readiness plan, and the [Konsonans buyer pilot](./ai-governance-pilot.md) for a narrow evidence-run
+handoff.
 
 ## How — components & status
 
@@ -124,9 +130,9 @@ Pharo-WASM bridge. Those are tracked on the
 - **The WASM/WIT core is the moat; orchestration is a replaceable adapter.** Because transports and
   policy are WIT contracts, the customer-facing surface can be a mainstream web stack while Pharo
   stays an optional research/teaching console — Pharo is *not* load-bearing.
-- **Compliance core + evidence pack over full conformity by the deadline.** Notified-body assessment
-  and harmonised standards cannot complete in the window (industry-wide); the runtime-enforced
-  Art 9/12/14 core + Art 11 export is the defensible, demonstrable target.
+- **Governance core + evidence pack before full conformity claims.** Notified-body assessment,
+  harmonised standards, and deployment-specific classification are separate tracks; the
+  runtime-enforced Art 9/12/14 core plus Art 11-style export is the demonstrable engineering target.
 - **Build heavy crates in tmpfs (`/tmp`), feature-gate HSM code.** The default build stays light and
   green; cryptoki/SoftHSM is gated and validated separately.
 
@@ -134,5 +140,6 @@ Pharo-WASM bridge. Those are tracked on the
 
 *This page tracks the public product status. See the
 [readiness plan](../experiments/eu-ai-act-compliance-plan.md), the
+[buyer pilot](./ai-governance-pilot.md), the
 [integration backlog](../experiments/kagp-integration-plan.md), and the project
 repo for the current implementation detail.*

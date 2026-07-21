@@ -10,6 +10,8 @@ description: Design spec for the Glither → WASI/WIT/Rust/Gleam compiler and OC
 **Companions:** `docs/glither-spec.md` (architecture, normative semantics), `docs/syntax-sketch.md`
 (surface grammar, per-dialect state catalog). Section refs `§N` point at `glither-spec.md`
 unless prefixed `sketch §N`.
+**Pilot handoff:** see [Glither WASM component pilot](./glither-wasm-component-pilot) for the
+operator/reviewer packet that turns this design into a bounded ruleset-to-component review.
 **Author:** RAGBAZ · Tobias Abenius · 2026-06-13.
 
 ---
@@ -459,5 +461,6 @@ buildable first slice; `glither.decision`, `glither.segment`, and `glither.artic
 proven across all three codegen targets.*
 
 The `glither.hft` dialect extends this compiler substrate for systematic trading strategies.
-See [BAZ platform architecture](./baz-architecture) for the HFT-specific grammar, IR adaptations,
+See the [Glither WASM component pilot](./glither-wasm-component-pilot) for the reviewer handoff
+path, [BAZ platform architecture](./baz-architecture) for the HFT-specific grammar, IR adaptations,
 and host integration, and [BAZ.HFT](../products/baz-hft) for the product-level documentation.

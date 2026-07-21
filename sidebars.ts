@@ -20,6 +20,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'products/overview',
         'products/ai-governance',
+        'products/ai-governance-pilot',
         {
           type: 'category',
           label: 'Core',
@@ -83,6 +84,7 @@ const sidebars: SidebarsConfig = {
       label: 'Experiments',
       items: [
         'experiments/overview',
+        'experiments/face-mesh-morphing',
         {
           type: 'category',
           label: 'BAZ Platform',
@@ -95,6 +97,7 @@ const sidebars: SidebarsConfig = {
           ],
         },
         'experiments/glither-wasm-wit-compiler-spec',
+        'experiments/glither-wasm-component-pilot',
         'experiments/glither-mailguard-example',
         'experiments/glither-world-sketch',
         'experiments/dana-no-retrograde-sketch',
