@@ -32,7 +32,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 
 1. **AI Governance (KAGP)**
    - Policy-as-code control plane for EU AI Act compliance.
-   - `glither.governance` dialect compiled to WASM, tamper-evident PostgreSQL audit chain, Ed25519 manifest signing, and HITL approval flow. Core runtime complete; Art 9/12/14 satisfied.
+   - `glither.governance` dialect compiled to WASM, tamper-evident PostgreSQL audit chain, and Ed25519 manifest signing. Core runtime complete (Art 9 policy gate, Art 12 audit chain); HITL approval flow and human oversight gateway (Art 14) in progress.
 2. **Articulate Commerce Cloud**
    - Headless WordPress commerce and content delivery.
    - Cloudflare, Stripe, storage, admin tooling, and secure runtime work.
