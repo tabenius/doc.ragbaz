@@ -133,3 +133,7 @@ service layer, and SQLite persistence.
 - **Layout** — use the buttons above each diagram to switch between Dagre (hierarchical),
   Circle, Concentric, Breadth-first, Force-directed, and Grid layouts
 - **Drag** — individual nodes can be moved freely after layout
+
+---
+
+See [Articulate Overview](../products/articulate/overview) for the commerce stack, [MATCHES](../products/matches) for the simulation product, and [Frog](../products/ragbaz-frog) for the workspace coordination service.

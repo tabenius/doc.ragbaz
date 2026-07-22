@@ -31,6 +31,10 @@ The most substantial product family in the tree. Includes a headless WordPress c
 
 A distinct security track focused on containment-first malware observation — a Rust-based sandbox that taps HTTP traffic in DetectionOnly mode, lets malware execute freely for observation, and securely ships samples to an offline analyst sink.
 
+### AI Governance (KAGP)
+
+The Konsonans AI Governance Platform — a policy-as-code control plane for EU AI Act compliance. A `glither.governance` policy dialect compiled to a WASM component enforces risk-tiered allow/hold/deny on every agent tool-call; a PostgreSQL append-only audit chain with SHA-256 hash linking and mutation-rejection triggers provides tamper-evident logging; Ed25519 replica-manifest signing enables third-party auditability. Core runtime components are complete; HITL approvals, PII guard, and compliance reporting are in progress.
+
 ### Frog — Workspace Coordination
 
 A Python-based CLI and MCP server (`ragbaz-frog`) managing tasks, locks, repos, and events across the entire workspace via a SQLite database (`AGENTS.db`). Used as the coordination backbone for all multi-agent work.

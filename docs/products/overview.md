@@ -10,6 +10,7 @@ The `products/` tree contains the code that most clearly wants to become softwar
 
 ## Portfolio shape
 
+- **AI Governance (KAGP)** is the Konsonans AI Governance Platform — policy-as-code EU AI Act compliance with a live WASM policy gate, tamper-evident audit chain, and HITL human oversight.
 - **MATCHES** is the flagship RAGBAZ product — an autonomous cinematic battle simulation engine.
 - **Frog** is the workspace coordination CLI governing all multi-agent work.
 - **RAGBAZ Design System** codifies the brand vocabulary for all surfaces.
@@ -22,18 +23,22 @@ The `products/` tree contains the code that most clearly wants to become softwar
 - **MailRoute/MailGuard** provides email security with Proton Bridge.
 - **Chatwoot** is a self-hosted customer support platform.
 - **Shipwrecks.se** is the strongest niche vertical application.
+- **BAZaar** is the RAGBAZ marketplace concept — a draft spec for publishing, trading, deploying, and teaching RAGBAZ software components.
 - **Discord bot**, **ESP32Tolk**, **Portfolio**, and **SciPub** are smaller or earlier-stage bets.
 
 ## Current interpretation
 
 ### Strongest active product lines
 
-1. **Articulate Commerce Cloud**
+1. **AI Governance (KAGP)**
+   - Policy-as-code control plane for EU AI Act compliance.
+   - `glither.governance` dialect compiled to WASM, tamper-evident PostgreSQL audit chain, and Ed25519 manifest signing. Core runtime complete (Art 9 policy gate, Art 12 audit chain); HITL approval flow and human oversight gateway (Art 14) in progress.
+2. **Articulate Commerce Cloud**
    - Headless WordPress commerce and content delivery.
    - Cloudflare, Stripe, storage, admin tooling, and secure runtime work.
-2. **Secure WordPress Runtime**
+3. **Secure WordPress Runtime**
    - `gatekeeper` and `wp-sidecar` together define the most interesting infrastructure wedge inside the Articulate family.
-3. **DetCordon**
+4. **DetCordon**
    - Security and malware-observation product track.
 
 ### Niche or exploratory products

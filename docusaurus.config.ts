@@ -159,12 +159,24 @@ const config: Config = {
             {label: 'ragbaz.cc', href: 'https://ragbaz.cc'},
             {label: 'Overview', to: '/intro'},
             {label: 'Products', to: '/products/overview'},
+            {label: 'AI Governance (KAGP)', to: '/products/ai-governance'},
           ],
         },
         {
           title: 'Atlas',
           items: [
             {label: 'Experiments', to: '/experiments/overview'},
+            {label: 'Infrastructure', to: '/infra/overview'},
+            {label: 'Private', to: '/private/overview'},
+          ],
+        },
+        {
+          title: 'More',
+          items: [
+            {label: 'Tractatus Custodicus', href: 'https://ragbaz.cc/tractatus'},
+            {label: 'Archive', to: '/archive/overview'},
+            {label: 'Vendor', to: '/vendor/overview'},
+            {label: 'GitHub', href: 'https://github.com/tabenius'},
           ],
         },
       ],

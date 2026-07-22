@@ -183,3 +183,5 @@ deployment's information-flow shape* from signed artifacts alone.
 *Design sketch — the meta-dialect that makes "compile domain dialects to WASM components" into
 "compose a whole verifiable membrane graph." Builds on the proven substrate (`wac`, component
 linking); the novel surface is the wiring guard and the graph attestation.*
+
+See [glither WASM/WIT compiler spec](./glither-wasm-wit-compiler-spec.md) for the compiler substrate this composes over, and [dana / no\_retrograde sketch](./dana-no-retrograde-sketch.md) for the one-way membrane attestation model.

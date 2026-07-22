@@ -211,3 +211,7 @@ The dialect has full coverage:
 - **CLI test** — `tangle export-kagp-policies` is verified against the fixture ruleset.
 - **KAGP export** — all 8 rules map correctly, lifecycle is preserved, conditions are
   structurally valid.
+
+---
+
+See the [AI Governance (KAGP) product page](../products/ai-governance.md) for the full component status table, EU AI Act article crosswalk, and implementation choices.

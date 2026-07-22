@@ -626,3 +626,5 @@ The parse trees above correspond to the first stage of the Glither compiler pipe
 </pre>
 
 The AST is produced by the **PEG parse** stage (roux.pest for Glither, or the Gleam parser for oracle code). The `lower` pass transforms the concrete parse tree into the typed core IR — discarding whitespace and comment nodes, resolving references, and annotating each node with WIT types.
+
+See [glither WASM/WIT compiler spec](./glither-wasm-wit-compiler-spec.md) for the full compiler architecture, and [glither mailguard example](./glither-mailguard-example.md) for an end-to-end worked example through the pipeline.
