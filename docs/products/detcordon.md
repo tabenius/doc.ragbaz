@@ -213,6 +213,7 @@ Best capitalization: produce one pilot-ready story — "stand up a contained web
 - [DetCordon prospectus](pathname:///prospectus/detcordon.html) — buyer-facing positioning and packaging snapshot
 - [Containment assurance](/products/detcordon/containment-assurance) — reviewer checklist mapping every non-negotiable containment rule to implementation evidence
 - [Buyer demo runbook](/products/detcordon/buyer-demo-runbook) — the repeatable, synthetic-only demo path with expected output and failure triage
+- [Performance & overhead review](/products/detcordon/performance-review) — measured request overhead against a plain WordPress origin and against gatekeeper, with resource-consumption breakdowns
 
 - `AGENTS.md` — full architecture, environment variables, coordination protocol
 - `doc/architecture.md` — topology diagrams, dataflow, crate maps

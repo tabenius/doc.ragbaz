@@ -60,6 +60,7 @@ const sidebars: SidebarsConfig = {
             'products/detcordon',
             'products/detcordon/containment-assurance',
             'products/detcordon/buyer-demo-runbook',
+            'products/detcordon/performance-review',
             'products/detcordon-monetization-surface-design',
             'products/shipwrecks-se',
             'products/mailroute',

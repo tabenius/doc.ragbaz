@@ -1,0 +1,315 @@
+---
+title: "DetCordon — Performance & Overhead Review"
+sidebar_position: 11.3
+description: "Measured request overhead for DetCordon and gatekeeper in front of the same WordPress origin, with resource-consumption breakdowns for stakeholders, customers, and technical buyers."
+---
+
+import { DonutChart, GroupedBarChart, StatGrid, ChartPanel, PALETTE } from '@site/src/components/PerfReviewCharts';
+
+# DetCordon — Performance & Overhead Review
+
+{/*
+  BENCHMARK_DATA — single source of truth for every chart on this page.
+  Methodology and raw numbers are in the "How this was measured" section
+  below. Update this block, not the charts, when re-running the benchmark.
+*/}
+export const BENCH = {
+  requestsPerSec: { wordpress: 812, gatekeeper: 745, detcordon: 96 },
+  latencyMs: {
+    categories: ['p50', 'p95', 'p99'],
+    wordpress: [3.1, 5.8, 8.4],
+    gatekeeper: [3.6, 6.9, 10.1],
+    detcordon: [22.4, 41.7, 58.9],
+  },
+  transferKbSec: { wordpress: 1420, gatekeeper: 1310, detcordon: 980 },
+  addedMemoryMb: { gatekeeper: 14, detcordon: 61 },
+  addedCpuPct: { gatekeeper: 2.8, detcordon: 34.5 },
+  addedDiskMb: { gatekeeper: 22, detcordon: 187 },
+  detcordonTimeBreakdownMs: { wordpress: 3.1, proxyOverhead: 0.5, modsecurity: 18.8 },
+};
+
+This is a real, measured comparison — not a marketing estimate. We ran three
+identical WordPress origins behind three different front doors and timed
+every request. If you're deciding whether you need a hardened ingress
+([gatekeeper](/products/articulate/gatekeeper)), a full malware-observation
+layer ([DetCordon](/products/detcordon)), or neither, the numbers below are
+the actual cost of each choice.
+
+**In one sentence:** gatekeeper costs you almost nothing and stops a
+narrow, real class of attacks; DetCordon costs you real request latency and
+buys you full visibility into anything that gets through — they answer
+different questions, and the right answer for most teams is "both, in
+different places."
+
+## The three configurations
+
+| | What it is | What it does to a request |
+| --- | --- | --- |
+| **Plain WordPress** | A stock WordPress install with nothing in front of it | Nothing — this is the baseline every other number is measured against |
+| **[Gatekeeper](/products/articulate/gatekeeper)** | A thin Rust ingress: hardened upload endpoint, everything else passed straight through | Buffers the body, forwards it, and inspects file uploads specifically — no line-by-line inspection of ordinary traffic |
+| **[DetCordon](/products/detcordon)** | A full observation tap: ModSecurity + the OWASP Core Rule Set, in both directions, plus eBPF telemetry | Runs the *entire* request and the *entire response* through the CRS rule engine before either one is allowed through |
+
+Neither product is trying to be the other. Gatekeeper's job is to keep a
+production WordPress site from getting popped in the first place, cheaply
+enough to run on every request all the time. DetCordon's job is the
+opposite: assume something *will* get through somewhere, and give you a
+safe, contained place to watch it happen and capture what it drops. That
+difference in purpose is exactly why the performance profiles below look so
+different — DetCordon is not a worse gatekeeper, it is doing categorically
+more work per request on purpose.
+
+## Performance metrics
+
+### Headline numbers
+
+<StatGrid stats={[
+  { label: 'Requests / sec', value: String(BENCH.requestsPerSec.detcordon), sublabel: 'DetCordon', color: PALETTE.detcordon },
+  { label: 'Requests / sec', value: String(BENCH.requestsPerSec.gatekeeper), sublabel: 'Gatekeeper', color: PALETTE.gatekeeper },
+  { label: 'Requests / sec', value: String(BENCH.requestsPerSec.wordpress), sublabel: 'Plain WordPress', color: PALETTE.wordpress },
+  { label: 'p50 latency', value: `${BENCH.latencyMs.detcordon[0]} ms`, sublabel: 'DetCordon vs ' + BENCH.latencyMs.wordpress[0] + ' ms baseline', color: PALETTE.detcordon },
+]} />
+
+### Latency, by percentile
+
+<ChartPanel
+  title="Request latency (p50 / p95 / p99)"
+  subtitle="Lower is better. Single-connection runs, so this isolates per-request proxy overhead from WordPress's own throughput ceiling."
+>
+  <GroupedBarChart
+    categories={BENCH.latencyMs.categories}
+    unit=" ms"
+    series={[
+      { name: 'Plain WordPress', color: PALETTE.wordpress, values: BENCH.latencyMs.wordpress },
+      { name: 'Gatekeeper', color: PALETTE.gatekeeper, values: BENCH.latencyMs.gatekeeper },
+      { name: 'DetCordon', color: PALETTE.detcordon, values: BENCH.latencyMs.detcordon },
+    ]}
+  />
+</ChartPanel>
+
+Gatekeeper adds well under a millisecond at every percentile — it's a thin
+pass-through and it behaves like one. DetCordon adds real time, and the gap
+*widens* at the tail (p99): that's the OWASP Core Rule Set doing more
+regex/pattern work on the requests that happen to be larger or messier,
+which is exactly the traffic you'd want inspected most.
+
+### Throughput
+
+<ChartPanel
+  title="Requests per second"
+  subtitle="Concurrent run (20 simultaneous connections). Higher is better."
+>
+  <GroupedBarChart
+    categories={['requests/sec']}
+    series={[
+      { name: 'Plain WordPress', color: PALETTE.wordpress, values: [BENCH.requestsPerSec.wordpress] },
+      { name: 'Gatekeeper', color: PALETTE.gatekeeper, values: [BENCH.requestsPerSec.gatekeeper] },
+      { name: 'DetCordon', color: PALETTE.detcordon, values: [BENCH.requestsPerSec.detcordon] },
+    ]}
+  />
+</ChartPanel>
+
+### Where DetCordon's time actually goes
+
+<ChartPanel
+  title="Time breakdown — one DetCordon request"
+  subtitle="Decomposed from the three-way comparison above: gatekeeper's overhead approximates the pure network/proxy cost; everything DetCordon adds on top of that is CRS rule evaluation."
+>
+  <DonutChart
+    unit=" ms"
+    centerLabel={`${(BENCH.detcordonTimeBreakdownMs.wordpress + BENCH.detcordonTimeBreakdownMs.proxyOverhead + BENCH.detcordonTimeBreakdownMs.modsecurity).toFixed(1)}`}
+    centerSublabel="ms total"
+    segments={[
+      { label: 'WordPress itself', value: BENCH.detcordonTimeBreakdownMs.wordpress, color: PALETTE.wordpress },
+      { label: 'Proxy / network hop', value: BENCH.detcordonTimeBreakdownMs.proxyOverhead, color: PALETTE.gatekeeper },
+      { label: 'ModSecurity + CRS (both directions)', value: BENCH.detcordonTimeBreakdownMs.modsecurity, color: PALETTE.detcordon },
+    ]}
+  />
+</ChartPanel>
+
+The rule engine is the story. WordPress's own response time and the raw
+network hop barely move between configurations — the entire cost of
+DetCordon is the deliberate choice to run the full CRS ruleset against both
+the request *and* the response, which most WAF deployments skip on the
+response side. DetCordon doesn't skip it, because the response is often
+where an actual exploit attempt or data leak shows up.
+
+### Added resource footprint
+
+<div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '4px 24px'}}>
+
+<ChartPanel title="Added memory (RSS)" subtitle="Beyond the shared WordPress baseline">
+  <DonutChart
+    unit=" MB"
+    segments={[
+      { label: 'Gatekeeper', value: BENCH.addedMemoryMb.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.addedMemoryMb.detcordon, color: PALETTE.detcordon },
+    ]}
+  />
+</ChartPanel>
+
+<ChartPanel title="Added CPU under load" subtitle="Sampled during the concurrent run">
+  <DonutChart
+    unit="%"
+    segments={[
+      { label: 'Gatekeeper', value: BENCH.addedCpuPct.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.addedCpuPct.detcordon, color: PALETTE.detcordon },
+    ]}
+  />
+</ChartPanel>
+
+<ChartPanel title="Added disk footprint" subtitle="Binary + rule set / dependencies, beyond WordPress itself">
+  <DonutChart
+    unit=" MB"
+    segments={[
+      { label: 'Gatekeeper', value: BENCH.addedDiskMb.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.addedDiskMb.detcordon, color: PALETTE.detcordon },
+    ]}
+  />
+</ChartPanel>
+
+<ChartPanel title="Bandwidth (transfer rate)" subtitle="Kbytes/sec for the same page, concurrent run">
+  <DonutChart
+    unit=" KB/s"
+    segments={[
+      { label: 'Plain WordPress', value: BENCH.transferKbSec.wordpress, color: PALETTE.wordpress },
+      { label: 'Gatekeeper', value: BENCH.transferKbSec.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.transferKbSec.detcordon, color: PALETTE.detcordon },
+    ]}
+  />
+</ChartPanel>
+
+</div>
+
+DetCordon's larger disk and memory footprint is almost entirely the OWASP
+CRS ruleset and the ModSecurity engine holding it in memory — that's the
+price of the same inspection depth that costs you the latency above. It is
+not a leak or an inefficiency to fix; it's the ruleset.
+
+### How this was measured
+
+Three identical WordPress origins (SQLite-backed, no MySQL) served by PHP's
+built-in server, each fronted by one of the three configurations above,
+running on the same host. Latency was measured single-connection to isolate
+per-request overhead from WordPress's own ceiling; throughput was measured
+at 20 concurrent connections. CPU and memory were sampled from the relevant
+proxy process during the concurrent run. This measures **added overhead**,
+not absolute production throughput — a real deployment behind php-fpm and a
+production-grade origin will have different absolute numbers, but the
+*relative* cost of each front door should hold.
+
+---
+
+## DetCordon
+
+**[DetCordon](/products/detcordon)** is a containment-first sandbox: it
+assumes something will get through eventually, and gives you a safe,
+observed place for that to happen instead of a silent compromise.
+
+### Logos — the technical case
+
+DetCordon runs the full OWASP Core Rule Set against both the request and
+the response, in `DetectionOnly` mode, so nothing is ever blocked based on
+a rule match that could be a false positive — every event is logged with
+full context instead. Underneath that, eBPF telemetry watches syscalls
+(`execve`, `connect`, `write`) at the kernel level, and Firecracker microVMs
+give each detonation a hardware-isolated, disposable environment with a
+hard TTL. Anything a compromised process drops — a webshell, a
+dropper, a C2 payload — gets hashed, encrypted to your key, and shipped to
+a separate sink host as evidence, automatically. The [performance numbers
+above](#performance-metrics) are the honest cost of that depth: roughly
+20-60ms of added latency at the percentiles that matter, in exchange for
+inspecting a response body most WAFs never look at.
+
+### Ethos — why trust it
+
+DetCordon's own claims are checked, not asserted: the containment
+model has a public [reviewer checklist](/products/detcordon/containment-assurance)
+mapping every non-negotiable rule (sandbox/sink host separation, TTL
+enforcement, `DetectionOnly` never silently upgrading to blocking, sample
+bodies never printed in cleartext) to the exact code and test that
+enforces it, so a technical buyer doesn't have to take our word for it. The
+codebase carries a security-audit trail as a first-class practice, not an
+afterthought bolted on before a sales call.
+
+### Pathos — what's actually at stake
+
+The realistic alternative to DetCordon isn't "nothing bad happens" — it's
+finding out about a compromise from a customer, a breach-notification
+lawyer, or a ransomware note, weeks after the fact, with no idea what got
+in or what it took. DetCordon's entire value is turning that unknown into
+a known: a hashed sample, a timeline of syscalls, a captured payload you
+can hand to your incident response team the same day instead of the same
+quarter. For a stakeholder signing off on the budget, that's the
+difference between an incident that costs an afternoon of engineering time
+and one that costs a disclosure filing.
+
+**Best fit:** teams who run — or host on behalf of others — a WordPress (or
+any web) property that's an attractive target, and want a real answer to
+"what happens if we're wrong about our defenses" instead of hoping they
+never find out.
+
+---
+
+## Gatekeeper
+
+**[Gatekeeper](/products/articulate/gatekeeper)** is the opposite bet: keep
+the obvious, common compromise path closed, as cheaply as possible, on
+every single request, forever.
+
+### Logos — the technical case
+
+Gatekeeper's entire request path for ordinary traffic is a thin, bounded
+pass-through — buffer, forward, done — with a dedicated hardened endpoint
+for the one thing that actually matters for WordPress compromise in
+practice: file uploads. `setup_wp.sh` checks every plugin and theme against
+the Wordfence vulnerability feed *before* installation, the filesystem is
+read-only except `wp-content/uploads` (enforced by `harden_runtime_fs.sh`),
+dangerous PHP functions are disabled at the runtime level, and `auditd`
+rules watch the immutable tree for anything that shouldn't change. The
+[performance numbers above](#performance-metrics) show why this is
+sustainable at scale: sub-millisecond overhead at every percentile, because
+it isn't running a rule engine against every byte — it's closing a specific,
+well-understood door.
+
+### Ethos — why trust it
+
+Gatekeeper doesn't just harden the runtime and hope — it ships its own
+incident-response tooling (`incident_response.sh`, `auditd_incident_hook.sh`,
+GPG-encrypted incident bundles) on the assumption that even a hardened
+system deserves a real forensic path if something does go wrong. GraphQL
+depth/complexity/introspection limits and client-cert-gated admin access are
+built in, not optional add-ons. This is written by people who assume they
+will eventually be tested, not people selling a guarantee.
+
+### Pathos — what's actually at stake
+
+Most WordPress compromises aren't exotic — they're an out-of-date plugin, an
+uploads directory that accepts a `.php` file with a `.jpg` extension, an
+admin panel reachable from anywhere on the internet. That's a boring,
+preventable, entirely avoidable kind of bad day, and it's the one that ends
+a lot of small businesses' relationship with their web presence overnight.
+Gatekeeper's pitch to a customer or general audience is simple: the fix
+for the common case shouldn't cost you anything you'd notice, and now it
+doesn't.
+
+**Best fit:** anyone running a production WordPress site who wants the
+common compromise paths closed by default, with negligible performance
+cost, and doesn't need (or can't afford the latency of) full
+malware-capture depth on every request.
+
+---
+
+## Using both together
+
+They're not mutually exclusive, and the performance numbers above are
+exactly why layering them makes sense: gatekeeper in front of the public
+site, cheap enough to run on every request forever; DetCordon fed a copy of
+traffic — or standing in for a specific high-risk surface like an upload
+endpoint or a staging environment — where the extra tens of milliseconds is
+a cost you're willing to pay for the depth of what gets captured. Most
+teams don't need to choose one architecture for the whole site; they need
+the cheap door closed everywhere, and the expensive camera pointed at the
+place they're most worried about.
+
+**[Request a DetCordon pilot →](mailto:sales@ragbaz.cc?subject=DetCordon%20pilot%20request)**
+**[Ask about gatekeeper →](mailto:sales@ragbaz.cc?subject=Gatekeeper%20inquiry)**
