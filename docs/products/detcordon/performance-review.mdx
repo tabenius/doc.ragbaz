@@ -14,18 +14,30 @@ import { DonutChart, GroupedBarChart, StatGrid, ChartPanel, PALETTE } from '@sit
   below. Update this block, not the charts, when re-running the benchmark.
 */}
 export const BENCH = {
-  requestsPerSec: { wordpress: 812, gatekeeper: 745, detcordon: 96 },
+  // Single-connection run (ab -n 200 -c 1) -- isolates per-request proxy
+  // overhead from the origin's own throughput ceiling.
+  requestsPerSecSingleConn: { wordpress: 15.87, gatekeeper: 15.69, detcordon: 6.72 },
   latencyMs: {
     categories: ['p50', 'p95', 'p99'],
-    wordpress: [3.1, 5.8, 8.4],
-    gatekeeper: [3.6, 6.9, 10.1],
-    detcordon: [22.4, 41.7, 58.9],
+    wordpress: [60, 75, 152],
+    gatekeeper: [62, 74, 84],
+    detcordon: [89, 361, 820],
   },
-  transferKbSec: { wordpress: 1420, gatekeeper: 1310, detcordon: 980 },
-  addedMemoryMb: { gatekeeper: 14, detcordon: 61 },
-  addedCpuPct: { gatekeeper: 2.8, detcordon: 34.5 },
-  addedDiskMb: { gatekeeper: 22, detcordon: 187 },
-  detcordonTimeBreakdownMs: { wordpress: 3.1, proxyOverhead: 0.5, modsecurity: 18.8 },
+  transferKbSecSingleConn: { wordpress: 1063.39, gatekeeper: 1054.18, detcordon: 450.65 },
+  // Concurrent run (ab -n 1000 -c 20, 800 for the CPU-sampling run) -- the
+  // single-threaded PHP dev-server origin used for this test is itself the
+  // bottleneck under concurrency, which compresses the req/sec gap between
+  // configs; see "How this was measured" for what that does and doesn't tell you.
+  requestsPerSecConcurrent: { wordpress: 14.43, gatekeeper: 13.24, detcordon: 12.38 },
+  transferKbSecConcurrent: { wordpress: 966.72, gatekeeper: 889.68, detcordon: 829.28 },
+  cpuPctUnderLoad: { gatekeeper: 1.0, detcordon: 5.0 },
+  memoryMb: { gatekeeper: 9.8, detcordon: 33.6 },
+  diskMb: { gatekeeper: 9.3, detcordon: 8.0 },
+  // Derived, not separately profiled: proxy/network overhead = gatekeeper's
+  // measured p50 delta over plain WordPress (gatekeeper does real proxying
+  // with no rule engine, so it isolates that cost); ModSecurity+CRS = what's
+  // left of DetCordon's total p50 delta after subtracting that same proxy cost.
+  detcordonTimeBreakdownMs: { wordpress: 60, proxyOverhead: 2, modsecurity: 27 },
 };
 
 This is a real, measured comparison — not a marketing estimate. We ran three
@@ -63,10 +75,10 @@ more work per request on purpose.
 ### Headline numbers
 
 <StatGrid stats={[
-  { label: 'Requests / sec', value: String(BENCH.requestsPerSec.detcordon), sublabel: 'DetCordon', color: PALETTE.detcordon },
-  { label: 'Requests / sec', value: String(BENCH.requestsPerSec.gatekeeper), sublabel: 'Gatekeeper', color: PALETTE.gatekeeper },
-  { label: 'Requests / sec', value: String(BENCH.requestsPerSec.wordpress), sublabel: 'Plain WordPress', color: PALETTE.wordpress },
-  { label: 'p50 latency', value: `${BENCH.latencyMs.detcordon[0]} ms`, sublabel: 'DetCordon vs ' + BENCH.latencyMs.wordpress[0] + ' ms baseline', color: PALETTE.detcordon },
+  { label: 'p50 latency', value: `${BENCH.latencyMs.detcordon[0]} ms`, sublabel: `DetCordon vs ${BENCH.latencyMs.wordpress[0]} ms baseline`, color: PALETTE.detcordon },
+  { label: 'p99 latency', value: `${BENCH.latencyMs.detcordon[2]} ms`, sublabel: `DetCordon vs ${BENCH.latencyMs.wordpress[2]} ms baseline`, color: PALETTE.detcordon },
+  { label: 'CPU under load', value: `${BENCH.cpuPctUnderLoad.detcordon}%`, sublabel: `vs gatekeeper's ${BENCH.cpuPctUnderLoad.gatekeeper}%`, color: PALETTE.detcordon },
+  { label: 'Memory (RSS)', value: `${BENCH.memoryMb.detcordon} MB`, sublabel: `vs gatekeeper's ${BENCH.memoryMb.gatekeeper} MB`, color: PALETTE.detcordon },
 ]} />
 
 ### Latency, by percentile
@@ -86,37 +98,56 @@ more work per request on purpose.
   />
 </ChartPanel>
 
-Gatekeeper adds well under a millisecond at every percentile — it's a thin
-pass-through and it behaves like one. DetCordon adds real time, and the gap
-*widens* at the tail (p99): that's the OWASP Core Rule Set doing more
-regex/pattern work on the requests that happen to be larger or messier,
-which is exactly the traffic you'd want inspected most.
+Gatekeeper adds almost nothing at p50/p95 and stays flat at the tail — it's
+a thin pass-through and it behaves like one. DetCordon adds real time
+everywhere, and the gap *widens sharply* at the tail: p50 is +29ms over
+baseline, but p99 is +668ms. That's the OWASP Core Rule Set doing real
+regex/pattern work, and — on the single-core host this was measured on —
+that work occasionally queues behind other in-flight requests, which is
+exactly the kind of tail-latency risk a production deployment needs to plan
+capacity around, not something to paper over.
 
-### Throughput
+### Throughput under concurrent load
 
 <ChartPanel
-  title="Requests per second"
-  subtitle="Concurrent run (20 simultaneous connections). Higher is better."
+  title="Requests per second (20 concurrent connections)"
+  subtitle="Higher is better -- but read the caveat below before drawing conclusions from this one."
 >
   <GroupedBarChart
     categories={['requests/sec']}
     series={[
-      { name: 'Plain WordPress', color: PALETTE.wordpress, values: [BENCH.requestsPerSec.wordpress] },
-      { name: 'Gatekeeper', color: PALETTE.gatekeeper, values: [BENCH.requestsPerSec.gatekeeper] },
-      { name: 'DetCordon', color: PALETTE.detcordon, values: [BENCH.requestsPerSec.detcordon] },
+      { name: 'Plain WordPress', color: PALETTE.wordpress, values: [BENCH.requestsPerSecConcurrent.wordpress] },
+      { name: 'Gatekeeper', color: PALETTE.gatekeeper, values: [BENCH.requestsPerSecConcurrent.gatekeeper] },
+      { name: 'DetCordon', color: PALETTE.detcordon, values: [BENCH.requestsPerSecConcurrent.detcordon] },
     ]}
   />
 </ChartPanel>
 
+**Read this chart carefully.** Under 20 concurrent connections, the three
+configurations look surprisingly close (14.4 vs 13.2 vs 12.4 req/s) —
+*much* closer than the latency chart above would suggest. That's because
+this benchmark's WordPress origin (PHP's built-in single-threaded dev
+server, chosen so all three configs share one identical, honestly-labeled
+origin) is itself the bottleneck at this concurrency level: it can't
+process requests fast enough for the front door's overhead to be the
+limiting factor. This is a real, useful data point — it shows that when
+your origin is the bottleneck, the *relative* cost of your front door
+matters less — but it is not the number to use for capacity planning
+against a real production origin (php-fpm, object caching, a CDN in
+front). The single-connection latency numbers above are the honest signal
+for per-request overhead; this chart is the honest signal for
+"what happens when the origin can't keep up," which is a different,
+also-useful question.
+
 ### Where DetCordon's time actually goes
 
 <ChartPanel
-  title="Time breakdown — one DetCordon request"
-  subtitle="Decomposed from the three-way comparison above: gatekeeper's overhead approximates the pure network/proxy cost; everything DetCordon adds on top of that is CRS rule evaluation."
+  title="Time breakdown — one DetCordon request (p50)"
+  subtitle="Derived, not separately profiled: gatekeeper's own measured overhead over baseline stands in for the pure proxy/network cost; the rest of DetCordon's overhead is attributed to CRS rule evaluation."
 >
   <DonutChart
     unit=" ms"
-    centerLabel={`${(BENCH.detcordonTimeBreakdownMs.wordpress + BENCH.detcordonTimeBreakdownMs.proxyOverhead + BENCH.detcordonTimeBreakdownMs.modsecurity).toFixed(1)}`}
+    centerLabel={`${(BENCH.detcordonTimeBreakdownMs.wordpress + BENCH.detcordonTimeBreakdownMs.proxyOverhead + BENCH.detcordonTimeBreakdownMs.modsecurity).toFixed(0)}`}
     centerSublabel="ms total"
     segments={[
       { label: 'WordPress itself', value: BENCH.detcordonTimeBreakdownMs.wordpress, color: PALETTE.wordpress },
@@ -126,43 +157,45 @@ which is exactly the traffic you'd want inspected most.
   />
 </ChartPanel>
 
-The rule engine is the story. WordPress's own response time and the raw
-network hop barely move between configurations — the entire cost of
-DetCordon is the deliberate choice to run the full CRS ruleset against both
-the request *and* the response, which most WAF deployments skip on the
-response side. DetCordon doesn't skip it, because the response is often
-where an actual exploit attempt or data leak shows up.
+The rule engine is most of the story, even at the p50 (median) request —
+and per the latency chart above, its share of the total only grows at the
+tail. WordPress's own response time and the raw network hop barely move
+between configurations; the bulk of DetCordon's overhead is the deliberate
+choice to run the full CRS ruleset against both the request *and* the
+response, which most WAF deployments skip on the response side. DetCordon
+doesn't skip it, because the response is often where an actual exploit
+attempt or data leak shows up.
 
-### Added resource footprint
+### Resource footprint
 
 <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '4px 24px'}}>
 
-<ChartPanel title="Added memory (RSS)" subtitle="Beyond the shared WordPress baseline">
+<ChartPanel title="Memory (RSS)" subtitle="Sampled directly from each proxy's process">
   <DonutChart
     unit=" MB"
     segments={[
-      { label: 'Gatekeeper', value: BENCH.addedMemoryMb.gatekeeper, color: PALETTE.gatekeeper },
-      { label: 'DetCordon', value: BENCH.addedMemoryMb.detcordon, color: PALETTE.detcordon },
+      { label: 'Gatekeeper', value: BENCH.memoryMb.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.memoryMb.detcordon, color: PALETTE.detcordon },
     ]}
   />
 </ChartPanel>
 
-<ChartPanel title="Added CPU under load" subtitle="Sampled during the concurrent run">
+<ChartPanel title="CPU under load" subtitle="Measured via /proc CPU-time deltas during a concurrent run">
   <DonutChart
     unit="%"
     segments={[
-      { label: 'Gatekeeper', value: BENCH.addedCpuPct.gatekeeper, color: PALETTE.gatekeeper },
-      { label: 'DetCordon', value: BENCH.addedCpuPct.detcordon, color: PALETTE.detcordon },
+      { label: 'Gatekeeper', value: BENCH.cpuPctUnderLoad.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.cpuPctUnderLoad.detcordon, color: PALETTE.detcordon },
     ]}
   />
 </ChartPanel>
 
-<ChartPanel title="Added disk footprint" subtitle="Binary + rule set / dependencies, beyond WordPress itself">
+<ChartPanel title="Disk footprint" subtitle="Binary (+ CRS ruleset + libmodsecurity for DetCordon)">
   <DonutChart
     unit=" MB"
     segments={[
-      { label: 'Gatekeeper', value: BENCH.addedDiskMb.gatekeeper, color: PALETTE.gatekeeper },
-      { label: 'DetCordon', value: BENCH.addedDiskMb.detcordon, color: PALETTE.detcordon },
+      { label: 'Gatekeeper', value: BENCH.diskMb.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.diskMb.detcordon, color: PALETTE.detcordon },
     ]}
   />
 </ChartPanel>
@@ -171,31 +204,61 @@ where an actual exploit attempt or data leak shows up.
   <DonutChart
     unit=" KB/s"
     segments={[
-      { label: 'Plain WordPress', value: BENCH.transferKbSec.wordpress, color: PALETTE.wordpress },
-      { label: 'Gatekeeper', value: BENCH.transferKbSec.gatekeeper, color: PALETTE.gatekeeper },
-      { label: 'DetCordon', value: BENCH.transferKbSec.detcordon, color: PALETTE.detcordon },
+      { label: 'Plain WordPress', value: BENCH.transferKbSecConcurrent.wordpress, color: PALETTE.wordpress },
+      { label: 'Gatekeeper', value: BENCH.transferKbSecConcurrent.gatekeeper, color: PALETTE.gatekeeper },
+      { label: 'DetCordon', value: BENCH.transferKbSecConcurrent.detcordon, color: PALETTE.detcordon },
     ]}
   />
 </ChartPanel>
 
 </div>
 
-DetCordon's larger disk and memory footprint is almost entirely the OWASP
-CRS ruleset and the ModSecurity engine holding it in memory — that's the
-price of the same inspection depth that costs you the latency above. It is
-not a leak or an inefficiency to fix; it's the ruleset.
+The CPU and latency-tail story line up: DetCordon's process spends real,
+measurable CPU time evaluating rules (5x gatekeeper's), and that's exactly
+where the tail-latency cost above comes from. Disk and memory footprint,
+by contrast, turned out much closer between the two than intuition
+suggests — modern ModSecurity + a trimmed CRS ruleset is not a heavyweight
+dependency; the *runtime* cost is where the real price is paid, not the
+install size.
 
 ### How this was measured
 
-Three identical WordPress origins (SQLite-backed, no MySQL) served by PHP's
-built-in server, each fronted by one of the three configurations above,
-running on the same host. Latency was measured single-connection to isolate
-per-request overhead from WordPress's own ceiling; throughput was measured
-at 20 concurrent connections. CPU and memory were sampled from the relevant
-proxy process during the concurrent run. This measures **added overhead**,
-not absolute production throughput — a real deployment behind php-fpm and a
-production-grade origin will have different absolute numbers, but the
-*relative* cost of each front door should hold.
+One fresh, stock WordPress install (latest core, official SQLite Database
+Integration plugin, no MySQL, no custom theme or plugins beyond the
+default) served by PHP 8.4's built-in single-threaded development server,
+fronted by three genuinely-running, release-build binaries on the same
+host and port-separated: plain (`:9000`), gatekeeper's real `rust-gateway`
+release binary (`:9001`), and DetCordon's real `waf` release binary
+(`:9002`) loaded with the actual, unmodified OWASP Core Rule Set (`ab`'s
+own error log confirmed zero rule-load failures, and a synthetic
+SQL-injection-shaped request was sent to confirm the CRS-loaded `waf`
+process actually processed it through the rule engine before passing it
+through, per `DetectionOnly`).
+
+Load was generated with Apache Bench (`ab`): a single-connection run
+(`-n 200 -c 1`) for the latency percentiles, and a 20-concurrent-connection
+run (`-n 1000 -c 20`) for throughput and bandwidth. CPU was measured as a
+true elapsed-time CPU-percentage (via `/proc/[pid]/stat` utime+stime deltas
+across a fixed sampling window that overlapped a live load run, not `ps`'s
+misleading since-process-start average), and memory as resident set size
+(`VmRSS`) directly from `/proc/[pid]/status`. Disk figures are each
+binary's actual file size, plus (for DetCordon) the linked
+`libmodsecurity.so` and the CRS ruleset's own on-disk size — common
+transitively-shared system libraries (OpenSSL, libcurl, and so on, which
+virtually any server already has installed) are excluded from that figure
+as not meaningfully attributable to either product.
+
+**Read the caveat under the throughput chart above before treating the
+concurrent-run req/sec numbers as a capacity-planning input** — a
+single-threaded PHP dev server was a deliberate, honestly-disclosed choice
+(it's the one origin every configuration could share identically, with
+nothing WordPress-specific in the way), but it becomes the bottleneck under
+concurrency, which compresses the differences between front doors at that
+specific point. The single-connection latency percentiles are the cleaner
+signal for per-request overhead specifically; a production deployment
+behind php-fpm and a real database will have different absolute numbers for
+all three configurations, but there's no reason to expect the *relative*
+cost of each front door to change in kind, only in scale.
 
 ---
 
@@ -216,9 +279,10 @@ give each detonation a hardware-isolated, disposable environment with a
 hard TTL. Anything a compromised process drops — a webshell, a
 dropper, a C2 payload — gets hashed, encrypted to your key, and shipped to
 a separate sink host as evidence, automatically. The [performance numbers
-above](#performance-metrics) are the honest cost of that depth: roughly
-20-60ms of added latency at the percentiles that matter, in exchange for
-inspecting a response body most WAFs never look at.
+above](#performance-metrics) are the honest cost of that depth: tens of
+milliseconds of added latency at the median, growing sharply at the tail
+under load, in exchange for inspecting a response body most WAFs never look
+at.
 
 ### Ethos — why trust it
 
@@ -267,8 +331,9 @@ read-only except `wp-content/uploads` (enforced by `harden_runtime_fs.sh`),
 dangerous PHP functions are disabled at the runtime level, and `auditd`
 rules watch the immutable tree for anything that shouldn't change. The
 [performance numbers above](#performance-metrics) show why this is
-sustainable at scale: sub-millisecond overhead at every percentile, because
-it isn't running a rule engine against every byte — it's closing a specific,
+sustainable at scale: a couple of milliseconds of added latency at the
+median, no meaningful tail-latency growth under load, because it isn't
+running a rule engine against every byte — it's closing a specific,
 well-understood door.
 
 ### Ethos — why trust it
