@@ -99,9 +99,10 @@ handoff.
 | HITL approvals (Discord / email) | 🟢 complete | Discord webhook and SMTP approval notifications for held actions. | [Art 14](https://artificialintelligenceact.eu/article/14/) |
 | Manifest signing (Ed25519 / PKCS#11) | 🟢 complete | Software signer plus PKCS#11/SoftHSM2-backed signing for tamper-evident replica manifests. | [Art 12](https://artificialintelligenceact.eu/article/12/) |
 | ComplianceReporter + DoC + freeze | 🟢 complete | JSON and Markdown reports, Annex V declaration export, readiness statement, and a `sha256sum`-verifiable freeze bundle. | [Art 11](https://artificialintelligenceact.eu/article/11/) / [Art 47](https://artificialintelligenceact.eu/article/47/) |
+| Pharo HITL gateway (`HumanOversightGateway`) | 🟢 complete | Pharo polling bridge: submits hold to governance-node, polls `/oversight/fetch/:id` every 5 s, returns `#approved` / `#denied` / `#timeout` (safe-default). `KAGPApprovalQueue` Spec2 presenter gives reviewers a live IDE widget. WIT stubs (`request_approval`, `fetch_request`) fully implemented. | [Art 14](https://artificialintelligenceact.eu/article/14/) |
 | Unix-socket agent ingress | ⚪ planned | Local co-resident agent transport without a TCP hop. | — |
 | TLS termination / SSE proxy reference | ⚪ planned | Documented production edge pattern for HTTPS and browser-facing streams. | — |
-| Pharo-WASM bridge | ⚪ planned | Direct bridge from the Pharo orchestration layer to the Rust governance component. | — |
+| Pharo-WASM direct bridge | ⚪ planned | Zero-copy bridge from the Pharo orchestration layer directly into the Rust WASM component (no HTTP hop). | — |
 
 ## Technologies used
 
