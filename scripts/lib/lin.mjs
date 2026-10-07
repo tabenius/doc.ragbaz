@@ -209,6 +209,20 @@ export function traitAgreement(trueRows, predRows) {
 }
 
 /** The correlation matrix alone, exposed so it can be checked against Pearson. */
+/**
+ * Column-wise centring: subtract each column's mean.
+ *
+ * correlationMatrix called this and it was never defined, so the function threw on
+ * every invocation. It was exported, referenced by the trait work, and had never
+ * actually been run — which is the same failure this project keeps hitting, an
+ * exported function that looks load-bearing because something references it.
+ */
+export const centre = rows => {
+  const n = rows.length, k = rows[0].length;
+  const mu = Array.from({ length: k }, (_, j) => rows.reduce((s, r) => s + r[j], 0) / n);
+  return rows.map(r => r.map((v, j) => v - mu[j]));
+};
+
 export function correlationMatrix(P, Q) {
   const k = P[0].length;
   const Mp = centre(P), Mq = centre(Q);
