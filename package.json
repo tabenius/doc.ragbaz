@@ -14,7 +14,11 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "verify": "npm run lint:md && npm run typecheck && npm run build"
+    "verify": "npm run lint:md && npm run typecheck && npm run build",
+    "precision": "node scripts/precision-study.mjs",
+    "precision:verify": "node scripts/precision-study.mjs --verify",
+    "test:numerics": "node scripts/exact.test.mjs",
+    "test:numerics:selftest": "node -e \"import('./scripts/lib/lin.mjs').then(m=>{const r=m.selfTest();const ok=r.agreeIdentity===1&&Math.abs(r.ac1)<0.05&&Math.abs(r.ac3)<0.05&&r.ridgeTargets.every(t=>t.squaredError<1e-20);console.log(ok?'  lin.mjs selfTest ok':'  lin.mjs selfTest FAILED');process.exit(ok?0:1)})\""
   },
   "dependencies": {
     "@docusaurus/core": "3.10.1",

@@ -11,6 +11,131 @@
 export const mean = v => v.reduce((a, b) => a + b, 0) / v.length;
 export const sum = v => v.reduce((a, b) => a + b, 0);
 
+/* ── precision ladder ────────────────────────────────────────────────────────
+   Three levels, cheapest first, so the cost of accuracy is visible rather than
+   asserted. None of these changes the algorithm; they change how the arithmetic
+   inside it is carried out.
+
+   L0  plain float64 accumulation.
+   L1  Neumaier compensated summation: the lost low-order bits are kept and added
+       back at the end, which removes the O(n·eps) growth of a long sum.
+   L2  double-double: a value carried as (hi, lo) whose sum is accurate to roughly
+       106 bits, built on error-free transformations rather than FMA so it works
+       everywhere at the cost of several times the multiplications.
+*/
+
+/** Error-free sum of two doubles: hi + lo is the exact value of a + b. */
+export const twoSum = (a, b) => {
+  const s = a + b;
+  const bb = s - a;
+  const lo = (a - (s - bb)) + (b - bb);
+  return [s, lo];
+};
+
+/** Error-free product of two doubles, by Dekker splitting. */
+export const twoProd = (a, b) => {
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a === 0 || b === 0) return [a * b, 0];
+  const SPLIT = 134217729; // 2^27 + 1
+  const c = SPLIT * a, ahi = c - (c - a), alo = a - ahi;
+  const d = SPLIT * b, bhi = d - (d - b), blo = b - bhi;
+  const p = a * b;
+  const lo = ((ahi * bhi - p) + ahi * blo + alo * bhi) + alo * blo;
+  return [p, lo];
+};
+
+export const dd = (hi = 0, lo = 0) => ({ hi, lo });
+export const ddZero = () => dd(0, 0);
+export const ddFrom = x => dd(x, 0);
+export const ddVal = a => a.hi + a.lo;
+export const ddNeg = a => dd(-a.hi, -a.lo);
+
+export const ddSub = (a, b) => ddAdd(a, ddNeg(b));
+export const ddAdd = (a, b) => {
+  const [s, e] = twoSum(a.hi, b.hi);
+  const [t, f] = twoSum(a.lo, b.lo);
+  const [u, g] = twoSum(s, t);
+  return dd(u, e + (f + g));
+};
+export const ddMul = (a, b) => {
+  const [p, e] = twoProd(a.hi, b.hi);
+  const e2 = a.hi * b.lo + a.lo * b.hi;
+  const [s, f] = twoSum(p, e + e2);
+  return dd(s, f + a.lo * b.lo);
+};
+
+/** Neumaier compensated sum. */
+export function neumaier(values) {
+  let sum = 0, c = 0;
+  for (const v of values) {
+    const t = sum + v;
+    c += Math.abs(sum) >= Math.abs(v) ? (sum - t) + v : (v - t) + sum;
+    sum = t;
+  }
+  return sum + c;
+}
+
+/** Dot product at a chosen level, so the level is visible where it is chosen. */
+export function dot(a, b, level = 'L0') {
+  if (level === 'L0') {
+    let s = 0;
+    for (let i = 0; i < a.length; i++) s += a[i] * b[i];
+    return s;
+  }
+  if (level === 'L1') return neumaier(a.map((v, i) => v * b[i]));
+  let acc = ddZero();
+  for (let i = 0; i < a.length; i++) acc = ddAdd(acc, ddMul(ddFrom(a[i]), ddFrom(b[i])));
+  return ddVal(acc);
+}
+
+/**
+ * Solve with iterative refinement: solve, form the residual in higher precision,
+ * correct, repeat.
+ *
+ * Refinement is the useful instrument in a precision study because its convergence
+ * order is measurable. Forming the residual in precision p while solving the
+ * correction in precision q < p contracts the error by roughly (unit roundoff)^(p-q)
+ * per sweep, so the observed order should sit near that value. An implementation
+ * that stalls shows an order near zero — a property of the arithmetic, not the
+ * method — and that is exactly what this is here to detect.
+ */
+export function solveRefined(A, b, { sweeps = 0, residualLevel = 'L1' } = {}) {
+  const n = b.length;
+  let x = solve(A, b);
+  const history = [];
+  for (let s = 0; s < sweeps; s++) {
+    // The residual must be more accurate than the solution, or there is nothing to
+    // refine with. Neumaier on the individual terms is what makes it so.
+    const r = b.map((bi, i) => neumaier([bi, ...A[i].map((aij, j) => -aij * x[j])]));
+    const d = solve(A, r);
+    const next = x.map((v, i) => v + d[i]);
+    const change = Math.max(...x.map((v, i) => Math.abs(next[i] - v)));
+    x = next;
+    history.push({ sweep: s + 1, residualInf: Math.max(...r.map(Math.abs)), change });
+  }
+  return { x, history, residualLevel };
+}
+
+/** Observed convergence order from a residual history, by least squares on log-log. */
+export function convergenceOrder(history) {
+  if (history.length < 2) return null;
+  // An exact zero in the correction means the solve has converged and the sequence has
+  // stopped; taking log(0) there produces -Infinity and poisons the regression into
+  // reporting nothing. Use the strictly decreasing prefix only.
+  const usable = [];
+  for (let i = 1; i < history.length; i++) {
+    const a = history[i - 1].change, b = history[i].change;
+    if (!(a > 0) || !(b > 0) || !(b < a)) break;
+    usable.push([Math.log(a), Math.log(b)]);
+  }
+  if (usable.length < 2) return null;
+  const pts = usable;
+  const n = pts.length;
+  const sx = pts.reduce((s, [x]) => s + x, 0), sy = pts.reduce((s, [, y]) => s + y, 0);
+  const sxx = pts.reduce((s, [x]) => s + x * x, 0), sxy = pts.reduce((s, [x, y]) => s + x * y, 0);
+  const den = n * sxx - sx * sx;
+  return den === 0 ? null : (n * sxy - sx * sy) / den;
+}
+
 /** Solve A x = b by Gaussian elimination with partial pivoting.
  *
  * Used for ridge rather than an eigendecomposition. The previous Jacobi routine
@@ -151,6 +276,18 @@ export function normalSource(seed) {
     spare = y * f;
     return x * f;
   };
+}
+
+/**
+ * Uniform source on (0,1), independent of normalSource.
+ *
+ * Both existed and only normalSource was exported, so callers needing a uniform had
+ * to guess — and one of them passed normal draws to Math.floor to pick a bucket,
+ * which silently produced negative exponents for half the draws. Supplying the
+ * generator a caller is entitled to assume removes the guess.
+ */
+export function uniformSource(seed) {
+  return mulberry32(seed);
 }
 
 /** Lag-1 and lag-3 autocorrelation of a sample; ~0 for independent draws. */
