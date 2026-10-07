@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verification cheaper than trust — concept network</title>
+<style>
+  :root{
+    --ink:#14110c; --paper:#efe3c2; --gold:#b98b2e; --ochre:#c2661f; --blue:#3d6f8e;
+    --pos:#4f7a3a; --neg:#a8443a; --bound:#6b6255; --rule:#cbbb95;
+    --measure:34rem;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --ink:#efe3c2; --paper:#17140f; --gold:#d9a83f; --ochre:#e0813a;
+           --blue:#6fa8c9; --pos:#7fae5e; --neg:#d4736a; --bound:#9a9184; --rule:#3d362a; }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);
+    font:16px/1.55 ui-serif,Georgia,"Iowan Old Style",serif}
+  body{padding:0 0 4rem}
+
+  header{padding:2.2rem 1.4rem 1rem;max-width:64rem;margin:0 auto}
+  h1{font-size:1.9rem;line-height:1.2;margin:0 0 .35rem;font-weight:600}
+  .sub{color:var(--gold);font-size:.86rem;letter-spacing:.06em;text-transform:uppercase}
+  .lede{max-width:var(--measure);margin:.9rem 0 0;font-size:1.02rem}
+
+  nav.controls{position:sticky;top:0;z-index:20;background:var(--paper);
+    border-bottom:1px solid var(--rule);padding:.5rem 1.4rem;display:flex;gap:.4rem;
+    flex-wrap:wrap;align-items:center;max-width:64rem;margin:0 auto}
+  nav.controls .spacer{flex:1}
+  button{font:600 .74rem/1.3 ui-sans-serif,system-ui,sans-serif;letter-spacing:.05em;
+    text-transform:uppercase;background:transparent;color:var(--ink);
+    border:1px solid var(--rule);padding:.4rem .6rem;cursor:pointer;border-radius:2px}
+  button:hover{border-color:var(--gold)}
+  button[aria-pressed="true"],button.active{background:var(--gold);color:var(--paper);
+    border-color:var(--gold)}
+  button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .state{font:400 .72rem/1.3 ui-monospace,monospace;color:var(--bound)}
+
+  main{max-width:64rem;margin:0 auto;padding:1.4rem}
+  .view{display:none}
+  .view.on{display:block}
+
+  figure{margin:0 0 2rem}
+  figcaption{font-size:.86rem;color:var(--bound);max-width:var(--measure);margin-top:.7rem}
+  figcaption .cap-key{color:var(--gold);letter-spacing:.05em;text-transform:uppercase;
+    font-size:.7rem;font-weight:600;display:block;margin-bottom:.2rem}
+  svg#net{width:100%;height:auto;display:block;background:
+    radial-gradient(circle at 50% 46%, rgba(185,139,46,.07), transparent 62%)}
+
+  /* Reading mode: bigger, wider, sequential. The network stays; prose leads. */
+  body.reading{--measure:46rem}
+  body.reading .lede,body.reading figcaption{font-size:1.02rem;max-width:46rem}
+  body.reading h1{font-size:2.3rem}
+  body.reading #net{max-width:52rem}
+
+  .ring-label{font:600 .58rem/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.14em;
+    text-transform:uppercase;fill:var(--bound)}
+  .node circle{stroke:var(--paper);stroke-width:1.5}
+  .node text{font:500 10px/1 ui-sans-serif,system-ui,sans-serif;fill:var(--ink);
+    paint-order:stroke;stroke:var(--paper);stroke-width:3px;stroke-linejoin:round}
+  body.folk .node text{font-size:11px}
+  .node.focus circle{stroke:var(--blue);stroke-width:3}
+  .node.dim{opacity:.22}
+  .edge{fill:none;stroke-linecap:round}
+  .edge.pos{stroke:var(--pos)} .edge.neg{stroke:var(--neg)} .edge.bound{stroke:var(--bound)}
+  .edge.refuted{stroke:var(--bound);stroke-dasharray:3 4}
+  .hit{cursor:pointer}
+  canvas{display:block;width:100%;height:320px;background:#0d0f10;border:1px solid var(--rule)}
+  .legend{display:flex;gap:1rem;flex-wrap:wrap;font:400 .74rem/1.4 ui-sans-serif,system-ui,sans-serif;
+    color:var(--bound);margin:.6rem 0 0}
+  .legend b{display:inline-block;width:1.6rem;vertical-align:middle;margin-right:.35rem;
+    border-top-width:3px;border-top-style:solid}
+  .legend .k-pos{border-color:var(--pos)} .legend .k-neg{border-color:var(--neg)}
+  .legend .k-bound{border-color:var(--bound)}
+  .legend .k-ref{border-color:var(--bound);border-top-style:dashed}
+  .panel{border:1px solid var(--rule);padding:.9rem 1rem;margin:0 0 1.4rem;max-width:var(--measure)}
+  .panel h2{font-size:1.05rem;margin:0 0 .5rem}
+  .panel p{margin:0 0 .6rem}
+  dl.args{margin:0} dl.args dt{font-weight:600;margin-top:.6rem}
+  dl.args dd{margin:.15rem 0 0;color:var(--gold)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  kbd{font:600 .72rem ui-monospace,monospace;border:1px solid var(--rule);
+    border-bottom-width:2px;padding:.05rem .3rem;border-radius:3px}
+
+  @media print{
+    @page{margin:14mm}
+    nav.controls,.noprint{display:none!important}
+    html,body{background:#fff;color:#000}
+    svg#net{max-width:100%;height:auto}
+    .edge{stroke-width:1.1}
+    .node text{font-size:9px;fill:#000;stroke:#fff}
+    .ring-label{fill:#555}
+    canvas{filter:grayscale(1) contrast(1.15)}
+    figure{break-inside:avoid;page-break-inside:avoid}
+    .panel{border-color:#bbb}
+    a{color:#000;text-decoration:none}
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="sub">Alpha figure · not peer reviewed</p>
+  <h1>Verification must be cheaper than trust</h1>
+  <p class="lede">A weighted concept network for the claim in §7 of the review draft:
+     that the binding constraint on oversight is the <em>cost of checking</em>, not the
+     reliability of the checker. Edge colour is sign, thickness is weight, rings are
+     distance from the claim.</p>
+</header>
+
+<nav class="controls" aria-label="View and mode controls">
+  <button id="v-net"   class="active" data-view="net"   aria-pressed="true">Network</button>
+  <button id="v-heat"  data-view="heat"  aria-pressed="false">Heatmap</button>
+  <button id="v-scope" data-view="scope" aria-pressed="false">Oscilloscope</button>
+  <span class="spacer"></span>
+  <button id="m-reg"   aria-pressed="false">Register: paper</button>
+  <button id="m-read"  aria-pressed="false">Reading mode</button>
+  <button id="m-print" aria-pressed="false">Print view</button>
+</nav>
+
+<main>
+
+<!-- ─────────────────────────── network ─────────────────────────── -->
+<section class="view on" id="view-net">
+  <figure>
+    <svg id="net" viewBox="0 0 1000 760" role="img"
+         aria-label="Weighted concept network. The central claim, surrounded by concentric rings of cognitive mechanisms, empirical results, technical constructs and moral-political consequences. A full textual description follows.">
+      <desc id="netdesc"></desc>
+    </svg>
+    <figcaption id="cap-net">
+      <span class="cap-key" id="capkey-net">Figure 1</span>
+      <span id="captext-net"></span>
+    </figcaption>
+    <p class="legend" aria-hidden="true">
+      <span><b class="k-pos"></b>supports / reinforces</span>
+      <span><b class="k-neg"></b>opposes / undermines</span>
+      <span><b class="k-bound"></b>bounds (limits the claim)</span>
+      <span><b class="k-ref"></b>asserted, later refuted</span>
+    </p>
+  </figure>
+
+  <div class="panel noprint" id="detail" aria-live="polite">
+    <h2 id="d-title">Select a node</h2>
+    <p id="d-body">Every node is focusable. Arrow keys move between them; Enter or
+      Space pins the detail panel to that node.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────── heatmap ─────────────────────────── -->
+<section class="view" id="view-heat">
+  <figure>
+    <canvas id="heat" width="1200" height="620"
+      role="img" aria-label="Scrolling heatmap of supervision cost against system reliability over simulated working time."></canvas>
+    <figcaption id="cap-heat">
+      <span class="cap-key" id="capkey-heat">Figure 2</span>
+      <span id="captext-heat"></span>
+    </figcaption>
+  </figure>
+  <div class="panel noprint">
+    <h2>What is plotted</h2>
+    <p>Vertical axis: trust in the assistant, 0 → 1. Horizontal: time on task.
+      Cell brightness is the modelled rate at which a supervisor <em>verifies</em>.
+      The model is a caricature on purpose — one learning-by-doing term, one
+      automation-bias term, one cost term — and it exists to make a shape visible,
+      not to be a model of anyone.</p>
+  </div>
+</section>
+
+<!-- ───────────────────────── oscilloscope ───────────────────────── -->
+<section class="view" id="view-scope">
+  <figure>
+    <canvas id="scope" width="1200" height="480"
+      role="img" aria-label="Oscilloscope trace of two channels: supervisor attention residue, and the agent's completion signal."></canvas>
+    <figcaption id="cap-scope">
+      <span class="cap-key" id="capkey-scope">Figure 3</span>
+      <span id="captext-scope"></span>
+    </figcaption>
+  </figure>
+  <div class="panel noprint">
+    <h2>Two channels, one discontinuity</h2>
+    <p>Upper trace: attention residue for a supervisor, decaying after each
+      interruption. Lower trace: the agent's discrete completion signal. The claim is
+      not that residue is large — it is that the supervisor pays for it in real time
+      while the agent's cost of being interrupted is zero.</p>
+  </div>
+</section>
+
+<!-- ─────────────────────────── argument ─────────────────────────── -->
+<section class="view" id="view-argue">
+  <div class="panel">
+    <h2>The claim, in both registers</h2>
+    <dl class="args" id="args"></dl>
+  </div>
+</section>
+
+</main>
+
+<script>
+"use strict";
+/* ─────────────────────────── data ───────────────────────────
+   Nodes carry two labels: `paper` for a figure in a paper, `folk` for the
+   same thing said to a person. The register is a mode, not a second document —
+   one vocabulary, two ways of entering it. */
+
+const R = {CLAIM:0, COG:1, EMP:2, TECH:3, MORAL:4};
+
+const NODES = [
+  // ring 0 — the claim itself
+  {id:"claim", ring:0, r:46,
+   paper:"Verification cheaper than trust",
+   folk:"Checking has to be easier than believing",
+   folkNote:"If checking costs more than accepting, people accept. That is about the interface, not about you.",
+   paperNote:"The binding constraint on oversight is the marginal cost of verification relative to the marginal cost of acceptance; a supervision surface that inverts this ratio produces unmonitored operation."},
+
+  // ring 1 — cognitive mechanisms
+  {id:"fitts", ring:1, r:58, paper:"Fitts's law (1954)", folk:"Bigger, closer targets are faster",
+   folkNote:"The most durable result in interface design. Any supervision screen is first a pointing problem.",
+   paperNote:"Movement time scales with log(distance/target size). Supervision is a target-acquisition task and inherits the same cost function."},
+  {id:"wm", ring:1, r:52, paper:"Working memory ≈ 4±1 (Cowan 2001)", folk:"You can hold about four things at once",
+   folkNote:"Miller's seven was a misreading. Under time pressure and high stakes it shrinks further — which is when checking matters most.",
+   paperNote:"Revised chunk limits; capacity contracts under time pressure, inversely to the stakes at which verification is most needed."},
+  {id:"recog", ring:1, r:50, paper:"Recognition ≫ recall", folk:"Pointing beats remembering",
+   folkNote:"Picking an answer from a visible set is far cheaper than recalling it. Hence: show state, do not ask people to hold it.",
+   paperNote:"Retrieval cost dominates cued recall; visibility of system status is therefore an empirical requirement rather than a heuristic preference."},
+  {id:"residue", ring:1, r:54, paper:"Attention residue (Lepper 1976; Leroy 2009)", folk:"Part of your mind stays behind",
+   folkNote:"You switch task and part of your attention stays on the old one — on the old one, not the new one.",
+   paperNote:"Task switching leaves residual attention on the prior task; supervisors are structurally the most interruptible role in an agentic organisation."},
+  {id:"interrupt", ring:1, r:50, paper:"Interruption cost rises with complexity (Mark 2008)", folk:"Deep work costs more to break",
+   folkNote:"The headline twenty-minute figure is an average for interrupted people, and flatters the prepared.",
+   paperNote:"Resumption cost scales with task depth; reported means conflate self-selected batching with genuine interruption."},
+  {id:"transfer", ring:1, r:48, paper:"Explanation can impede transfer (Clark 1955)", folk:"Explaining too much can hurt",
+   folkNote:"The snow-tire study: shown the action, people transferred better than people told why.",
+   paperNote:"Elaboration during training reduced subsequent transfer; the canonical finding that motivated worked examples."},
+  {id:"discount", ring:1, r:50, paper:"Delay discounting / delay aversion", folk:"Waiting now versus later",
+   folkNote:"ADHD often shows an aversion to delay, not merely steep discounting. Different thing, different design.",
+   paperNote:"Discounting and delay aversion are distinct parameters; conflating them yields contradictory findings in ADHD populations."},
+
+  // ring 2 — empirical findings and the epistemic limits
+  {id:"dtt", ring:2, r:48, paper:"Self-determination theory (Deci & Ryan 1985)", folk:"Autonomy, competence, relatedness",
+   folkNote:"The best-supported account of why people keep doing something without being paid for it.",
+   paperNote:"Autonomy, competence and relatedness predict which motivational interventions survive contact with a competent user."},
+  {id:"undermine", ring:2, r:50, paper:"Extrinsic reward undermines intrinsic motivation (Deci 1999)", folk:"Paying for something can stop you wanting it",
+   folkNote:"Only for work already found interesting — which is most project work.",
+   paperNote:"Meta-analytic: expected tangible rewards undermine intrinsic motivation for interesting tasks; the effect reverses for uninteresting tasks."},
+  {id:"sluiter", ring:2, r:48, paper:"Effort–recovery imbalance (Sluiter 2006)", folk:"What you recover for",
+   folkNote:"Recovery after the work predicts burnout better than hours worked.",
+   paperNote:"Recovery is the operational predictor of burnout; shortening tasks without changing recovery does not address it."},
+  {id:"burnout", ring:2, r:52, paper:"Burnout (Maslach; JD-R)", folk:"Worn down, not tired",
+   folkNote:"A system that raises throughput without raising resources makes this worse, not better.",
+   paperNote:"Demands and resources are independent axes; assistance can raise demand without raising resource, with no mechanism for recovery."},
+  {id:"ceiling", ring:2, r:52, paper:"Reliability ceiling R² ≤ r²", folk:"You cannot beat a noisy measure",
+   folkNote:"If a questionnaire agrees with itself only 75% of the time, no model predicts it better than about 56%.",
+   paperNote:"For a target with test–retest reliability r, attainable R² is bounded by r²; with r ∈ [0.7,0.8] the ceiling is 0.49–0.64, and is routinely unreported."},
+  {id:"depletion", ring:2, r:46, paper:"Ego depletion — REPLICATION FAILED", folk:"Willpower as a used-up tank: not supported",
+   folkNote:"Large multi-lab replications did not find the effect. Anything resting on it should be treated as unsupported.",
+   paperNote:"Core effect and its manipulation both failed large collaborative replication; the mechanism is retained in circulation without support."},
+  {id:"calib", ring:2, r:48, paper:"Trust calibration", folk:"Knowing when not to believe it",
+   folkNote:"Trust is not one thing; it is different for different failure modes, and a system wrong in a pattern is worse than one wrong at random.",
+   paperNote:"Calibration is type-specific; aggregate trust obscures the systematic-versus-random distinction that governs appropriate reliance."},
+
+  // ring 3 — technical constructs
+  {id:"stream", ring:3, r:50, paper:"x(t) = A·p + ε", folk:"The stream, the five numbers, and the noise",
+   folkNote:"Personality as a low-dimensional structure inside a very high-dimensional signal.",
+   paperNote:"Trait scores enter as a rank-5 column space; estimation is ordinary least squares in that subspace."},
+  {id:"subspace", ring:3, r:48, paper:"Rank-5 affine subspace", folk:"A five-dimensional shape in a big space",
+   folkNote:"Whether that shape is real, or an artefact of averaging, is the research question.",
+   paperNote:"col(A) is the estimable subspace; identifiability requires A to have rank 5 and be separable from within-person variance."},
+  {id:"rkhs", ring:3, r:48, paper:"RKHS and the oracle property", folk:"A space where the best guess has a name",
+   folkNote:"The optimal predictor lies in the chosen space if and only if the truth lies there.",
+   paperNote:"Györfi et al.: H contains the optimal predictor iff f ∈ H; kernel choice therefore encodes a hypothesis about the signal."},
+  {id:"select", ring:3, r:50, paper:"High-dimensional selection (FWER)", folk:"Trying everything and believing nothing",
+   folkNote:"A rich feature set against a five-number target needs a real error-rate control, not a sweep.",
+   paperNote:"Selection dominates inference at these dimensionalities; knockoffs or stability selection required for any claimed discovery."},
+  {id:"gamma", ring:3, r:48, paper:"sRGB γ nonlinearity", folk:"Colours lie before you measure them",
+   folkNote:"Brightness values are non-linear. Any linear model applied to them is fitting the curve, not the person.",
+   paperNote:"Colour matrices are linear in linearised RGB; applied to gamma-encoded values the nonlinearity is absorbed as apparent signal."},
+  {id:"sensor", ring:3, r:48, paper:"Low-cost sensing ($1–$20)", folk:"Cheap cameras lie differently",
+   folkNote:"Fixed focus, small aperture, rolling shutter. Adequate for motion and brightness; not for expression.",
+   paperNote:"At this budget the binding constraint is sensor physics; the correct response is to reduce dimensionality at the front end rather than to model harder."},
+
+  // ring 4 — consequences
+  {id:"agency", ring:4, r:54, paper:"Agency", folk:"Still your call",
+   folkNote:"The thing that goes when checking costs more than believing.",
+   paperNote:"Attributable authorship of outcomes; the quantity no current metric observes."},
+  {id:"moralluck", ring:4, r:48, paper:"Moral luck (Williams; Thomas)", folk:"Being lucky counts as if it were good",
+   folkNote:"When the system carries the capability, the credit and the blame have nowhere to land.",
+   paperNote:"Constitutive and resultant moral luck; assistance relocates both, without resolving either."},
+  {id:"value", ring:4, r:48, paper:"Objective value theory", folk:"Worth isn't only what you feel",
+   folkNote:"If a choice is right regardless of how it feels, then assistance can improve outcomes and still be a loss.",
+   paperNote:"Value-ladenness is contested; the design question survives either answer."},
+  {id:"group", ring:4, r:48, paper:"Group dynamics", folk:"What a team becomes good at",
+   folkNote:"Teams learn to check the things that are cheap to check, and stop checking the rest.",
+   paperNote:"Norms consolidate around observed behaviour; unmonitored paths become unmonitored as a matter of convention."},
+  {id:"team", ring:4, r:48, paper:"Team composition", folk:"Who you staff with",
+   folkNote:"Adding high-agency reviewers is not the same as raising the cost of verification.",
+   paperNote:"Composition changes throughput; it does not change the marginal cost of checking, which is what the claim is about."},
+  {id:"society", ring:4, r:52, paper:"Institutional drift", folk:"What settles into routine",
+   folkNote:"Unmonitored paths normalise. That is the part that outlives the tool.",
+   paperNote:"Absent-cost paths become convention, and convention outlives the tooling that created it."},
+];
+
+/* sign: +1 supports, -1 undermines, 0 bounds (a limit rather than a direction),
+   'refuted' = asserted in the literature and later failed replication. */
+const EDGES = [
+  {a:"claim", b:"fitts",       s:+1, w:.75},
+  {a:"claim", b:"wm",          s:+1, w:.70},
+  {a:"claim", b:"recog",       s:+1, w:.72},
+  {a:"claim", b:"agency",      s:-1, w:.95},
+  {a:"fitts",  b:"select",     s:+1, w:.45},
+  {a:"wm",     b:"calib",      s:+1, w:.40},
+  {a:"recog",  b:"wm",         s:+1, w:.50},
+  {a:"residue",b:"interrupt",  s:+1, w:.72},
+  {a:"interrupt",b:"burnout",  s:+1, w:.70},
+  {a:"interrupt",b:"agency",   s:-1, w:.55},
+  {a:"residue",b:"agency",     s:-1, w:.58},
+  {a:"transfer",b:"claim",     s:+1, w:.38},
+  {a:"discount",b:"agency",    s:-1, w:.35},
+  {a:"dtt",    b:"undermine",  s:+1, w:.50},
+  {a:"undermine",b:"team",     s:-1, w:.55},
+  {a:"sluiter",b:"burnout",    s:+1, w:.78},
+  {a:"burnout",b:"team",       s:-1, w:.50},
+  {a:"burnout",b:"society",    s:-1, w:.45},
+  {a:"ceiling",b:"stream",     s: 0, w:.85},
+  {a:"depletion",b:"claim",    s:"refuted", w:.40},
+  {a:"calib",  b:"agency",     s:-1, w:.62},
+  {a:"calib",  b:"society",    s:-1, w:.40},
+  {a:"stream", b:"subspace",   s:+1, w:.80},
+  {a:"subspace",b:"rkhs",      s:+1, w:.55},
+  {a:"rkhs",   b:"select",     s:+1, w:.50},
+  {a:"select", b:"ceiling",    s: 0, w:.48},
+  {a:"gamma",  b:"stream",     s:-1, w:.58},
+  {a:"sensor", b:"stream",     s: 0, w:.60},
+  {a:"sensor", b:"subspace",   s:-1, w:.45},
+  {a:"stream", b:"agency",     s:-1, w:.60},
+  {a:"subspace",b:"agency",    s:+1, w:.52},
+  {a:"agency", b:"moralluck",  s:+1, w:.70},
+  {a:"agency", b:"group",      s:+1, w:.65},
+  {a:"group",  b:"team",       s:+1, w:.58},
+  {a:"team",   b:"society",    s:+1, w:.52},
+  {a:"moralluck",b:"value",    s:+1, w:.55},
+  {a:"value",  b:"society",    s:+1, w:.40},
+  {a:"group",  b:"moralluck",  s:+1, w:.42},
+];
+
+const RING_LABEL = {
+  0:["the claim", "the claim"],
+  1:["cognitive mechanism", "how attention fails"],
+  2:["empirical result / limit", "what the evidence says"],
+  3:["technical construct", "how it might be measured"],
+  4:["consequence", "what it costs us"],
+};
+
+const CAPTIONS = {
+  paper: {
+    net: "Weighted concept network for the verification-cost claim. Node radius denotes argumentative distance from the claim; concentric rings partition cognitive mechanisms (1), empirical results and their limits (2), technical constructs (3) and moral-political consequences (4). Edge sign is denoted by hue, magnitude by stroke width, and an edge dashed rather than solid indicates a relation asserted in the literature and subsequently failed to replicate. The terminal negative edge from the claim to agency marks the operative failure mode.",
+    heat: "Modelled verification rate as a function of trust in the assistant and elapsed task time. Brightness is the modelled probability that a supervisor independently checks an output. The qualitative feature is the asymmetry of the surface: the region in which trust exceeds verification cost is broad and grows with time, whereas the region in which checking is habitual is narrow and transient.",
+    scope: "Supervisor attention residue (upper) against the agent's discrete completion signal (lower). Residue decays exponentially in elapsed time since interruption, with an amplitude proportional to the interrupted task's depth. The agent's signal is sampled at completion and carries no residue, because the agent pays no resumption cost for being interrupted."
+  },
+  folk: {
+    net: "What hangs off the claim, and how strongly. Bigger circles sit further from the middle. Green lines push the claim up, red lines push it down, grey lines are limits on it, and dashed lines are things people believed that turned out not to hold. The one thick red line — checking being expensive makes agency your problem — is the whole argument.",
+    heat: "How often someone checks, as trust builds and time passes. Bright means more checking. Watch the bright band shrink: as trust grows the urge to check fades, and the urge to check is not coming back on its own.",
+    scope: "Top line: how much of your attention is still stuck on the previous task. Bottom line: the agent saying “done”. The agent pays nothing for being interrupted. You pay full price every time."
+  }
+};
+
+/* ─────────────────────── deterministic layout ───────────────────────
+   Rings by construction; angle by index with a fixed golden offset. No RNG, so
+   the figure is byte-stable across reloads and identical in print. */
+const CX = 500, CY = 380;
+const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+const pos = {};
+(function layout(){
+  const byRing = {};
+  for (const n of NODES) (byRing[n.ring] ||= []).push(n);
+  for (const [ring, list] of Object.entries(byRing)) {
+    const R0 = byId.claim.r;
+    const rr = [0, R0 + 94, R0 + 204, R0 + 316, R0 + 430][ring];
+    list.forEach((n, i) => {
+      if (ring === 0) { pos[n.id] = { x: CX, y: CY }; return; }
+      const a = (i / list.length) * Math.PI * 2 - Math.PI / 2 + ring * 0.37;
+      const wob = 1 + 0.10 * Math.sin(i * 2.399 + ring);   // deterministic jitter
+      pos[n.id] = { x: CX + Math.cos(a) * rr * wob, y: CY + Math.sin(a) * rr * 0.86 * wob };
+    });
+  }
+  // A few relaxation passes: repulsion only, no attraction, so rings survive.
+  for (let it = 0; it < 60; it++) {
+    for (let i = 0; i < NODES.length; i++) for (let j = i + 1; j < NODES.length; j++) {
+      const a = pos[NODES[i].id], b = pos[NODES[j].id];
+      let dx = b.x - a.x, dy = b.y - a.y; let d = Math.hypot(dx, dy) || 0.01;
+      const want = NODES[i].r + NODES[j].r + 34;
+      if (d < want) {
+        const push = (want - d) / d * 0.5;
+        a.x -= dx * push; a.y -= dy * push; b.x += dx * push; b.y += dy * push;
+      }
+    }
+  }
+  // Re-centre on the claim so relaxation cannot drift the whole figure off-canvas.
+  const dx = CX - pos.claim.x, dy = CY - pos.claim.y;
+  for (const n of NODES) { pos[n.id].x += dx; pos[n.id].y += dy; }
+})();
+
+/* ───────────────────────────── render ───────────────────────────── */
+const SVGNS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("net");
+const el = (t, a = {}) => { const n = document.createElementNS(SVGNS, t);
+  for (const k in a) n.setAttribute(k, a[k]); return n; };
+let state = { view:"net", register:"paper", reading:false, print:false, focus:null };
+
+function edgeClass(e){
+  return e.s === "refuted" ? "edge refuted" : e.s > 0 ? "edge pos" : e.s < 0 ? "edge neg" : "edge bound";
+}
+function edgeWidth(e){ return (e.s === "refuted" ? 1.2 : e.s === 0 ? 1.4 : 1.4 + e.w * 4.2); }
+function nodeColor(n){ return ["var(--gold)","var(--blue)","var(--ochre)","var(--blue)","var(--bound)"][n.ring]; }
+
+function drawNet(){
+  // Clear only what drawNet added. `svg.textContent = ""` also destroys <desc>,
+  // which lives inside the <svg> and is the accessible name for the figure — so the
+  // first redraw deletes the description and every later one throws on it.
+  svg.querySelectorAll(":scope > g, :scope > circle, :scope > text").forEach(n => n.remove());
+  // ring circles + labels
+  const radii = [46, 140, 250, 362, 476];
+  radii.forEach((r, i) => {
+    svg.appendChild(el("circle", { cx:CX, cy:CY, r, fill:"none",
+      stroke:"var(--rule)", "stroke-width": i === 0 ? 1 : .6,
+      "stroke-dasharray": i === 0 ? "" : "2 6", opacity: .8 }));
+    const lab = el("text", { class:"ring-label", x: CX + 4, y: CY - r + (i === 0 ? -8 : 11),
+      "text-anchor":"middle" });
+    lab.textContent = RING_LABEL[i][state.register === "paper" ? 0 : 1];
+    svg.appendChild(lab);
+  });
+
+  const gE = el("g", {}), gN = el("g", {});
+  svg.appendChild(gE); svg.appendChild(gN);
+
+  for (const e of EDGES) {
+    const a = pos[e.a], b = pos[e.b];
+    const line = el("line", { class: edgeClass(e), x1:a.x, y1:a.y, x2:b.x, y2:b.y,
+      "stroke-width": edgeWidth(e), "data-a":e.a, "data-b":e.b });
+    gE.appendChild(line);
+  }
+  for (const n of NODES) {
+    const p = pos[n.id];
+    const g = el("g", { class:"node hit", tabindex:"0", role:"button",
+      "aria-label": (state.register === "paper" ? n.paper : n.folk),
+      "data-id": n.id });
+    const cx = Math.max(40, Math.min(960, p.x)), cy = Math.max(30, Math.min(730, p.y));
+    g.appendChild(el("circle", { cx, cy, r: n.r * 0.42, fill: nodeColor(n), opacity:.92 }));
+    const t = el("text", { x:cx, y:cy + (n.ring === 0 ? 4 : -n.r*0.42 - 6),
+      "text-anchor":"middle" });
+    t.textContent = state.register === "paper" ? n.paper : n.folk;
+    g.appendChild(t);
+    g.addEventListener("click", () => setFocus(n.id));
+    g.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); setFocus(n.id); }
+      if (ev.key === "ArrowRight" || ev.key === "ArrowDown") move(1);
+      if (ev.key === "ArrowLeft"  || ev.key === "ArrowUp")   move(-1);
+    });
+    gN.appendChild(g);
+  }
+  document.getElementById("captext-net").textContent = CAPTIONS[state.register].net;
+  document.getElementById("capkey-net").textContent = state.register === "paper" ? "Figure 1" : "Figure 1 — plain";
+  document.getElementById("netdesc").textContent =
+    NODES.map((n,i) => `${i+1}. ${n.paper} (ring ${n.ring})`).join("; ") + ". Edges: " +
+    EDGES.map(e => `${e.a} ${e.s === "refuted" ? "refuted" : e.s > 0 ? "supports" : e.s < 0 ? "opposes" : "bounds"} ${e.b}`).join("; ");
+  document.body.classList.toggle("folk", state.register === "folk");
+  if (state.focus) setFocus(state.focus);
+}
+
+function move(dir){
+  const i = NODES.findIndex(n => n.id === state.focus);
+  const next = NODES[(i + dir + NODES.length) % NODES.length];
+  setFocus(next.id);
+  svg.querySelector(`[data-id="${next.id}"]`)?.focus();
+}
+
+function setFocus(id){
+  state.focus = id;
+  const n = byId[id];
+  const paper = state.register === "paper";
+  document.getElementById("d-title").textContent = paper ? n.paper : n.folk;
+  document.getElementById("d-body").textContent  = paper ? n.paperNote : n.folkNote;
+  const linked = EDGES.filter(e => e.a === id || e.b === id);
+  document.getElementById("d-body").textContent += "  " + linked.map(e => {
+    const other = byId[e.a === id ? e.b : e.a];
+    const dirn = e.a === id ? "→" : "←";
+    const kind = e.s === "refuted" ? "asserted, later refuted" : e.s > 0 ? "supports"
+               : e.s < 0 ? "opposes" : "bounds";
+    return `${dirn} ${paper ? other.paper : other.folk} (${kind})`;
+  }).join("; ") + ".";
+  svg.querySelectorAll(".node").forEach(g => {
+    g.classList.toggle("focus", g.dataset.id === id);
+    const on = !id || g.dataset.id === id || linked.some(e => e.a === g.dataset.id || e.b === g.dataset.id);
+    g.classList.toggle("dim", !on);
+  });
+}
+
+/* ───────────────────────── canvas views ─────────────────────────
+   Vector for the figure; raster only where the thing is inherently a time
+   series, which is the actual justification for canvas and not a preference. */
+function heat(){
+  const c = document.getElementById("heat"), g = c.getContext("2d");
+  const W = c.width, H = c.height, COLS = 60, ROWS = 26;
+  let t = 0;
+  function frame(){
+    if (state.view !== "heat") return;
+    t += 0.006;
+    const img = g.createImageData(W, H);
+    for (let px = 0; px < W; px++) {
+      const trust = px / W;                       // horizontal: trust 0→1
+      for (let py = 0; py < H; py++) {
+        const depth = py / H;                    // vertical: task depth
+        const learned = 1 - Math.exp(-3.2 * (0.25 + t * 0.6));   // learning by doing
+        const bias = Math.pow(trust, 3.1);        // automation bias
+        const cost = 0.85 * depth + 0.35;         // checking cost
+        const rate = Math.max(0, Math.min(1, learned * (1 - bias) / cost));
+        const i = (py * W + px) * 4;
+        img.data[i]     = 22 + rate * 233;
+        img.data[i + 1] = 24 + rate * 205;
+        img.data[i + 2] = 28 + rate * 120;
+        img.data[i + 3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    g.fillStyle = "rgba(240,236,225,.85)"; g.font = "11px ui-monospace,monospace";
+    g.fillText("trust →", W - 90, H - 10);
+    g.save(); g.translate(14, H / 2); g.rotate(-Math.PI / 2);
+    g.fillText("task depth →", -46, 0); g.restore();
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+function scope(){
+  const c = document.getElementById("scope"), g = c.getContext("2d");
+  const W = c.width, H = c.height;
+  const marks = []; let last = 0, t0 = performance.now();
+  function frame(now){
+    if (state.view !== "scope") return;
+    const t = (now - t0) / 1000;
+    if (t - last > 1.9) { marks.push(t); last = t; }
+    g.fillStyle = "#0d0f10"; g.fillRect(0, 0, W, H);
+    g.strokeStyle = "#2a2f33"; g.lineWidth = 1;
+    for (let i = 1; i < 4; i++){ g.beginPath(); g.moveTo(0, H*i/4); g.lineTo(W, H*i/4); g.stroke(); }
+
+    // upper: residue
+    g.strokeStyle = "#c2661f"; g.lineWidth = 1.8; g.beginPath();
+    for (let x = 0; x < W; x += 2) {
+      const tt = t - (1 - x / W) * 22;
+      let r = 0;
+      for (const m of marks) { const dt = tt - m; if (dt > 0) r += Math.exp(-dt / 6.5) * (0.55 + 0.25 * Math.random() * 0); }
+      r = Math.min(1, r);
+      const y = H * 0.44 - r * H * 0.32;
+      x ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+    // lower: agent completions
+    g.strokeStyle = "#3d6f8e"; g.lineWidth = 1.4; g.beginPath();
+    for (let x = 0; x < W; x += 1) {
+      const tt = t - (1 - x / W) * 22;
+      const on = marks.some(m => Math.abs(tt - m) < 0.12);
+      g.moveTo(x, H * 0.80); g.lineTo(x, on ? H * 0.66 : H * 0.80);
+    }
+    g.stroke();
+    g.fillStyle = "rgba(240,236,225,.9)"; g.font = "11px ui-monospace,monospace";
+    g.fillText("attention residue (human)", 10, 18);
+    g.fillText("completion signal (agent)", 10, H * 0.60);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ─────────────────────────── modes ─────────────────────────── */
+function setView(v){
+  state.view = v;
+  document.querySelectorAll(".view").forEach(s => s.classList.toggle("on", s.id === "view-" + v));
+  document.querySelectorAll("[data-view]").forEach(b => {
+    const on = b.dataset.view === v;
+    b.classList.toggle("active", on); b.setAttribute("aria-pressed", on);
+  });
+  if (v === "heat") heat();
+  if (v === "scope") scope();
+  if (v === "argue") drawArgs();
+}
+function setRegister(r){
+  state.register = r;
+  document.getElementById("m-reg").textContent = "Register: " + (r === "paper" ? "paper" : "plain");
+  document.getElementById("m-reg").setAttribute("aria-pressed", r === "folk");
+  drawNet(); drawArgs();
+  document.getElementById("captext-heat").textContent  = CAPTIONS[r].heat;
+  document.getElementById("captext-scope").textContent = CAPTIONS[r].scope;
+}
+function drawArgs(){
+  const host = document.getElementById("args");
+  const paper = state.register === "paper";
+  const rows = [
+    ["Claim", "If c(v) is the cost of verifying an output and c(t) the cost of accepting it, oversight persists only while c(v) < c(t). Reversing the inequality does not produce a less careful organisation; it produces an unmonitored one."],
+    ["Necessary", "Some bound on c(v) is necessary. Nothing else restores oversight once the comparison flips."],
+    ["Not sufficient", "A low c(v) does not produce good judgement. It produces the possibility of it."],
+    ["Falsifiable by", "An instrumented setting where verification cost is raised without reducing reliance, and reliance is still observed. That result would refute the claim as stated."],
+    ["Weakest joint", "The premise that acceptance is a decision. If acceptance is involuntary under time pressure, the claim describes a constraint rather than a choice, and the remedy is interruption budgeting rather than interface work."],
+  ];
+  host.textContent = "";
+  for (const [k, v] of rows) {
+    const dt = document.createElement("dt"); dt.textContent = paper ? k : k;
+    const dd = document.createElement("dd"); dd.textContent = paper ? v : plainify(v);
+    host.append(dt, dd);
+  }
+}
+function plainify(s){
+  return s.replace(/c\(v\)/g,"the cost of checking").replace(/c\(t\)/g,"the cost of accepting")
+          .replace(/—/g,"—").replace(/\boversight\b/g,"checking things").replace(/\bfalsifiable\b/g,"wrong when");
+}
+
+document.getElementById("m-reg").onclick   = () => setRegister(state.register === "paper" ? "folk" : "paper");
+document.getElementById("m-read").onclick  = e => {
+  state.reading = !state.reading; document.body.classList.toggle("reading", state.reading);
+  e.currentTarget.setAttribute("aria-pressed", state.reading);
+};
+document.getElementById("m-print").onclick = e => {
+  state.print = !state.print; e.currentTarget.setAttribute("aria-pressed", state.print);
+  document.documentElement.dataset.print = state.print ? "on" : "off";
+  if (state.print) { document.getElementById("capkey-heat").textContent = "Figure 2"; setView("net"); }
+};
+document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => setView(b.dataset.view));
+
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  if (e.key === "r") setRegister(state.register === "paper" ? "folk" : "paper");
+  if (e.key === "1") setView("net");   if (e.key === "2") setView("heat");
+  if (e.key === "3") setView("scope"); if (e.key === "4") setView("argue");
+  if (e.key === "d") document.getElementById("m-read").click();
+  if (e.key === "p") document.getElementById("m-print").click();
+});
+
+/* Pointer chooses the view: the rail is the menu. Deliberately only over the rail,
+   never over the canvas, so a stray move cannot switch view mid-measurement. */
+let rail = null;
+function railHover(e){
+  const b = e.target.closest?.("[data-view]");
+  if (b && rail !== b.dataset.view) { rail = b.dataset.view; setView(rail); }
+}
+document.querySelector("nav.controls").addEventListener("mouseover", railHover);
+document.querySelector("nav.controls").addEventListener("mouseleave", () => { rail = null; });
+
+setRegister("paper");
+setView("net");
+drawArgs();
+</script>
+</body>
+</html>
