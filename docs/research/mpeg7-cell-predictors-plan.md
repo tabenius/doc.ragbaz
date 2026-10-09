@@ -1,3 +1,9 @@
+---
+title: "MPEG-7 cell predictors — implementation plan"
+sidebar_label: "MPEG-7 cell predictors — implementation plan"
+description: "Plan for recomputing the MPEG-7 cell predictors in Rust, laptop first and then ESP32."
+---
+
 # MPEG-7 cell predictors — implementation plan
 
 For recomputing every predictor used in **Abenius, *Classification of Cell Images

@@ -1,3 +1,9 @@
+---
+title: "Arousal calibration"
+sidebar_label: "Arousal calibration"
+description: "Chapter on discriminating good stress from bad, and calibrating yourself or your agent."
+---
+
 # Arousal calibration
 
 ## A chapter on moderate arousal, discriminating good stress from bad, and

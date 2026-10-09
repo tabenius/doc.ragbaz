@@ -1,3 +1,9 @@
+---
+title: "Meta-analysis series — implementation plan, v2"
+sidebar_label: "Meta-analysis series — implementation plan, v2"
+description: "Second-generation plan for the trait-subspace meta-analysis series."
+---
+
 # Meta-analysis series — implementation plan, v2
 
 Supersedes the plan implied by `agency-assistance-review.md`. That draft was a single

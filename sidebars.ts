@@ -120,6 +120,18 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Research',
+      items: [
+        'research/numerical-verification',
+        'research/arousal-calibration',
+        'research/agency-assistance-review',
+        'research/mpeg7-cell-predictors-plan',
+        'research/v2-plan',
+        'research/doc-ragbaz-scope-proposal',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Drafts',
       items: [
         {type: 'link', label: 'Font Chooser', href: '/drafts/font-chooser'},

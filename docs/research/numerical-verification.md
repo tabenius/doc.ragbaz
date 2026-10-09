@@ -1,3 +1,9 @@
+---
+title: "Numerical verification"
+sidebar_label: "Numerical verification"
+description: "Why a residual cannot certify a linear solve, and measuring the numerics against exact rational arithmetic instead."
+---
+
 # Numerical verification
 
 Everything in the research code that produces a coefficient is measured against exact
