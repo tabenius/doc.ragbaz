@@ -196,4 +196,5 @@ resolving before the pipeline is designed around building this site.
 - Who owns the PDF target?
 - Should `spec-phoneme-app.mdx` and `spec-audio-sink.mdx`, currently unreachable
   drafts, become real projects? See frog task `sensehub-dsp-spec-reconciliation`
-  — the Phoneme spec describes the same DSP that `sensehub/dsp/` implements.
+  — the Phoneme spec describes the same DSP that `sensehub/dsp/` implements. The
+  companion proposal is `sensehub/docs/remote-android-audio-integration.md`.
