@@ -145,6 +145,6 @@ Pharo-WASM bridge. Those are tracked on the
 [integration backlog](../experiments/kagp-integration-plan.md), and the project
 repo for the current implementation detail.*
 
-See also the [_Tractatus Custodicus_](https://ragbaz.cc/tractatus) — a formal account of the platform
+See also the [*Tractatus Custodicus*](https://ragbaz.cc/tractatus) — a formal account of the platform
 structured as numbered propositions in the style of Wittgenstein, detailing the policy dialect,
 audit chain, and compliance crosswalk against the EU AI Act.

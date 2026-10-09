@@ -52,7 +52,7 @@ either site and not a general commercial-offer/SKU design — that is
 
 ## 2. Goals / Non-Goals
 
-**Goals**
+### Goals
 - One consistent DetCordon story across `ragbaz.cc` and `doc.ragbaz.cc`,
   matching the real product, real pricing frame, and real maturity.
 - A working, low-friction way for an interested prospect to reach a human
@@ -61,7 +61,7 @@ either site and not a general commercial-offer/SKU design — that is
   (`containment-assurance.md`, `buyer-demo-runbook.md`) that already exists
   but currently sits unlinked inside the repo.
 
-**Non-Goals**
+### Non-Goals
 - Self-serve checkout or automated provisioning. DetCordon's own non-goals
   (`doc/commercial-handoff.md` §9, `doc/containment-assurance.md` "Non-Goals")
   explicitly exclude multi-tenant SaaS deployment, and a two-host

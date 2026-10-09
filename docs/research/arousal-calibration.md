@@ -1,7 +1,7 @@
 # Arousal calibration
 
-### A chapter on moderate arousal, discriminating good stress from bad, and
-### calibrating yourself or your agent
+## A chapter on moderate arousal, discriminating good stress from bad, and
+## calibrating yourself or your agent
 
 *For peers, caregivers, and anyone who has ever tried to fix a bad mood and made
 the day worse.*
