@@ -1,20 +1,30 @@
 {
-  "$schema": "../docs/schemas/ragbaz.component.schema.json",
-  "schemaVersion": "0.1.0",
+  "$schema": "https://ragbaz.cc/schemas/ragbaz.component.schema.json",
+  "schemaVersion": "0.2.0",
   "identity": {
     "id": "ragbaz.docs-site",
     "name": "RAGBAZ Atlas Docs Site",
     "version": "0.1.0",
     "repoPath": "doc.ragbaz.cc",
+    "repository": "tabenius/doc.ragbaz",
     "owner": "ragbaz",
     "lifecycle": "production"
   },
   "commercial": {
-    "packageTags": ["docs-atlas", "sales-collateral"],
-    "personas": ["buyer", "operator", "agent-team"],
+    "packageTags": [
+      "docs-atlas",
+      "sales-collateral"
+    ],
+    "personas": [
+      "buyer",
+      "operator",
+      "agent-team"
+    ],
     "supportTier": "managed",
     "salesStatus": "demo",
-    "pricingTags": ["included-collateral"],
+    "pricingTags": [
+      "included-collateral"
+    ],
     "demoUrl": "https://ragbaz.cc/doc/"
   },
   "capabilities": {
@@ -50,7 +60,9 @@
         "name": "public-docs",
         "protocol": "https",
         "urlEnv": "RAGBAZ_DOCS_URL",
-        "capabilities": ["docs.site"],
+        "capabilities": [
+          "docs.site"
+        ],
         "auth": "none",
         "tenantScoped": false
       }
@@ -73,7 +85,9 @@
       {
         "name": "docusaurus-build",
         "description": "Docusaurus build and static deployment bundle.",
-        "capabilities": ["docs.site"]
+        "capabilities": [
+          "docs.site"
+        ]
       }
     ]
   },
@@ -90,12 +104,19 @@
     ]
   },
   "security": {
-    "authMethods": ["none"],
+    "authMethods": [
+      "none"
+    ],
     "tenantBoundary": "none",
-    "dataClasses": ["public", "logs"],
+    "dataClasses": [
+      "public",
+      "logs"
+    ],
     "secretAccess": "none",
     "revocation": "Remove HAProxy route or stop the docs container.",
-    "auditEvents": ["docs.site.deployed"]
+    "auditEvents": [
+      "docs.site.deployed"
+    ]
   },
   "health": {
     "checks": [
@@ -125,5 +146,34 @@
   },
   "metadata": {
     "candidateWave": "component-manifest-candidate-wave"
+  },
+  "presentation": {
+    "featured": {
+      "order": 70,
+      "status": "live",
+      "label": "atlas + docs",
+      "title": "product atlas / and *status*",
+      "description": "The documentation and operations surface for RAGBAZ products, specs, status checks, deployment notes, and design-system references.",
+      "tags": [
+        "ragbaz.cc/doc",
+        "status",
+        "design system"
+      ],
+      "panel": {
+        "label": "what it does",
+        "icon": "<path d=\"M12 18h18l6 6h16v22H12z\"/><path d=\"M36 18v8\"/><path d=\"M24 34h16\"/><path d=\"M24 42h12\"/>",
+        "bullets": [
+          "publishes product specs and implementation notes",
+          "keeps product status, deployment notes, and uptime information discoverable",
+          "anchors every surface to the RAGBAZ visual system"
+        ]
+      },
+      "links": [
+        {
+          "label": "atlas already lives in the main site",
+          "muted": true
+        }
+      ]
+    }
   }
 }
