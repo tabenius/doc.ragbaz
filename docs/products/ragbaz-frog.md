@@ -165,4 +165,4 @@ Active and well-tested (62+ tests). The CLI has gone through a major redesign (P
 
 ---
 
-See [Products Overview](./overview) for the full portfolio and [Infrastructure Overview](../infra/overview) for how Frog fits alongside Traefik, Infisical, and other host services.
+See [Products Overview](./overview) for the full portfolio. Frog runs alongside host services such as Traefik and Infisical.
